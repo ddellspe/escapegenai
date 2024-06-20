@@ -43,7 +43,7 @@ class SecurityConfig {
           "favicon**",
           "apple-touch-icon-**",
           "android-chrome-**",
-          "robots.txt"
+          "robots.txt",
         )
     }
   }
