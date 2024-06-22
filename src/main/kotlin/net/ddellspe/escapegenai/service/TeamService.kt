@@ -21,7 +21,7 @@ class TeamService(var teamRepository: TeamRepository) {
     return teamRepository.save(team)
   }
 
-  fun getTeam(id: UUID): Team? {
+  fun getTeam(id: UUID): Team {
     return teamRepository.findByIdOrNull(id)
       ?: throw IllegalArgumentException("Team with id=${id} does not exist.")
   }

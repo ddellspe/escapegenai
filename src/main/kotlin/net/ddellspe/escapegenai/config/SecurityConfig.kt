@@ -53,6 +53,9 @@ class SecurityConfig {
     http
       .cors { customizer -> customizer.disable() }
       .csrf { customizer -> customizer.disable() }
+      .authorizeHttpRequests { auth ->
+        auth.requestMatchers("/api/teams").permitAll().anyRequest().authenticated()
+      }
       .httpBasic { customizer ->
         customizer.authenticationEntryPoint(userAuthenticationErrorHandler())
       }
