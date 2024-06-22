@@ -26,7 +26,12 @@ data class Team(
   @JoinColumn(name = "word_id")
   var word: TeamWord = TeamWord(),
   var wordEntered: OffsetDateTime? = null,
-  @OneToOne(fetch = FetchType.LAZY, optional = true, orphanRemoval = false)
+  @OneToOne(
+    fetch = FetchType.LAZY,
+    optional = true,
+    cascade = [CascadeType.ALL],
+    orphanRemoval = false,
+  )
   @JoinColumn(name = "quote_id")
   var quote: Quote? = null,
   var quoteEntered: OffsetDateTime? = null,
@@ -40,6 +45,21 @@ data class Team(
       this.passwordEntered,
       this.wordEntered,
       this.quoteEntered,
+      this.funFactEntered,
+    )
+  }
+
+  fun toTeamContainer(): TeamContainer {
+    return TeamContainer(
+      this.id,
+      this.name,
+      this.password.id,
+      this.passwordEntered,
+      this.word.id,
+      this.wordEntered,
+      this.quote?.id,
+      this.quoteEntered,
+      this.funFactType,
       this.funFactEntered,
     )
   }

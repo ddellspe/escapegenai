@@ -5,6 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.ddellspe.escapegenai.model.MinimalTeam
 import net.ddellspe.escapegenai.model.Team
+import net.ddellspe.escapegenai.model.TeamContainer
 import net.ddellspe.escapegenai.service.TeamService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity
 
 class TeamControllerTest {
   private val team: Team = mockk()
+  private val teamContainer: TeamContainer = mockk()
   private val minimalTeam: MinimalTeam = mockk()
   private val teamService: TeamService = mockk()
   private val teamController: TeamController = TeamController(teamService)
@@ -40,12 +42,14 @@ class TeamControllerTest {
   @Test
   fun whenCreateTeam_hasValue_thenReturnTeam() {
     every { teamService.createTeam("test") } returns team
+    every { team.toTeamContainer() } returns teamContainer
 
-    val result: ResponseEntity<Team> = teamController.createTeam("test")
+    val result: ResponseEntity<TeamContainer> = teamController.createTeam("test")
 
     verify(exactly = 1) { teamService.createTeam("test") }
+    verify(exactly = 1) { team.toTeamContainer() }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(team, result.body)
+    assertEquals(teamContainer, result.body)
   }
 }
