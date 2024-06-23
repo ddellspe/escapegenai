@@ -43,7 +43,7 @@ class SecurityConfig {
           "favicon**",
           "apple-touch-icon-**",
           "android-chrome-**",
-          "robots.txt"
+          "robots.txt",
         )
     }
   }
@@ -53,6 +53,9 @@ class SecurityConfig {
     http
       .cors { customizer -> customizer.disable() }
       .csrf { customizer -> customizer.disable() }
+      .authorizeHttpRequests { auth ->
+        auth.requestMatchers("/game/**").permitAll().anyRequest().authenticated()
+      }
       .httpBasic { customizer ->
         customizer.authenticationEntryPoint(userAuthenticationErrorHandler())
       }

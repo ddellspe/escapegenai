@@ -11,7 +11,7 @@ class AppBasicAuthenticationEntryPoint : BasicAuthenticationEntryPoint() {
   override fun commence(
     request: HttpServletRequest?,
     response: HttpServletResponse?,
-    authException: AuthenticationException?
+    authException: AuthenticationException?,
   ) {
     if (request?.servletPath != "/session") {
       response?.addHeader("WWW-Authenticate", "Basic realm=$realmName")
