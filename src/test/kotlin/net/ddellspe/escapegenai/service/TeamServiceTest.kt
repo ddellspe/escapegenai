@@ -3,10 +3,7 @@ package net.ddellspe.escapegenai.service
 import io.mockk.*
 import java.time.OffsetDateTime
 import java.util.*
-import net.ddellspe.escapegenai.model.Password
-import net.ddellspe.escapegenai.model.Quote
-import net.ddellspe.escapegenai.model.Team
-import net.ddellspe.escapegenai.model.TeamWord
+import net.ddellspe.escapegenai.model.*
 import net.ddellspe.escapegenai.repository.TeamRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -29,13 +26,39 @@ class TeamServiceTest {
   }
 
   @Test
-  fun whenCreateTeam_hasName_thenReturnTeam() {
+  fun whenCreateTeam_hasNoId_thenReturnTeam() {
+    val teamContainer = TeamContainer(name = "test")
     every { teamRepository.save(match { it.name == "test" }) } returns team
 
-    val result: Team = teamService.createTeam("test")
+    val result: Team = teamService.createTeam(teamContainer)
 
     verify(exactly = 1) { teamRepository.save(match { it.name == "test" }) }
-    assertEquals(result, team)
+    assertEquals(team, result)
+  }
+
+  @Test
+  fun whenCreateTeam_hasIdInRepository_thenExpectException() {
+    val teamContainer = TeamContainer(id = id, name = "test")
+    every { teamRepository.findByIdOrNull(id) } returns team
+
+    val exception: IllegalArgumentException =
+      assertThrows<IllegalArgumentException> { teamService.createTeam(teamContainer) }
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    assertEquals("Team with id=${id} already exists, use update instead.", exception.message)
+  }
+
+  @Test
+  fun whenCreateTeam_hasIdNotInRepository_thenReturnTeam() {
+    val teamContainer = TeamContainer(id = id, name = "test")
+    every { teamRepository.findByIdOrNull(id) } returns null
+    every { teamRepository.save(match { it.name == "test" }) } returns team
+
+    val result: Team = teamService.createTeam(teamContainer)
+
+    verify(exactly = 1) { teamRepository.save(match { it.name == "test" }) }
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    assertEquals(team, result)
   }
 
   @Test

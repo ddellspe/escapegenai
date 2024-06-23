@@ -4,7 +4,7 @@ import java.time.OffsetDateTime
 import java.util.*
 
 data class TeamContainer(
-  var id: UUID? = UUID.randomUUID(),
+  var id: UUID? = null,
   var name: String,
   var passwordId: UUID? = null,
   var passwordEntered: OffsetDateTime? = null,

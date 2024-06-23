@@ -2,11 +2,50 @@ package net.ddellspe.escapegenai.model
 
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.*
 import net.ddellspe.escapegenai.util.generateParts
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class TeamTest {
+class DumbCoverageTests {
+  @Test
+  fun testContainerTests() {
+    val teamContainer = TeamContainer(name = "Test Team")
+
+    Assertions.assertEquals(null, teamContainer.passwordId)
+  }
+
+  @Test
+  fun testContainerWithErrorTests() {
+    val teamContainerWithError = TeamContainerWithError()
+
+    Assertions.assertNull(teamContainerWithError.teamContainer)
+    Assertions.assertNull(teamContainerWithError.error)
+  }
+
+  @Test
+  fun toQuoteContainerTest() {
+    val quote = Quote(UUID.randomUUID(), "quote")
+
+    val quoteContainer = QuoteContainer(quote.id, "quote")
+
+    Assertions.assertEquals(quoteContainer, quote.toQuoteContainer())
+  }
+
+  @Test
+  fun minimalTeamTest() {
+    val minimalTeam = MinimalTeam(UUID.randomUUID(), "test")
+
+    Assertions.assertEquals(null, minimalTeam.passwordEntered)
+  }
+
+  @Test
+  fun gameSubmissionTest() {
+    val gameSubmission = GameSubmission(UUID.randomUUID())
+
+    Assertions.assertEquals(null, gameSubmission.fact)
+  }
+
   @Test
   fun testToMinimalTeam() {
     val team = Team()
@@ -26,7 +65,7 @@ class TeamTest {
         team.quoteEntered,
         team.funFactEntered,
       )
-    assertEquals(expected, minimalTeam)
+    Assertions.assertEquals(expected, minimalTeam)
   }
 
   @Test
@@ -50,7 +89,7 @@ class TeamTest {
         null,
         null,
       )
-    assertEquals(expected, teamContainer)
+    Assertions.assertEquals(expected, teamContainer)
   }
 
   @Test
@@ -76,6 +115,6 @@ class TeamTest {
         null,
         null,
       )
-    assertEquals(expected, teamContainer)
+    Assertions.assertEquals(expected, teamContainer)
   }
 }

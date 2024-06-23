@@ -17,6 +17,26 @@ class GeneratorUtilsTest {
   }
 
   @Test
+  fun testWordCount() {
+    val content = generateContent("word")
+    assertEquals(20000, content.split("\\s+".toRegex()).size)
+    val words =
+      content
+        .replace("<p>", "")
+        .replace(".</p>\n", " ")
+        .split(" ")
+        .stream()
+        .map(String::lowercase)
+        .toList()
+    val counts =
+      words.distinct().associateWith { word ->
+        words.stream().filter { w -> w.equals(word) }.count()
+      }
+    assertEquals(2000, counts["word"])
+    assertEquals(2000, counts.values.max())
+  }
+
+  @Test
   fun testPasswordGenerator() {
     val password = passwordGenerator()
     assertEquals(true, password.length in 15..20)
