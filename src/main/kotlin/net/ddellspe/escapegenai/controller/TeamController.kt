@@ -20,11 +20,18 @@ class TeamController(
   var teamWordService: TeamWordService,
   var quoteService: QuoteService,
 ) {
+
+  @GetMapping("/team_details")
+  fun getTeamDetails(): ResponseEntity<List<Team>> {
+    val teams: List<Team> = teamService.getAllTeams()
+    return ResponseEntity.ok(teams)
+  }
+
   @GetMapping("/teams")
   fun getTeams(): ResponseEntity<List<MinimalTeam>> {
     val teams: List<MinimalTeam> =
       teamService.getAllTeams().stream().map { t -> t.toMinimalTeam() }.toList()
-    return ResponseEntity(teams, HttpStatus.OK)
+    return ResponseEntity.ok(teams)
   }
 
   @PostMapping("/teams")

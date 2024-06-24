@@ -47,4 +47,8 @@ class QuoteService(var quoteRepository: QuoteRepository) {
     return quoteRepository.findByIdOrNull(id)
       ?: throw IllegalArgumentException("Quote with id=${id} does not exist.")
   }
+
+  fun getAllQuotes(): List<Quote> {
+    return quoteRepository.findAll()
+  }
 }

@@ -36,6 +36,18 @@ class TeamControllerTest {
   }
 
   @Test
+  fun whenGetTeamDetails_hasTeam_thenListOfTeam() {
+    every { teamService.getAllTeams() } returns listOf(team)
+
+    val result: ResponseEntity<List<Team>> = teamController.getTeamDetails()
+
+    verify(exactly = 1) { teamService.getAllTeams() }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(team, result.body?.get(0))
+  }
+
+  @Test
   fun whenGetTeams_hasTeam_thenListOfTeam() {
     every { teamService.getAllTeams() } returns listOf(team)
     every { team.toMinimalTeam() } returns minimalTeam

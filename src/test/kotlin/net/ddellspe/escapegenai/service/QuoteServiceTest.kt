@@ -150,4 +150,25 @@ class QuoteServiceTest {
     verify(exactly = 1) { quote.toQuoteContainer() }
     assertEquals(quoteContainer, result)
   }
+
+  @Test
+  fun whenGetAllQuotes_hasNoQuotes_thenReturnEmptyList() {
+    every { quoteRepository.findAll() } returns emptyList()
+
+    val result: List<Quote> = quoteService.getAllQuotes()
+
+    verify(exactly = 1) { quoteRepository.findAll() }
+    assertEquals(emptyList<Quote>(), result)
+  }
+
+  @Test
+  fun whenGetAllQuotes_hasQuotes_thenReturnListOfQuote() {
+    every { quoteRepository.findAll() } returns listOf(quote)
+
+    val result: List<Quote> = quoteService.getAllQuotes()
+
+    verify(exactly = 1) { quoteRepository.findAll() }
+    assertEquals(1, result.size)
+    assertEquals(quote, result.first())
+  }
 }
