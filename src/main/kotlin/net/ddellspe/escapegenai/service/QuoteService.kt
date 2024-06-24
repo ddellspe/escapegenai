@@ -31,14 +31,16 @@ class QuoteService(var quoteRepository: QuoteRepository) {
     if (quoteContainer.id == null) {
       throw IllegalArgumentException("Quote does not exist, please create instead.")
     }
-    val quote =
+    var quote =
       quoteRepository.findByIdOrNull(quoteContainer.id)
         ?: throw IllegalArgumentException(
           "Quote with id=${quoteContainer.id} does not exist, please create instead."
         )
     if (quote.quote != quoteContainer.quote) {
       quote.quote = quoteContainer.quote
-      quote.quoteParts = generateParts(quote.quote)
+      quote.quoteParts.clear()
+      quote = quoteRepository.save(quote)
+      quote.quoteParts.addAll(generateParts(quote.quote))
     }
     return quoteRepository.save(quote).toQuoteContainer()
   }

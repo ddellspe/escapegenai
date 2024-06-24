@@ -114,11 +114,14 @@ class QuoteServiceTest {
   @Test
   fun whenUpdateQuote_hasQuoteNotTheSame_thenUpdateAndReturnQuote() {
     val quoteContainer = QuoteContainer(id, "quote")
-    val quotePartCapture = slot<List<QuotePart>>()
+    val quotePartCapture = slot<MutableList<QuotePart>>()
+    val quoteParts: MutableList<QuotePart> = mockk()
     every { quoteRepository.findByIdOrNull(id) } returns quote
     every { quote.quote } returns "quote2"
     every { quote.quote = "quote" } just runs
-    every { quote.quoteParts = capture(quotePartCapture) } just runs
+    every { quote.quoteParts } returns quoteParts
+    every { quoteParts.addAll(capture(quotePartCapture)) } returns true
+    every { quoteParts.clear() } just runs
     every { quoteRepository.save(quote) } returns quote
     every { quote.toQuoteContainer() } returns quoteContainer
 
@@ -127,9 +130,11 @@ class QuoteServiceTest {
     verify(exactly = 1) { quoteRepository.findByIdOrNull(id) }
     verify(exactly = 2) { quote.quote }
     verify(exactly = 1) { quote.quote = "quote" }
-    verify(exactly = 1) { quote.quoteParts = any<List<QuotePart>>() }
-    verify(exactly = 1) { quoteRepository.save(quote) }
+    verify(exactly = 2) { quote.quoteParts }
+    verify(exactly = 1) { quoteParts.addAll(any<MutableList<QuotePart>>()) }
+    verify(exactly = 2) { quoteRepository.save(quote) }
     verify(exactly = 1) { quote.toQuoteContainer() }
+    verify(exactly = 1) { quoteParts.clear() }
     assertEquals(quoteContainer, result)
     assertEquals(1, quotePartCapture.captured.size)
   }

@@ -18,7 +18,9 @@ class QuoteController(var quoteService: QuoteService) {
   }
 
   @PostMapping("/quotes")
-  fun createQuote(quoteContainer: QuoteContainer): ResponseEntity<QuoteContainerWithError> {
+  fun createQuote(
+    @RequestBody quoteContainer: QuoteContainer
+  ): ResponseEntity<QuoteContainerWithError> {
     try {
       val quote = quoteService.createQuote(quoteContainer)
       return ResponseEntity.ok(QuoteContainerWithError(quote, null))
@@ -34,7 +36,9 @@ class QuoteController(var quoteService: QuoteService) {
   }
 
   @PutMapping("/quotes")
-  fun updateQuote(quoteContainer: QuoteContainer): ResponseEntity<QuoteContainerWithError> {
+  fun updateQuote(
+    @RequestBody quoteContainer: QuoteContainer
+  ): ResponseEntity<QuoteContainerWithError> {
     try {
       val quote = quoteService.updateQuote(quoteContainer)
       return ResponseEntity.ok(QuoteContainerWithError(quote, null))

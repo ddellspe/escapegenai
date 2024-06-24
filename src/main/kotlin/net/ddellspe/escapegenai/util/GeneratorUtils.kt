@@ -32,8 +32,8 @@ fun generateRandomBs(): String {
   return FAKER.company().bs().split(" ")[0].lowercase()
 }
 
-fun generateParts(quote: String): List<QuotePart> {
-  return quote.split(" ").map { v -> QuotePart(part = v.lowercase()) }
+fun generateParts(quote: String): MutableList<QuotePart> {
+  return quote.split(" ").map { v -> QuotePart(part = v.lowercase()) }.toMutableList()
 }
 
 fun passwordGenerator(): String {
