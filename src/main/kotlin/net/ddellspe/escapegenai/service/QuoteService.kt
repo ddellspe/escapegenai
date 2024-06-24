@@ -14,15 +14,16 @@ class QuoteService(var quoteRepository: QuoteRepository) {
     if (quoteContainer.id != null) {
       if (quoteRepository.findByIdOrNull(quoteContainer.id) != null) {
         throw IllegalArgumentException(
-            "Quote with id=${quoteContainer.id} already exists, please update.")
+          "Quote with id=${quoteContainer.id} already exists, please update."
+        )
       }
     }
     val quote =
-        Quote(
-            id = quoteContainer.id ?: UUID.randomUUID(),
-            quote = quoteContainer.quote,
-            quoteParts = generateParts(quoteContainer.quote),
-        )
+      Quote(
+        id = quoteContainer.id ?: UUID.randomUUID(),
+        quote = quoteContainer.quote,
+        quoteParts = generateParts(quoteContainer.quote),
+      )
     return quoteRepository.save(quote).toQuoteContainer()
   }
 
@@ -31,9 +32,10 @@ class QuoteService(var quoteRepository: QuoteRepository) {
       throw IllegalArgumentException("Quote does not exist, please create instead.")
     }
     val quote =
-        quoteRepository.findByIdOrNull(quoteContainer.id)
-            ?: throw IllegalArgumentException(
-                "Quote with id=${quoteContainer.id} does not exist, please create instead.")
+      quoteRepository.findByIdOrNull(quoteContainer.id)
+        ?: throw IllegalArgumentException(
+          "Quote with id=${quoteContainer.id} does not exist, please create instead."
+        )
     if (quote.quote != quoteContainer.quote) {
       quote.quote = quoteContainer.quote
       quote.quoteParts = generateParts(quote.quote)
@@ -43,7 +45,7 @@ class QuoteService(var quoteRepository: QuoteRepository) {
 
   fun getQuote(id: UUID): Quote {
     return quoteRepository.findByIdOrNull(id)
-        ?: throw IllegalArgumentException("Quote with id=${id} does not exist.")
+      ?: throw IllegalArgumentException("Quote with id=${id} does not exist.")
   }
 
   fun getAllQuotes(): List<Quote> {

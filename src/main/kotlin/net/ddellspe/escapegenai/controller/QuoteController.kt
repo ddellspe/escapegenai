@@ -27,8 +27,8 @@ class QuoteController(var quoteService: QuoteService) {
       errorMap["error"] = true
       errorMap["message"] = e.message!!
       return ResponseEntity(
-          QuoteContainerWithError(quoteContainer = quoteContainer, error = errorMap),
-          HttpStatus.BAD_REQUEST,
+        QuoteContainerWithError(quoteContainer = quoteContainer, error = errorMap),
+        HttpStatus.BAD_REQUEST,
       )
     }
   }
@@ -43,8 +43,8 @@ class QuoteController(var quoteService: QuoteService) {
       errorMap["error"] = true
       errorMap["message"] = e.message!!
       return ResponseEntity(
-          QuoteContainerWithError(quoteContainer = quoteContainer, error = errorMap),
-          HttpStatus.BAD_REQUEST,
+        QuoteContainerWithError(quoteContainer = quoteContainer, error = errorMap),
+        HttpStatus.BAD_REQUEST,
       )
     }
   }

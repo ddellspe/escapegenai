@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api")
 class TeamController(
-    var teamService: TeamService,
-    var passwordService: PasswordService,
-    var teamWordService: TeamWordService,
-    var quoteService: QuoteService,
+  var teamService: TeamService,
+  var passwordService: PasswordService,
+  var teamWordService: TeamWordService,
+  var quoteService: QuoteService,
 ) {
 
   @GetMapping("/team_details")
@@ -30,13 +30,13 @@ class TeamController(
   @GetMapping("/teams")
   fun getTeams(): ResponseEntity<List<MinimalTeam>> {
     val teams: List<MinimalTeam> =
-        teamService.getAllTeams().stream().map { t -> t.toMinimalTeam() }.toList()
+      teamService.getAllTeams().stream().map { t -> t.toMinimalTeam() }.toList()
     return ResponseEntity.ok(teams)
   }
 
   @PostMapping("/teams")
   fun createTeam(
-      @RequestBody teamContainer: TeamContainer
+    @RequestBody teamContainer: TeamContainer
   ): ResponseEntity<TeamContainerWithError> {
     try {
       val team: Team = teamService.createTeam(teamContainer)
@@ -46,15 +46,15 @@ class TeamController(
       errorMap["error"] = true
       errorMap["message"] = e.message!!
       return ResponseEntity(
-          TeamContainerWithError(teamContainer = teamContainer, error = errorMap),
-          HttpStatus.BAD_REQUEST,
+        TeamContainerWithError(teamContainer = teamContainer, error = errorMap),
+        HttpStatus.BAD_REQUEST,
       )
     }
   }
 
   @PutMapping("/teams")
   fun updateTeam(
-      @RequestBody teamContainer: TeamContainer
+    @RequestBody teamContainer: TeamContainer
   ): ResponseEntity<TeamContainerWithError> {
     val errorMap: MutableMap<String, Any> = HashMap()
     if (teamContainer.id == null) {
@@ -63,7 +63,7 @@ class TeamController(
     } else if (teamContainer.passwordId == null) {
       errorMap["error"] = true
       errorMap["message"] =
-          "Team has no passwordId present, please use create to generate a password."
+        "Team has no passwordId present, please use create to generate a password."
     } else if (teamContainer.wordId == null) {
       errorMap["error"] = true
       errorMap["message"] = "Team has no wordId present, please use create to generate a word."
@@ -78,8 +78,8 @@ class TeamController(
           } catch (e: IllegalArgumentException) {
             errorMap["error"] = true
             errorMap["message"] =
-                "Password with id=${teamContainer.passwordId} not found, please create a new team " +
-                    "to generate a new password."
+              "Password with id=${teamContainer.passwordId} not found, please create a new team " +
+                "to generate a new password."
           }
         }
         if (errorMap.isEmpty() && team.word.id != teamContainer.wordId!!) {
@@ -89,21 +89,23 @@ class TeamController(
           } catch (e: IllegalArgumentException) {
             errorMap["error"] = true
             errorMap["message"] =
-                "Word with id=${teamContainer.wordId} not found, please create a new team to " +
-                    "generate a new word."
+              "Word with id=${teamContainer.wordId} not found, please create a new team to " +
+                "generate a new word."
           }
         }
-        if (errorMap.isEmpty() &&
+        if (
+          errorMap.isEmpty() &&
             teamContainer.quoteId != null &&
-            team.quote?.id != teamContainer.quoteId) {
+            team.quote?.id != teamContainer.quoteId
+        ) {
           try {
             team.quote = quoteService.getQuote(teamContainer.quoteId!!)
             team.quoteEntered = null
           } catch (e: IllegalArgumentException) {
             errorMap["error"] = true
             errorMap["message"] =
-                "Quote with id=${teamContainer.quoteId} not found, please create a new quote " +
-                    "first, then associate it with the team."
+              "Quote with id=${teamContainer.quoteId} not found, please create a new quote " +
+                "first, then associate it with the team."
           }
         }
         if (errorMap.isEmpty()) {
@@ -118,12 +120,12 @@ class TeamController(
       } catch (e: IllegalArgumentException) {
         errorMap["error"] = true
         errorMap["message"] =
-            "Team with id=${teamContainer.id} not found, please use create instead."
+          "Team with id=${teamContainer.id} not found, please use create instead."
       }
     }
     return ResponseEntity(
-        TeamContainerWithError(teamContainer = teamContainer, error = errorMap),
-        HttpStatus.BAD_REQUEST,
+      TeamContainerWithError(teamContainer = teamContainer, error = errorMap),
+      HttpStatus.BAD_REQUEST,
     )
   }
 }

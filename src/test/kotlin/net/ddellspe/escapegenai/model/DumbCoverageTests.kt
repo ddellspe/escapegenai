@@ -4,7 +4,8 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.*
 import net.ddellspe.escapegenai.util.generateParts
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class DumbCoverageTests {
@@ -12,15 +13,15 @@ class DumbCoverageTests {
   fun testContainerTests() {
     val teamContainer = TeamContainer(name = "Test Team")
 
-    Assertions.assertEquals(null, teamContainer.passwordId)
+    assertEquals(null, teamContainer.passwordId)
   }
 
   @Test
   fun testContainerWithErrorTests() {
     val teamContainerWithError = TeamContainerWithError()
 
-    Assertions.assertNull(teamContainerWithError.teamContainer)
-    Assertions.assertNull(teamContainerWithError.error)
+    assertNull(teamContainerWithError.teamContainer)
+    assertNull(teamContainerWithError.error)
   }
 
   @Test
@@ -29,21 +30,29 @@ class DumbCoverageTests {
 
     val quoteContainer = QuoteContainer(quote.id, "quote")
 
-    Assertions.assertEquals(quoteContainer, quote.toQuoteContainer())
+    assertEquals(quoteContainer, quote.toQuoteContainer())
+  }
+
+  @Test
+  fun quoteContainerWithError() {
+    val quoteContainerWithError = QuoteContainerWithError()
+
+    assertNull(quoteContainerWithError.quoteContainer)
+    assertNull(quoteContainerWithError.error)
   }
 
   @Test
   fun minimalTeamTest() {
     val minimalTeam = MinimalTeam(UUID.randomUUID(), "test")
 
-    Assertions.assertEquals(null, minimalTeam.passwordEntered)
+    assertEquals(null, minimalTeam.passwordEntered)
   }
 
   @Test
   fun gameSubmissionTest() {
     val gameSubmission = GameSubmission(UUID.randomUUID())
 
-    Assertions.assertEquals(null, gameSubmission.fact)
+    assertEquals(null, gameSubmission.fact)
   }
 
   @Test
@@ -65,7 +74,7 @@ class DumbCoverageTests {
         team.quoteEntered,
         team.funFactEntered,
       )
-    Assertions.assertEquals(expected, minimalTeam)
+    assertEquals(expected, minimalTeam)
   }
 
   @Test
@@ -89,7 +98,7 @@ class DumbCoverageTests {
         null,
         null,
       )
-    Assertions.assertEquals(expected, teamContainer)
+    assertEquals(expected, teamContainer)
   }
 
   @Test
@@ -115,6 +124,6 @@ class DumbCoverageTests {
         null,
         null,
       )
-    Assertions.assertEquals(expected, teamContainer)
+    assertEquals(expected, teamContainer)
   }
 }

@@ -25,7 +25,7 @@ class TeamControllerTest {
   private val quote: Quote = mockk()
   private val id = UUID.randomUUID()
   private val teamController: TeamController =
-      TeamController(teamService, passwordService, teamWordService, quoteService)
+    TeamController(teamService, passwordService, teamWordService, quoteService)
 
   @Test
   fun dumbCoverageTest() {
@@ -79,7 +79,7 @@ class TeamControllerTest {
   @Test
   fun whenCreateTeam_hasValueThrowsException_thenReturnError() {
     every { teamService.createTeam(teamContainer) } throws
-        IllegalArgumentException("Team with id=123456 already exists, use update instead.")
+      IllegalArgumentException("Team with id=123456 already exists, use update instead.")
 
     val result: ResponseEntity<TeamContainerWithError> = teamController.createTeam(teamContainer)
 
@@ -88,11 +88,11 @@ class TeamControllerTest {
     assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     assertEquals(teamContainer, result.body?.teamContainer)
     assertEquals(
-        mapOf(
-            "error" to true,
-            "message" to "Team with id=123456 already exists, use update instead.",
-        ),
-        result.body?.error,
+      mapOf(
+        "error" to true,
+        "message" to "Team with id=123456 already exists, use update instead.",
+      ),
+      result.body?.error,
     )
   }
 
@@ -107,8 +107,8 @@ class TeamControllerTest {
     assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     assertEquals(teamContainer, result.body?.teamContainer)
     assertEquals(
-        mapOf("error" to true, "message" to "Team has no id present, please use create instead."),
-        result.body?.error,
+      mapOf("error" to true, "message" to "Team has no id present, please use create instead."),
+      result.body?.error,
     )
   }
 
@@ -125,12 +125,11 @@ class TeamControllerTest {
     assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     assertEquals(teamContainer, result.body?.teamContainer)
     assertEquals(
-        mapOf(
-            "error" to true,
-            "message" to
-                "Team has no passwordId present, please use create to generate a password.",
-        ),
-        result.body?.error,
+      mapOf(
+        "error" to true,
+        "message" to "Team has no passwordId present, please use create to generate a password.",
+      ),
+      result.body?.error,
     )
   }
 
@@ -149,11 +148,11 @@ class TeamControllerTest {
     assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     assertEquals(teamContainer, result.body?.teamContainer)
     assertEquals(
-        mapOf(
-            "error" to true,
-            "message" to "Team has no wordId present, please use create to generate a word.",
-        ),
-        result.body?.error,
+      mapOf(
+        "error" to true,
+        "message" to "Team has no wordId present, please use create to generate a word.",
+      ),
+      result.body?.error,
     )
   }
 
@@ -174,11 +173,11 @@ class TeamControllerTest {
     assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     assertEquals(teamContainer, result.body?.teamContainer)
     assertEquals(
-        mapOf(
-            "error" to true,
-            "message" to "Team with id=${id} not found, please use create instead.",
-        ),
-        result.body?.error,
+      mapOf(
+        "error" to true,
+        "message" to "Team with id=${id} not found, please use create instead.",
+      ),
+      result.body?.error,
     )
   }
 
@@ -205,13 +204,13 @@ class TeamControllerTest {
     assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     assertEquals(teamContainer, result.body?.teamContainer)
     assertEquals(
-        mapOf(
-            "error" to true,
-            "message" to
-                "Password with id=${id} not found, please create a new team to generate a " +
-                    "new password.",
-        ),
-        result.body?.error,
+      mapOf(
+        "error" to true,
+        "message" to
+          "Password with id=${id} not found, please create a new team to generate a " +
+            "new password.",
+      ),
+      result.body?.error,
     )
   }
 
@@ -281,13 +280,12 @@ class TeamControllerTest {
     assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     assertEquals(teamContainer, result.body?.teamContainer)
     assertEquals(
-        mapOf(
-            "error" to true,
-            "message" to
-                "Word with id=${id} not found, please create a new team to generate a " +
-                    "new word.",
-        ),
-        result.body?.error,
+      mapOf(
+        "error" to true,
+        "message" to
+          "Word with id=${id} not found, please create a new team to generate a " + "new word.",
+      ),
+      result.body?.error,
     )
   }
 
@@ -441,13 +439,13 @@ class TeamControllerTest {
     assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
     assertEquals(teamContainer, result.body?.teamContainer)
     assertEquals(
-        mapOf(
-            "error" to true,
-            "message" to
-                "Quote with id=${id} not found, please create a new quote first, then associate " +
-                    "it with the team.",
-        ),
-        result.body?.error,
+      mapOf(
+        "error" to true,
+        "message" to
+          "Quote with id=${id} not found, please create a new quote first, then associate " +
+            "it with the team.",
+      ),
+      result.body?.error,
     )
   }
 

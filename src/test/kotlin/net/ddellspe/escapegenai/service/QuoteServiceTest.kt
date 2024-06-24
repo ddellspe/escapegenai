@@ -29,7 +29,7 @@ class QuoteServiceTest {
     every { quoteRepository.findByIdOrNull(id) } returns null
 
     val exception: IllegalArgumentException =
-        assertThrows<IllegalArgumentException> { quoteService.getQuote(id) }
+      assertThrows<IllegalArgumentException> { quoteService.getQuote(id) }
 
     verify(exactly = 1) { quoteRepository.findByIdOrNull(id) }
     assertEquals("Quote with id=${id} does not exist.", exception.message)
@@ -51,7 +51,7 @@ class QuoteServiceTest {
     val quoteContainer = QuoteContainer(id, "quote")
 
     val exception: IllegalArgumentException =
-        assertThrows<IllegalArgumentException> { quoteService.createQuote(quoteContainer) }
+      assertThrows<IllegalArgumentException> { quoteService.createQuote(quoteContainer) }
 
     verify(exactly = 1) { quoteRepository.findByIdOrNull(id) }
     assertEquals("Quote with id=${id} already exists, please update.", exception.message)
@@ -94,7 +94,7 @@ class QuoteServiceTest {
     val quoteContainer = QuoteContainer(null, "quote")
 
     val exception: IllegalArgumentException =
-        assertThrows<IllegalArgumentException> { quoteService.updateQuote(quoteContainer) }
+      assertThrows<IllegalArgumentException> { quoteService.updateQuote(quoteContainer) }
 
     assertEquals("Quote does not exist, please create instead.", exception.message)
   }
@@ -105,7 +105,7 @@ class QuoteServiceTest {
     val quoteContainer = QuoteContainer(id, "quote")
 
     val exception: IllegalArgumentException =
-        assertThrows<IllegalArgumentException> { quoteService.updateQuote(quoteContainer) }
+      assertThrows<IllegalArgumentException> { quoteService.updateQuote(quoteContainer) }
 
     verify(exactly = 1) { quoteRepository.findByIdOrNull(id) }
     assertEquals("Quote with id=${id} does not exist, please create instead.", exception.message)
