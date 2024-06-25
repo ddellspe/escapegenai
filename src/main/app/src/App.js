@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
+import AdminSection from "./components/AdminSection";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Typography align="center" variant="h5" component="h3" gutterBottom>
           Coming Soon!
         </Typography>
+        <AdminSection />
       </Box>
     </Container>
   );
