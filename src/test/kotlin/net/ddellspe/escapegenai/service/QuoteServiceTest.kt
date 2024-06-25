@@ -6,8 +6,7 @@ import net.ddellspe.escapegenai.model.Quote
 import net.ddellspe.escapegenai.model.QuoteContainer
 import net.ddellspe.escapegenai.model.QuotePart
 import net.ddellspe.escapegenai.repository.QuoteRepository
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
@@ -115,12 +114,14 @@ class QuoteServiceTest {
   fun whenUpdateQuote_hasQuoteNotTheSame_thenUpdateAndReturnQuote() {
     val quoteContainer = QuoteContainer(id, "quote")
     val quotePartCapture = slot<MutableList<QuotePart>>()
+    val extendedQuoteCapture = slot<String>()
     val quoteParts: MutableList<QuotePart> = mockk()
     every { quoteRepository.findByIdOrNull(id) } returns quote
     every { quote.quote } returns "quote2"
     every { quote.quote = "quote" } just runs
     every { quote.quoteParts } returns quoteParts
     every { quoteParts.addAll(capture(quotePartCapture)) } returns true
+    every { quote.extendedQuote = capture(extendedQuoteCapture) } just runs
     every { quoteParts.clear() } just runs
     every { quoteRepository.save(quote) } returns quote
     every { quote.toQuoteContainer() } returns quoteContainer
@@ -132,11 +133,13 @@ class QuoteServiceTest {
     verify(exactly = 1) { quote.quote = "quote" }
     verify(exactly = 2) { quote.quoteParts }
     verify(exactly = 1) { quoteParts.addAll(any<MutableList<QuotePart>>()) }
+    verify(exactly = 1) { quote.extendedQuote = any<String>() }
     verify(exactly = 2) { quoteRepository.save(quote) }
     verify(exactly = 1) { quote.toQuoteContainer() }
     verify(exactly = 1) { quoteParts.clear() }
     assertEquals(quoteContainer, result)
     assertEquals(1, quotePartCapture.captured.size)
+    assertTrue(extendedQuoteCapture.captured.contains(" quote. "))
   }
 
   @Test

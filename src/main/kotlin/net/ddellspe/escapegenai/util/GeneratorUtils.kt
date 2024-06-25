@@ -46,3 +46,31 @@ fun passwordGenerator(): String {
 fun passwordPageGenerator(password: String): String {
   return "<a href=\"your password is: $password\">Another link</a>"
 }
+
+fun generateExtendedQuote(quote: String): String {
+  val sb = StringBuilder()
+  sb.append(FAKER.lorem().sentence())
+  sb.append(" $quote. ")
+  sb.append(FAKER.lorem().sentence())
+  return sb.toString()
+}
+
+fun generateFakeAuthor(): String {
+  return FAKER.funnyName().name()
+}
+
+fun generateFakeAuthorTitle(): String {
+  return FAKER.job().position()
+}
+
+fun generateFakeCompanyName(): String {
+  return FAKER.company().name()
+}
+
+fun generateFakeCompanyIndustry(): String {
+  return FAKER.company().industry()
+}
+
+fun generateFakeAddress(): String {
+  return FAKER.address().fullAddress()
+}
