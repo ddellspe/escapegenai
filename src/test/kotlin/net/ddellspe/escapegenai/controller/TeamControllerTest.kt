@@ -553,4 +553,27 @@ class TeamControllerTest {
     assertEquals(teamContainer, result.body?.teamContainer)
     assertNull(result.body?.error)
   }
+
+  @Test
+  fun whenDeleteTeam_hasErrorDeleting_thenReturnError() {
+    every { teamService.deleteTeam(id) } throws IllegalArgumentException("Error")
+
+    val result: ResponseEntity<Map<String, Any>> = teamController.deleteTeam(id)
+
+    verify(exactly = 1) { teamService.deleteTeam(id) }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+    assertEquals(mapOf("error" to true, "message" to "Error"), result.body)
+  }
+
+  @Test
+  fun whenDeleteTeam_hasNoErrorDeleting_thenReturnSuccess() {
+    every { teamService.deleteTeam(id) } just runs
+
+    val result: ResponseEntity<Map<String, Any>> = teamController.deleteTeam(id)
+
+    verify(exactly = 1) { teamService.deleteTeam(id) }
+    assertNull(result.body)
+    assertEquals(HttpStatus.NO_CONTENT, result.statusCode)
+  }
 }

@@ -1,5 +1,6 @@
 package net.ddellspe.escapegenai.controller
 
+import java.util.*
 import net.ddellspe.escapegenai.model.MinimalTeam
 import net.ddellspe.escapegenai.model.Team
 import net.ddellspe.escapegenai.model.TeamContainer
@@ -127,5 +128,18 @@ class TeamController(
       TeamContainerWithError(teamContainer = teamContainer, error = errorMap),
       HttpStatus.BAD_REQUEST,
     )
+  }
+
+  @DeleteMapping("/teams/{id}")
+  fun deleteTeam(@PathVariable id: UUID): ResponseEntity<Map<String, Any>> {
+    try {
+      teamService.deleteTeam(id)
+      return ResponseEntity(null, HttpStatus.NO_CONTENT)
+    } catch (e: IllegalArgumentException) {
+      return ResponseEntity(
+        mapOf<String, Any>("error" to true, "message" to e.message!!),
+        HttpStatus.BAD_REQUEST,
+      )
+    }
   }
 }

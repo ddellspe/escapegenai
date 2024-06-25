@@ -38,6 +38,11 @@ class TeamService(var teamRepository: TeamRepository) {
     return teamRepository.findAll()
   }
 
+  fun deleteTeam(id: UUID) {
+    val team = getTeam(id)
+    teamRepository.delete(team)
+  }
+
   fun verifyTeamPassword(id: UUID, password: String): Boolean {
     val team = getTeam(id)
     if (password == team.password.password) {
