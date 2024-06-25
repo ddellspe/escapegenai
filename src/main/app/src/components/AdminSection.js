@@ -6,22 +6,30 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Fab from '@mui/material/Fab';
 import LoginIcon from '@mui/icons-material/LoginTwoTone';
 import LogoutIcon from '@mui/icons-material/LogoutTwoTone';
+import QuoteIcon from '@mui/icons-material/FormatQuoteTwoTone';
 import Snackbar from '@mui/material/Snackbar';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import LoginForm from "./LoginForm";
+import QuoteList from "./QuoteList";
 
 export default function AdminSection() {
   var creds = sessionStorage.getItem('auth');
   const [auth, setAuth] = useState(false);
   const [openSpeedDialOptions, setOpenSpeedDialOptions] = useState(false);
   const [openLoginModal, setOpenLoginModal] = useState(false);
+  const [openQuotesModal, setOpenQuotesModal] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [dataSent, setDataSent] = useState("");
   const toggleDial = () => setOpenSpeedDialOptions((open) => !open);
   const killAlert = () => {
     setDataSent("");
+  }
+  const handleOpenQuotesModal = () => {
+    setOpenSpeedDialOptions(false);
+    setOpenQuotesModal(true);
+    setOpenLoginModal(false);
   }
   const handleCloseAll = (success, message) => {
     if (typeof success === "boolean") {
@@ -29,10 +37,12 @@ export default function AdminSection() {
         setDataSent(message);
       }
     }
+    setOpenQuotesModal(false);
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(false);
   };
   const handleOpenLoginModal = () => {
+    setOpenQuotesModal(false);
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(true);
   };
@@ -74,11 +84,18 @@ export default function AdminSection() {
               FabProps={{ color:"info" }}
           >
             <SpeedDialAction
+                key="quotes"
+                icon={<QuoteIcon />}
+                tooltipTitle="Manage Quotes"
+                onClick={handleOpenQuotesModal}
+              />
+            <SpeedDialAction
                 key="logout"
                 icon={<LogoutIcon />}
                 tooltipTitle="Logout"
                 onClick={logout} />
           </SpeedDial>
+          <QuoteList opened={openQuotesModal} creds={creds} onClose={handleCloseAll} />
           <Snackbar
               anchorOrigin={{vertical:'top', horizontal: 'center'}}
               open={dataSent !== ""}

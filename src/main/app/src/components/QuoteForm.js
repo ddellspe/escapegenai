@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import {useEffect, useState} from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -11,16 +11,17 @@ import Snackbar from '@mui/material/Snackbar';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-export default function QuoteForm({opened, creds, onClose, quote}) {
-  const [id, setId] = useState(quote.id);
-  const [quoteText, setQuoteText] = useState(quote.quote);
-  const [extendedQuote, setExtendedQuote] = useState(quote.extendedQuote);
-  const [author, setAuthor] = useState(quote.author);
-  const [authorAddress, setAuthorAddress] = useState(quote.authorAddress);
-  const [authorTitle, setAuthorTitle] = useState(quote.authorTitle);
-  const [company, setCompany] = useState(quote.company);
-  const [companyAddress, setCompanyAddress] = useState(quote.companyAddress);
-  const [companyIndustry, setCompanyIndustry] = useState(quote.companyIndustry);
+export default function QuoteForm({opened, creds, onClose, quoteObj}) {
+  const [id, setId] = useState(quoteObj.id);
+  const [quote, setQuote] = useState(quoteObj.quote);
+  const [extendedQuote, setExtendedQuote] = useState(quoteObj.extendedQuote);
+  const [author, setAuthor] = useState(quoteObj.author);
+  const [authorAddress, setAuthorAddress] = useState(quoteObj.authorAddress);
+  const [authorTitle, setAuthorTitle] = useState(quoteObj.authorTitle);
+  const [company, setCompany] = useState(quoteObj.company);
+  const [companyAddress, setCompanyAddress] = useState(quoteObj.companyAddress);
+  const [companyIndustry, setCompanyIndustry] = useState(
+      quoteObj.companyIndustry);
   const [showError, setShowError] = useState(false);
   const [dataSent, setDataSent] = useState("");
   const killAlert = () => {
@@ -28,19 +29,28 @@ export default function QuoteForm({opened, creds, onClose, quote}) {
     setTimeout(() => setDataSent(""), 1000);
   }
 
-  const setScore = (event) => {
+  const setQuoteData = (event) => {
     event.preventDefault();
     const data = new FormData(event.target);
     var object = {};
-    data.forEach((value, key) => {object[key] = parseInt(value)});
+    data.forEach((value, key) => {
+      object[key] = value;
+    });
     fetch('api/quotes', {
-      method: quote.id === undefined ? 'POST' : 'PUT',
-      headers: new Headers({'Authorization': 'Basic ' + creds, 'Content-Type': 'application/json'}),
-      body: JSON.stringify(object)})
+      method: quoteObj.id === null ? 'POST' : 'PUT',
+      headers: new Headers({
+        'Authorization': 'Basic ' + creds,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(object)
+    })
     .then((resp) => {
       if (resp.ok) {
-        const action = quote.id === undefined ? "created" : "updated"
-        const msg = `Quote with id: ${id} ${action} with the quote text of ${quoteText}`;
+        console.log(quoteObj);
+        console.log(id);
+        console.log(quote);
+        const action = object.id === null ? "created" : "updated"
+        const msg = `Quote ${action} with the quote text of ${object.quote}`;
         onClose(true, msg);
         return true;
       } else {
@@ -56,23 +66,24 @@ export default function QuoteForm({opened, creds, onClose, quote}) {
   };
 
   useEffect(() => {
-    setId(quote.id);
-    setQuoteText(quote.quote);
-    setExtendedQuote(quote.extendedQuote);
-    setAuthor(quote.author);
-    setAuthorAddress(quote.authorAddress);
-    setAuthorTitle(quote.authorTitle);
-    setCompany(quote.company);
-    setCompanyAddress(quote.companyAddress);
-    setCompanyIndustry(quote.companyIndustry);
-  }, [quote]);
+    setId(quoteObj.id);
+    setQuote(quoteObj.quote);
+    setExtendedQuote(quoteObj.extendedQuote);
+    setAuthor(quoteObj.author);
+    setAuthorAddress(quoteObj.authorAddress);
+    setAuthorTitle(quoteObj.authorTitle);
+    setCompany(quoteObj.company);
+    setCompanyAddress(quoteObj.companyAddress);
+    setCompanyIndustry(quoteObj.companyIndustry);
+  }, [quoteObj]);
 
   return (
       <Dialog
           open={opened}
           onClose={onClose}
           component="form"
-          onSubmit={setScore}
+          onSubmit={setQuoteData}
+          fullWidth
           PaperProps={{
             sx: {
               position: 'fixed',
@@ -81,7 +92,8 @@ export default function QuoteForm({opened, creds, onClose, quote}) {
           }}
       >
         <DialogTitle>
-          <Grid container spacing={2} justifyContent="center" alignItems="center">
+          <Grid container spacing={2} justifyContent="center"
+                alignItems="center">
             <Grid item>
               <Typography id="quote-modal-title" variant="h5" component="h3">
                 Quote
@@ -90,90 +102,90 @@ export default function QuoteForm({opened, creds, onClose, quote}) {
           </Grid>
         </DialogTitle>
         <DialogContent>
-          <input type="hidden" name="id" value={id} />
-          <Box sx={{ width: '100%', my: 1 }}>
+          <input type="hidden" name="id" value={id === null ? undefined : id}/>
+          <Box sx={{width: '100%', my: 1}}>
             <TextField
                 label="Quote"
                 required
                 name="quote"
                 id="quote"
-                defaultValue={quoteText}
-                sx={{ mr: 1, width: '100%' }}
+                defaultValue={quote}
+                sx={{mr: 1, width: '100%'}}
             />
           </Box>
-          <Box sx={{ width: '100%', my: 1 }}>
+          <Box sx={{width: '100%', my: 1}}>
             <TextField
                 label="Extended Quote (generated)"
                 name="extendedQuote"
                 id="extendedQuote"
                 defaultValue={extendedQuote}
-                aria-readonly={true}
-                sx={{ mr: 1, width: '100%' }}
+                disabled={true}
+                sx={{mr: 1, width: '100%'}}
             />
           </Box>
-          <Box sx={{ width: '100%', my: 1 }}>
+          <Box sx={{width: '100%', my: 1}}>
             <TextField
                 label="Author (generated)"
                 name="author"
                 id="author"
                 defaultValue={author}
-                aria-readonly={true}
-                sx={{ mr: 1, width: '100%' }}
+                disabled={true}
+                sx={{mr: 1, width: '100%'}}
             />
           </Box>
-          <Box sx={{ width: '100%', my: 1 }}>
+          <Box sx={{width: '100%', my: 1}}>
             <TextField
                 label="Author Address (generated)"
                 name="authorAddress"
                 id="authorAddress"
                 defaultValue={authorAddress}
-                aria-readonly={true}
-                sx={{ mr: 1, width: '100%' }}
+                disabled={true}
+                sx={{mr: 1, width: '100%'}}
             />
           </Box>
-          <Box sx={{ width: '100%', my: 1 }}>
+          <Box sx={{width: '100%', my: 1}}>
             <TextField
                 label="Author Title (generated)"
                 name="authorTitle"
                 id="authorTitle"
                 defaultValue={authorTitle}
-                aria-readonly={true}
-                sx={{ mr: 1, width: '100%' }}
+                disabled={true}
+                sx={{mr: 1, width: '100%'}}
             />
           </Box>
-          <Box sx={{ width: '100%', my: 1 }}>
+          <Box sx={{width: '100%', my: 1}}>
             <TextField
                 label="Company (generated)"
                 name="company"
                 id="company"
                 defaultValue={company}
-                aria-readonly={true}
-                sx={{ mr: 1, width: '100%' }}
+                disabled={true}
+                sx={{mr: 1, width: '100%'}}
             />
           </Box>
-          <Box sx={{ width: '100%', my: 1 }}>
+          <Box sx={{width: '100%', my: 1}}>
             <TextField
                 label="Company Address (generated)"
                 name="companyAddress"
                 id="companyAddress"
                 defaultValue={companyAddress}
-                aria-readonly={true}
-                sx={{ mr: 1, width: '100%' }}
+                disabled={true}
+                sx={{mr: 1, width: '100%'}}
             />
           </Box>
-          <Box sx={{ width: '100%', my: 1 }}>
+          <Box sx={{width: '100%', my: 1}}>
             <TextField
                 label="Company Industry (generated)"
                 name="companyIndustry"
                 id="companyIndustry"
                 defaultValue={companyIndustry}
-                aria-readonly={true}
-                sx={{ mr: 1, width: '100%' }}
+                disabled={true}
+                sx={{mr: 1, width: '100%'}}
             />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Box sx={{ justifyContent: 'space-between' }}>
+          <Box sx={{justifyContent: 'space-between'}}>
             <Button
                 variant="outlined"
                 onClick={onClose}
@@ -185,12 +197,12 @@ export default function QuoteForm({opened, creds, onClose, quote}) {
                 type="submit"
                 variant="contained"
             >
-              {quote.id === undefined ? 'Create' : 'Update'}
+              {quote.id === null ? 'Create' : 'Update'}
             </Button>
           </Box>
         </DialogActions>
         <Snackbar
-            anchorOrigin={{vertical:'top', horizontal: 'center'}}
+            anchorOrigin={{vertical: 'top', horizontal: 'center'}}
             open={showError}
             autoHideDuration={6000}
             onClose={killAlert}
