@@ -335,4 +335,23 @@ class TeamServiceTest {
     verify(exactly = 1) { quote.quote }
     assertEquals(true, result)
   }
+
+  @Test
+  fun whenDeleteTeam_hasNoTeam_thenExpectError() {
+    every { teamRepository.findByIdOrNull(id) } returns null
+
+    val exception: IllegalArgumentException =
+      assertThrows<IllegalArgumentException> { teamService.deleteTeam(id) }
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    assertEquals("Team with id=${id} does not exist.", exception.message)
+  }
+
+  @Test
+  fun whenDeleteTeam_hasTeam_thenExpectNoError() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { teamRepository.delete(team) } just runs
+
+    teamService.deleteTeam(id)
+  }
 }
