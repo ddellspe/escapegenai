@@ -1,5 +1,7 @@
 package net.ddellspe.escapegenai.util
 
+import kotlin.math.max
+import kotlin.math.min
 import net.datafaker.Faker
 import net.ddellspe.escapegenai.model.QuotePart
 
@@ -73,4 +75,17 @@ fun generateFakeCompanyIndustry(): String {
 
 fun generateFakeAddress(): String {
   return FAKER.address().fullAddress()
+}
+
+fun generateFunFactType(type: Int? = null): String {
+  val actualType = max(1, min(type ?: (1..6).random(), 6))
+  return mapOf(
+      1 to "author",
+      2 to "authorAddress",
+      3 to "authorTitle",
+      4 to "company",
+      5 to "companyAddress",
+      6 to "companyIndustry",
+    )
+    .getOrDefault(actualType, "author")
 }

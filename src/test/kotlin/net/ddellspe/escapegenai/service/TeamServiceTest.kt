@@ -5,7 +5,7 @@ import java.time.OffsetDateTime
 import java.util.*
 import net.ddellspe.escapegenai.model.*
 import net.ddellspe.escapegenai.repository.TeamRepository
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
@@ -130,11 +130,30 @@ class TeamServiceTest {
   }
 
   @Test
+  fun whenDeleteTeam_hasNoTeam_thenExpectError() {
+    every { teamRepository.findByIdOrNull(id) } returns null
+
+    val exception: IllegalArgumentException =
+      assertThrows<IllegalArgumentException> { teamService.deleteTeam(id) }
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    assertEquals("Team with id=${id} does not exist.", exception.message)
+  }
+
+  @Test
+  fun whenDeleteTeam_hasTeam_thenExpectNoError() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { teamRepository.delete(team) } just runs
+
+    teamService.deleteTeam(id)
+  }
+
+  @Test
   fun whenVerifyTeamPassword_hasNoTeam_thenExpectException() {
     every { teamRepository.findByIdOrNull(id) } returns null
 
     val exception: IllegalArgumentException =
-      assertThrows<IllegalArgumentException> { teamService.verifyTeamPassword(id, "passsword") }
+      assertThrows<IllegalArgumentException> { teamService.verifyTeamPassword(id, "password") }
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     assertEquals("Team with id=${id} does not exist.", exception.message)
@@ -337,21 +356,181 @@ class TeamServiceTest {
   }
 
   @Test
-  fun whenDeleteTeam_hasNoTeam_thenExpectError() {
+  fun whenVerifyFunFactType_hasNoTeam_thenExpectException() {
     every { teamRepository.findByIdOrNull(id) } returns null
 
     val exception: IllegalArgumentException =
-      assertThrows<IllegalArgumentException> { teamService.deleteTeam(id) }
+      assertThrows<IllegalArgumentException> { teamService.verifyFunFact(id, "funFact") }
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     assertEquals("Team with id=${id} does not exist.", exception.message)
   }
 
   @Test
-  fun whenDeleteTeam_hasTeam_thenExpectNoError() {
+  fun whenVerifyFunFact_hasNoQuote_thenExpectFalse() {
     every { teamRepository.findByIdOrNull(id) } returns team
-    every { teamRepository.delete(team) } just runs
+    every { team.quote } returns null
 
-    teamService.deleteTeam(id)
+    val result = teamService.verifyFunFact(id, "funFact")
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { team.quote }
+    assertEquals(false, result)
+  }
+
+  @Test
+  fun whenVerifyFunFact_hasQuoteInvalidLookupType_thenExpectFalse() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { team.quote } returns quote
+    every { team.funFactType } returns "unknown"
+
+    val result = teamService.verifyFunFact(id, "funFact")
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { team.quote }
+    verify(exactly = 1) { team.funFactType }
+    assertEquals(false, result)
+  }
+
+  @Test
+  fun whenVerifyFunFact_hasQuoteTypeAuthorNotTheSame_thenExpectFalse() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { team.quote } returns quote
+    every { team.funFactType } returns "author"
+    every { quote.author } returns "funFact"
+
+    val result = teamService.verifyFunFact(id, "funFact2")
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { team.quote }
+    verify(exactly = 1) { team.funFactType }
+    verify(exactly = 1) { quote.author }
+    assertEquals(false, result)
+  }
+
+  @Test
+  fun whenVerifyFunFact_hasQuoteTypeAuthorAddressNotTheSame_thenExpectFalse() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { team.quote } returns quote
+    every { team.funFactType } returns "authorAddress"
+    every { quote.authorAddress } returns "funFact"
+
+    val result = teamService.verifyFunFact(id, "funFact2")
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { team.quote }
+    verify(exactly = 1) { team.funFactType }
+    verify(exactly = 1) { quote.authorAddress }
+    assertEquals(false, result)
+  }
+
+  @Test
+  fun whenVerifyFunFact_hasQuoteTypeAuthorTitleNotTheSame_thenExpectFalse() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { team.quote } returns quote
+    every { team.funFactType } returns "authorTitle"
+    every { quote.authorTitle } returns "funFact"
+
+    val result = teamService.verifyFunFact(id, "funFact2")
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { team.quote }
+    verify(exactly = 1) { team.funFactType }
+    verify(exactly = 1) { quote.authorTitle }
+    assertEquals(false, result)
+  }
+
+  @Test
+  fun whenVerifyFunFact_hasQuoteTypeCompanyNotTheSame_thenExpectFalse() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { team.quote } returns quote
+    every { team.funFactType } returns "company"
+    every { quote.company } returns "funFact"
+
+    val result = teamService.verifyFunFact(id, "funFact2")
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { team.quote }
+    verify(exactly = 1) { team.funFactType }
+    verify(exactly = 1) { quote.company }
+    assertEquals(false, result)
+  }
+
+  @Test
+  fun whenVerifyFunFact_hasQuoteTypeCompanyAddressNotTheSame_thenExpectFalse() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { team.quote } returns quote
+    every { team.funFactType } returns "companyAddress"
+    every { quote.companyAddress } returns "funFact"
+
+    val result = teamService.verifyFunFact(id, "funFact2")
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { team.quote }
+    verify(exactly = 1) { team.funFactType }
+    verify(exactly = 1) { quote.companyAddress }
+    assertEquals(false, result)
+  }
+
+  @Test
+  fun whenVerifyFunFact_hasQuoteTypeCompanyIndustryNotTheSame_thenExpectFalse() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { team.quote } returns quote
+    every { team.funFactType } returns "companyIndustry"
+    every { quote.companyIndustry } returns "funFact"
+
+    val result = teamService.verifyFunFact(id, "funFact2")
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { team.quote }
+    verify(exactly = 1) { team.funFactType }
+    verify(exactly = 1) { quote.companyIndustry }
+    assertEquals(false, result)
+  }
+
+  @Test
+  fun whenVerifyFunFact_hasQuoteTypeAuthorTheSame_thenExpectTrue() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { team.quote } returns quote
+    every { team.funFactType } returns "author"
+    every { quote.author } returns "funFact"
+    every { team.funFactEntered } returns null
+    every { team.funFactEntered = capture(dateSlot) } just runs
+    every { teamRepository.save(team) } returns team
+
+    val result = teamService.verifyFunFact(id, "funFact")
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { team.quote }
+    verify(exactly = 1) { team.funFactType }
+    verify(exactly = 1) { quote.author }
+    verify(exactly = 1) { team.funFactEntered }
+    verify(exactly = 1) { team.funFactEntered = any<OffsetDateTime>() }
+    verify(exactly = 1) { teamRepository.save(team) }
+    assertEquals(true, result)
+    assertEquals(true, dateSlot.captured.isBefore(OffsetDateTime.now()))
+  }
+
+  @Test
+  fun whenVerifyFunFact_hasQuoteTypeAuthorTheSameDateAlreadySet_thenExpectTrue() {
+    val dt = OffsetDateTime.now()
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { team.quote } returns quote
+    every { team.funFactType } returns "author"
+    every { quote.author } returns "funFact"
+    every { team.funFactEntered } returns dt
+    every { team.funFactEntered = dt } just runs
+    every { teamRepository.save(team) } returns team
+
+    val result = teamService.verifyFunFact(id, "funFact")
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { team.quote }
+    verify(exactly = 1) { team.funFactType }
+    verify(exactly = 1) { quote.author }
+    verify(exactly = 1) { team.funFactEntered }
+    verify(exactly = 1) { team.funFactEntered = dt }
+    verify(exactly = 1) { teamRepository.save(team) }
+    assertEquals(true, result)
   }
 }

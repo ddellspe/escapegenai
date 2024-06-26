@@ -1,7 +1,6 @@
 package net.ddellspe.escapegenai.controller
 
 import java.util.*
-import net.ddellspe.escapegenai.model.MinimalTeam
 import net.ddellspe.escapegenai.model.Team
 import net.ddellspe.escapegenai.model.TeamContainer
 import net.ddellspe.escapegenai.model.TeamContainerWithError
@@ -29,9 +28,9 @@ class TeamController(
   }
 
   @GetMapping("/teams")
-  fun getTeams(): ResponseEntity<List<MinimalTeam>> {
-    val teams: List<MinimalTeam> =
-      teamService.getAllTeams().stream().map { t -> t.toMinimalTeam() }.toList()
+  fun getTeams(): ResponseEntity<List<TeamContainer>> {
+    val teams: List<TeamContainer> =
+      teamService.getAllTeams().stream().map { t -> t.toTeamContainer() }.toList()
     return ResponseEntity.ok(teams)
   }
 
