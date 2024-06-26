@@ -3,6 +3,7 @@ package net.ddellspe.escapegenai.model
 import jakarta.persistence.*
 import java.time.OffsetDateTime
 import java.util.*
+import net.ddellspe.escapegenai.util.generateFunFactType
 
 @Entity
 data class Team(
@@ -35,7 +36,7 @@ data class Team(
   @JoinColumn(name = "quote_id")
   var quote: Quote? = null,
   var quoteEntered: OffsetDateTime? = null,
-  var funFactType: String? = null,
+  var funFactType: String = generateFunFactType(),
   var funFactEntered: OffsetDateTime? = null,
 ) {
   fun toMinimalTeam(): MinimalTeam {
@@ -61,6 +62,18 @@ data class Team(
       this.quoteEntered,
       this.funFactType,
       this.funFactEntered,
+    )
+  }
+
+  fun toGameTeam(): GameTeam {
+    return GameTeam(
+      this.id,
+      this.name,
+      this.password.id,
+      this.word.id,
+      this.quote?.id,
+      this.quote?.quoteParts?.stream()?.map { q -> q.id }?.toList() ?: emptyList(),
+      this.funFactType,
     )
   }
 }

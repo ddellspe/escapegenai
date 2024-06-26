@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity
 class TeamControllerTest {
   private val team: Team = mockk()
   private val teamContainer: TeamContainer = mockk()
-  private val minimalTeam: MinimalTeam = mockk()
   private val teamService: TeamService = mockk()
   private val passwordService: PasswordService = mockk()
   private val teamWordService: TeamWordService = mockk()
@@ -50,15 +49,15 @@ class TeamControllerTest {
   @Test
   fun whenGetTeams_hasTeam_thenListOfTeam() {
     every { teamService.getAllTeams() } returns listOf(team)
-    every { team.toMinimalTeam() } returns minimalTeam
+    every { team.toTeamContainer() } returns teamContainer
 
-    val result: ResponseEntity<List<MinimalTeam>> = teamController.getTeams()
+    val result: ResponseEntity<List<TeamContainer>> = teamController.getTeams()
 
-    verify(exactly = 1) { team.toMinimalTeam() }
+    verify(exactly = 1) { team.toTeamContainer() }
     verify(exactly = 1) { teamService.getAllTeams() }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(minimalTeam, result.body?.get(0))
+    assertEquals(teamContainer, result.body?.get(0))
   }
 
   @Test

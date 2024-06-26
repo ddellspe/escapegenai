@@ -75,4 +75,40 @@ class TeamService(var teamRepository: TeamRepository) {
       return false
     }
   }
+
+  fun verifyFunFact(id: UUID, funFact: String): Boolean {
+    val team = getTeam(id)
+    val quote = team.quote ?: return false
+    val lookup: String? =
+      when (team.funFactType) {
+        "author" -> {
+          quote.author
+        }
+        "authorAddress" -> {
+          quote.authorAddress
+        }
+        "authorTitle" -> {
+          quote.authorTitle
+        }
+        "company" -> {
+          quote.company
+        }
+        "companyAddress" -> {
+          quote.companyAddress
+        }
+        "companyIndustry" -> {
+          quote.companyIndustry
+        }
+        else -> {
+          null
+        }
+      }
+    if (lookup != null && lookup == funFact) {
+      team.funFactEntered = team.funFactEntered ?: OffsetDateTime.now()
+      teamRepository.save(team)
+      return true
+    } else {
+      return false
+    }
+  }
 }

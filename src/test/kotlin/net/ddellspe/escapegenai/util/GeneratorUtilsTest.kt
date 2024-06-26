@@ -43,4 +43,24 @@ class GeneratorUtilsTest {
     val pageContent = passwordPageGenerator(password)
     assertEquals(true, pageContent.contains(password))
   }
+
+  @Test
+  fun testGenerateFunFactType() {
+    assertEquals("companyIndustry", generateFunFactType(7))
+    assertEquals("companyIndustry", generateFunFactType(6))
+    assertEquals("author", generateFunFactType(0))
+    assertEquals("author", generateFunFactType(1))
+    assertEquals(
+      true,
+      listOf(
+          "author",
+          "authorAddress",
+          "authorTitle",
+          "company",
+          "companyAddress",
+          "companyIndustry",
+        )
+        .contains(generateFunFactType()),
+    )
+  }
 }

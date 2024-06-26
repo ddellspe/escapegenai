@@ -46,9 +46,6 @@ export default function QuoteForm({opened, creds, onClose, quoteObj}) {
     })
     .then((resp) => {
       if (resp.ok) {
-        console.log(quoteObj);
-        console.log(id);
-        console.log(quote);
         const action = object.id === null ? "created" : "updated"
         const msg = `Quote ${action} with the quote text of ${object.quote}`;
         onClose(true, msg);
@@ -197,7 +194,7 @@ export default function QuoteForm({opened, creds, onClose, quoteObj}) {
                 type="submit"
                 variant="contained"
             >
-              {quote.id === null ? 'Create' : 'Update'}
+              {quoteObj.id === null ? 'Create' : 'Update'}
             </Button>
           </Box>
         </DialogActions>
