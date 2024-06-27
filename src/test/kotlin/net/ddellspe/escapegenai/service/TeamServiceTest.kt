@@ -343,9 +343,9 @@ class TeamServiceTest {
     every { team.quote } returns quote
     every { team.quoteEntered } returns dt
     every { team.quoteEntered = dt } just runs
-    every { quote.quote } returns "quote"
+    every { quote.quote } returns "I never lose. I either win or learn"
 
-    val result: Boolean = teamService.verifyTeamQuote(id, "quote")
+    val result: Boolean = teamService.verifyTeamQuote(id, "I never lose. I either win or learn.")
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 1) { team.quote }
