@@ -31,7 +31,7 @@ export default function GamePanel() {
       }
     }
     getTeams();
-  }, []);
+  });
 
   const loadState = () => {
     let submission = JSON.parse(sessionStorage.getItem("submission"));
