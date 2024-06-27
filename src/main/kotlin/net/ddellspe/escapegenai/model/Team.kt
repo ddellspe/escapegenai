@@ -41,6 +41,7 @@ data class Team(
       this.passwordEntered,
       this.wordEntered,
       this.quoteEntered,
+      this.funFactType,
       this.funFactEntered,
     )
   }
@@ -57,18 +58,6 @@ data class Team(
       this.quoteEntered,
       this.funFactType,
       this.funFactEntered,
-    )
-  }
-
-  fun toGameTeam(): GameTeam {
-    return GameTeam(
-      this.id,
-      this.name,
-      this.password.id,
-      this.word.id,
-      this.quote?.id,
-      this.quote?.quoteParts?.stream()?.map { q -> q.id }?.toList() ?: emptyList(),
-      this.funFactType,
     )
   }
 }

@@ -72,6 +72,7 @@ class DumbCoverageTests {
         team.passwordEntered,
         team.wordEntered,
         team.quoteEntered,
+        team.funFactType,
         team.funFactEntered,
       )
     assertEquals(expected, minimalTeam)
@@ -125,49 +126,5 @@ class DumbCoverageTests {
         null,
       )
     assertEquals(expected, teamContainer)
-  }
-
-  @Test
-  fun toGameTeamQuoteNotPresent() {
-    val team = Team()
-    team.passwordEntered = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-    team.wordEntered = OffsetDateTime.of(2024, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC)
-
-    val gameTeam = team.toGameTeam()
-
-    val expected =
-      GameTeam(
-        team.id,
-        team.name,
-        team.password.id,
-        team.word.id,
-        null,
-        emptyList<UUID>(),
-        team.funFactType,
-      )
-    assertEquals(expected, gameTeam)
-  }
-
-  @Test
-  fun toGameTeamQuotePresent() {
-    val team = Team()
-    val quote = Quote(quote = "things", quoteParts = generateParts("things"))
-    team.quote = quote
-    team.passwordEntered = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-    team.wordEntered = OffsetDateTime.of(2024, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC)
-
-    val gameTeam = team.toGameTeam()
-
-    val expected =
-      GameTeam(
-        team.id,
-        team.name,
-        team.password.id,
-        team.word.id,
-        quote.id,
-        quote.quoteParts.stream().map { q -> q.id }.toList(),
-        team.funFactType,
-      )
-    assertEquals(expected, gameTeam)
   }
 }
