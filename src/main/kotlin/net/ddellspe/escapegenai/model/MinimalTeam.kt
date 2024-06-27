@@ -9,5 +9,6 @@ data class MinimalTeam(
   var passwordEntered: OffsetDateTime? = null,
   var wordEntered: OffsetDateTime? = null,
   var quoteEntered: OffsetDateTime? = null,
+  var funFactType: String? = null,
   var funFactEntered: OffsetDateTime? = null,
 )

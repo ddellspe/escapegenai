@@ -40,23 +40,23 @@ export default function GamePanel() {
     }
   }
 
-  const loadState = () => {
-    let submission = JSON.parse(sessionStorage.getItem("submission"));
-    if (submission !== null) {
-      updateSubmission(submission);
-    }
-  }
-
   useEffect(() => {
+    setLoading(true)
     const getTeams = async () => {
-      try {
-        const response = await fetch('game/teams');
-        const data = await response.json();
-        setTeams(data);
+      fetch('game/teams')
+        .then((res) => res.json())
+        .then((json) => {
+        setTeams(json)
         setLoading(false);
-        setTimeout(() => loadState(), 500);
-      } catch (err) {
-      }
+        let submission = JSON.parse(sessionStorage.getItem("submission"));
+        if (submission !== null && submission.id !== undefined) {
+          setPassword(submission.password === null ? undefined : submission.password);
+          setTeamWord(submission.teamWord === null ? undefined : submission.teamWord);
+          setQuote(submission.quote === null ? undefined : submission.quote);
+          setFact(submission.fact === null ? undefined : submission.fact);
+          setTimeout(selectTeam(submission.id), 500);
+        }
+      });
     }
     getTeams();
     /* eslint-disable react-hooks/exhaustive-deps */
@@ -167,11 +167,20 @@ export default function GamePanel() {
                                   </Box>
                                 </Grid>
                             ) : (
-                                <input type="hidden" name="password" value={password}/>
+                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                  <Box sx={{width: '100%', my: 1}}>
+                                    <Typography variant="h5" component="h3" align="center">
+                                      Task 1: Discover your password
+                                    </Typography>
+                                    <TextField label="Password" name="password" id="password" sx={{mr: 1, width: '100%'}} value={password} disabled/>
+                                    <input type="hidden" name="password" id="password" value={password}/>
+                                  </Box>
+                                </Grid>
                             )
                         }
-                        {password !== undefined && teamWord === undefined ?
-                            (
+                        {(() => {
+                          if (password !== undefined && teamWord === undefined) {
+                            return (
                                 <Grid item xs={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
@@ -192,15 +201,122 @@ export default function GamePanel() {
                                       </Typography>
                                     </Typography>
                                     <Typography paragraph={true} align="center" variant="body2">
-                                      Hint: You may need to split your payload into smaller sections and aggregate counts.
+                                      Hint: You may need to split your payload into smaller sections and aggregate counts. The most frequent word in
+                                      one section of the document is not necessarily the most frequent word across the whole page.
                                     </Typography>
                                     <TextField label="Word" required name="teamWord" id="teamWord" sx={{mr: 1, width: '100%'}}/>
                                   </Box>
                                 </Grid>
-                            ) : (
-                                <input type="hidden" name="teamWord" value={teamWord}/>
-                            )
-                        }
+                            );
+                          } else if (teamWord !== undefined) {
+                            return (
+                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                  <Box sx={{width: '100%', my: 1}}>
+                                    <Typography variant="h5" component="h3" align="center">
+                                      Task 2: Count some words!
+                                    </Typography>
+                                    <TextField label="Hidden Word" name="teamWord" id="teamWord" sx={{mr: 1, width: '100%'}} value={teamWord}
+                                               disabled/>
+                                    <input type="hidden" name="teamWord" value={teamWord}/>
+                                  </Box>
+                                </Grid>
+                            );
+                          } else {
+                            return (<input type="hidden" name="teamWord" value={teamWord}/>);
+                          }
+                        })()}
+                        {(() => {
+                          if (password !== undefined && teamWord !== undefined && quote === undefined) {
+                            return (
+                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                  <Box sx={{width: '100%', my: 1}}>
+                                    <Typography variant="h5" component="h3" align="center">
+                                      Task 3: Unscramble the quote!
+                                    </Typography>
+                                    <Typography paragraph={true} align="center">
+                                      Your third task is to find the words in each of the individual links in the provided link below (it is a JSON
+                                      response with multiple links). Once you collect the most frequent word in each of the attached links, that forms
+                                      a quote when appropriately unscrambled. Your task is to provide that quote to the escape room attendant in order
+                                      to unlock your last escape room challenge and FINALLY break free from this torture.
+                                    </Typography>
+                                    <Typography align="center" component="h6">
+                                      Your data to see all of the links can be found at:
+                                      <Typography align="center" component="a"
+                                                  href={"/game/team/" + teamId + "/quote"} sx={{mx: 1}}>
+                                        {currentHost + "/game/team/" + teamId + "/quote"}
+                                      </Typography>
+                                    </Typography>
+                                    <Typography paragraph={true} align="center" variant="body2">
+                                      Hint: When entering your quote, be sure it only uses the words from your clue (no period is necessary).
+                                    </Typography>
+                                    <TextField label="Quote" required name="quote" id="quote" sx={{mr: 1, width: '100%'}}/>
+                                  </Box>
+                                </Grid>
+                            );
+                          } else if (quote !== undefined) {
+                            return (
+                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                  <Box sx={{width: '100%', my: 1}}>
+                                    <Typography variant="h5" component="h3" align="center">
+                                      Task 3: Unscramble the quote!
+                                    </Typography>
+                                    <TextField label="Unscrambled Quote" name="quote" id="quote" sx={{mr: 1, width: '100%'}} value={quote}
+                                               disabled/>
+                                    <input type="hidden" name="quote" value={quote}/>
+                                  </Box>
+                                </Grid>
+                            );
+                          } else {
+                            return (
+                                <input type="hidden" name="quote" value={quote}/>
+                            );
+                          }
+                        })()}
+                        {(() => {
+                          if (password !== undefined && teamWord !== undefined && quote !== undefined && fact === undefined) {
+                            return (
+                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                  <Box sx={{width: '100%', my: 1}}>
+                                    <Typography variant="h5" component="h3" align="center">
+                                      Task 4: Give me the FACTS!
+                                    </Typography>
+                                    <Typography paragraph={true} align="center">
+                                      Your final task is to look up the <b>{selectedTeam === undefined ? "PENDING"
+                                        : selectedTeam.funFactType}</b> fact for the quote you provided above, you
+                                      can find the quote using the Pinecone instance with the account label [Insert Label Here], you will likely need
+                                      to filter for your fun fact type listed before as your quote may embed to multiple items in the vector database,
+                                      the schema of the metadata is as follows:
+                                    </Typography>
+                                    <Typography component="pre">
+                                      This is text
+                                    </Typography>
+                                    <Typography paragraph={true} align="center" variant="body2">
+                                      Hint: You will need to use the Titan Embedder Snap with your quote to appropriately look up in the pinecone
+                                      index.
+                                    </Typography>
+                                    <TextField label="Fun Fact" required name="fact" id="fact" sx={{mr: 1, width: '100%'}}/>
+                                  </Box>
+                                </Grid>
+                            );
+                          } else if (quote !== undefined) {
+                            return (
+                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                  <Box sx={{width: '100%', my: 1}}>
+                                    <Typography variant="h5" component="h3" align="center">
+                                      Task 4: Give me the FACTS!
+                                    </Typography>
+                                    <TextField label="Fun Fact" name="fact" id="fact" sx={{mr: 1, width: '100%'}} value={fact}
+                                               disabled/>
+                                    <input type="hidden" name="fact" value={fact}/>
+                                  </Box>
+                                </Grid>
+                            );
+                          } else {
+                            return (
+                                <input type="hidden" name="fact" value={fact}/>
+                            );
+                          }
+                        })()}
                         {(password === undefined || teamWord === undefined || quote === undefined || fact === undefined) ? (
                             <Box sx={{justifyContent: 'space-between', ml: 'auto'}}>
                               <Button type="submit" variant="contained">
