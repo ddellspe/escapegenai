@@ -155,12 +155,10 @@ class GameControllerTest {
         "links" to
           listOf(
             mapOf(
-              "href" to
-                "https://escapegenai.com/game/quotePart/00000000-0000-0000-0000-000000000000"
+              "href" to "http://localhost:8080/game/quotePart/00000000-0000-0000-0000-000000000000"
             ),
             mapOf(
-              "href" to
-                "https://escapegenai.com/game/quotePart/11111111-1111-1111-1111-111111111111"
+              "href" to "http://localhost:8080/game/quotePart/11111111-1111-1111-1111-111111111111"
             ),
           ),
         "otherData" to id,
@@ -191,12 +189,10 @@ class GameControllerTest {
         "links" to
           listOf(
             mapOf(
-              "href" to
-                "https://escapegenai.com/game/quotePart/00000000-0000-0000-0000-000000000000"
+              "href" to "http://localhost:8080/game/quotePart/00000000-0000-0000-0000-000000000000"
             ),
             mapOf(
-              "href" to
-                "https://escapegenai.com/game/quotePart/11111111-1111-1111-1111-111111111111"
+              "href" to "http://localhost:8080/game/quotePart/11111111-1111-1111-1111-111111111111"
             ),
           ),
         "otherData" to id,

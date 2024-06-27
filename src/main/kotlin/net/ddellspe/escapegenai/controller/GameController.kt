@@ -1,10 +1,13 @@
 package net.ddellspe.escapegenai.controller
 
 import java.util.*
+import net.ddellspe.escapegenai.config.EscapeGenAIProperties
 import net.ddellspe.escapegenai.model.GameSubmission
 import net.ddellspe.escapegenai.model.MinimalTeam
 import net.ddellspe.escapegenai.service.QuotePartService
 import net.ddellspe.escapegenai.service.TeamService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -12,7 +15,11 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/game")
+@EnableConfigurationProperties(EscapeGenAIProperties::class)
 class GameController(var teamService: TeamService, var quotePartService: QuotePartService) {
+
+  @Autowired private var props: EscapeGenAIProperties = EscapeGenAIProperties()
+
   @GetMapping("/teams")
   fun getTeams(): ResponseEntity<List<MinimalTeam>> {
     val teams: List<MinimalTeam> =
@@ -74,7 +81,7 @@ class GameController(var teamService: TeamService, var quotePartService: QuotePa
               .stream()
               .map { q -> q.id.toString() }
               .sorted()
-              .map { q -> mapOf("href" to "https://escapegenai.com/game/quotePart/${q}") }
+              .map { q -> mapOf("href" to "${props.hostname}/game/quotePart/${q}") }
               .toList(),
           "otherData" to id,
         )

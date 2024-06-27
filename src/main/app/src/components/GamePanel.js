@@ -18,27 +18,7 @@ export default function GamePanel() {
   const [teamWord, setTeamWord] = useState(undefined);
   const [quote, setQuote] = useState(undefined);
   const [fact, setFact] = useState(undefined);
-
-  useEffect(() => {
-    const getTeams = async () => {
-      try {
-        const response = await fetch('game/teams');
-        const data = await response.json();
-        setTeams(data);
-        setLoading(false);
-        setTimeout(loadState, 500);
-      } catch (err) {
-      }
-    }
-    getTeams();
-  });
-
-  const loadState = () => {
-    let submission = JSON.parse(sessionStorage.getItem("submission"));
-    if (submission !== null) {
-      updateSubmission(submission);
-    }
-  }
+  const currentHost = `${window.location.protocol}//${window.location.hostname}${window.location.port !== "" ? (":" + window.location.port) : ""}`;
 
   const selectTeam = (teamId) => {
     setTeamId(teamId);
@@ -59,6 +39,30 @@ export default function GamePanel() {
       sessionStorage.setItem('submission', JSON.stringify(submission));
     }
   }
+
+  const loadState = () => {
+    let submission = JSON.parse(sessionStorage.getItem("submission"));
+    if (submission !== null) {
+      updateSubmission(submission);
+    }
+  }
+
+  useEffect(() => {
+    const getTeams = async () => {
+      try {
+        const response = await fetch('game/teams');
+        const data = await response.json();
+        setTeams(data);
+        setLoading(false);
+        setTimeout(() => loadState(), 500);
+      } catch (err) {
+      }
+    }
+    getTeams();
+    /* eslint-disable react-hooks/exhaustive-deps */
+  }, []);
+
+  /* eslint-enable */
 
   const handleChange = (event) => {
     if (event.target.name === 'teamId') {
@@ -152,8 +156,8 @@ export default function GamePanel() {
                                     <Typography align="center" component="h6">
                                       Your password can be somewhere in the following page:
                                       <Typography align="center" component="a"
-                                                  href={"https://escapegenai.com/game/team/" + teamId + "/password"} sx={{mx: 1}}>
-                                        {"https://escapegenai.com/game/team/" + teamId + "/password"}
+                                                  href={"/game/team/" + teamId + "/password"} sx={{mx: 1}}>
+                                        {currentHost + "/game/team/" + teamId + "/password"}
                                       </Typography>
                                     </Typography>
                                     <Typography paragraph={true} align="center" variant="body2">Hint: Your password will contain 15-20 characters with
@@ -183,8 +187,8 @@ export default function GamePanel() {
                                     <Typography align="center" component="h6">
                                       Your data to count from can be found at:
                                       <Typography align="center" component="a"
-                                                  href={"https://escapegenai.com/game/team/" + teamId + "/word"} sx={{mx: 1}}>
-                                        {"https://escapegenai.com/game/team/" + teamId + "/word"}
+                                                  href={"/game/team/" + teamId + "/word"} sx={{mx: 1}}>
+                                        {currentHost + "/game/team/" + teamId + "/word"}
                                       </Typography>
                                     </Typography>
                                     <Typography paragraph={true} align="center" variant="body2">
