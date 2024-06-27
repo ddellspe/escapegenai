@@ -1,16 +1,14 @@
 package net.ddellspe.escapegenai.controller
 
 import java.util.*
+import net.ddellspe.escapegenai.model.GameSubmission
 import net.ddellspe.escapegenai.model.MinimalTeam
 import net.ddellspe.escapegenai.service.QuotePartService
 import net.ddellspe.escapegenai.service.TeamService
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/game")
@@ -106,6 +104,44 @@ class GameController(var teamService: TeamService, var quotePartService: QuotePa
         )
     } catch (e: IllegalArgumentException) {
       return ResponseEntity<String>(e.message!!, HttpStatus.NOT_FOUND)
+    }
+  }
+
+  @PostMapping("/submit")
+  fun submitGameState(@RequestBody gameSubmission: GameSubmission): ResponseEntity<GameSubmission> {
+    try {
+      val team = teamService.getTeam(gameSubmission.id)
+      val returnSubmission = GameSubmission(team.id)
+      if (
+        gameSubmission.password == null ||
+          !teamService.verifyTeamPassword(team.id, gameSubmission.password!!)
+      ) {
+        return ResponseEntity(returnSubmission, HttpStatus.OK)
+      }
+      returnSubmission.password = gameSubmission.password
+      if (
+        gameSubmission.teamWord == null ||
+          !teamService.verifyTeamWord(team.id, gameSubmission.teamWord!!)
+      ) {
+        return ResponseEntity(returnSubmission, HttpStatus.OK)
+      }
+      returnSubmission.teamWord = gameSubmission.teamWord
+      if (
+        gameSubmission.quote == null ||
+          !teamService.verifyTeamQuote(team.id, gameSubmission.quote!!)
+      ) {
+        return ResponseEntity(returnSubmission, HttpStatus.OK)
+      }
+      returnSubmission.quote = gameSubmission.quote
+      if (
+        gameSubmission.fact == null || !teamService.verifyFunFact(team.id, gameSubmission.fact!!)
+      ) {
+        return ResponseEntity(returnSubmission, HttpStatus.OK)
+      }
+      returnSubmission.fact = gameSubmission.fact
+      return ResponseEntity(returnSubmission, HttpStatus.OK)
+    } catch (e: IllegalArgumentException) {
+      return ResponseEntity(GameSubmission(gameSubmission.id), HttpStatus.BAD_REQUEST)
     }
   }
 }

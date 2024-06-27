@@ -2,6 +2,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import AdminSection from "./components/AdminSection";
+import GamePanel from "./components/GamePanel";
 
 function App() {
   return (
@@ -10,9 +11,7 @@ function App() {
         <Typography align="center" variant="h3" component="h1" gutterBottom>
           GenAI Escape Room
         </Typography>
-        <Typography align="center" variant="h5" component="h3" gutterBottom>
-          Coming Soon!
-        </Typography>
+        <GamePanel />
         <AdminSection />
       </Box>
     </Container>

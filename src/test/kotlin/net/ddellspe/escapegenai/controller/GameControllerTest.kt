@@ -18,6 +18,7 @@ class GameControllerTest {
   private val team: Team = mockk()
   private val minimalTeam: MinimalTeam = mockk()
   private val password: Password = mockk()
+  private val gameSubmission: GameSubmission = mockk()
   private val word: TeamWord = mockk()
   private val quote: Quote = mockk()
   private val quotePart: QuotePart = mockk()
@@ -230,5 +231,261 @@ class GameControllerTest {
     assertEquals(MediaType.TEXT_HTML, result.headers.contentType)
     assertEquals(true, result.body?.contains("the quote word"))
     assertEquals(true, result.body?.contains("Content"))
+  }
+
+  @Test
+  fun whenSubmitGameState_hasNoTeam_thenExpectBadRequest() {
+    every { teamService.getTeam(id) } throws IllegalArgumentException("No Team")
+    every { gameSubmission.id } returns id
+
+    val result = gameController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id)
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 2) { gameSubmission.id }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+    assertEquals(expectedBody, result.body)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeamNoPassword_thenExpectOKNoPassword() {
+    every { teamService.getTeam(id) } returns team
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.password } returns null
+
+    val result = gameController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id)
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 1) { team.id }
+    verify(exactly = 1) { gameSubmission.password }
+    verify(exactly = 1) { gameSubmission.id }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(expectedBody, result.body)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeamPasswordNotCorrect_thenExpectOKNoPassword() {
+    every { teamService.getTeam(id) } returns team
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.password } returns "password"
+    every { teamService.verifyTeamPassword(id, "password") } returns false
+
+    val result = gameController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id)
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 2) { team.id }
+    verify(exactly = 2) { gameSubmission.password }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(expectedBody, result.body)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeamPasswordCorrectNoWord_thenExpectOKNoWord() {
+    every { teamService.getTeam(id) } returns team
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.password } returns "password"
+    every { teamService.verifyTeamPassword(id, "password") } returns true
+    every { gameSubmission.teamWord } returns null
+
+    val result = gameController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "password")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 2) { team.id }
+    verify(exactly = 3) { gameSubmission.password }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
+    verify(exactly = 1) { gameSubmission.teamWord }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(expectedBody, result.body)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeamPasswordIncorrectWord_thenExpectOKNoWord() {
+    every { teamService.getTeam(id) } returns team
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.password } returns "password"
+    every { teamService.verifyTeamPassword(id, "password") } returns true
+    every { gameSubmission.teamWord } returns "word"
+    every { teamService.verifyTeamWord(id, "word") } returns false
+
+    val result = gameController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "password")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 3) { team.id }
+    verify(exactly = 3) { gameSubmission.password }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
+    verify(exactly = 2) { gameSubmission.teamWord }
+    verify(exactly = 1) { teamService.verifyTeamWord(id, "word") }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(expectedBody, result.body)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeamPasswordWordNoQuote_thenExpectOKNoQuote() {
+    every { teamService.getTeam(id) } returns team
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.password } returns "password"
+    every { teamService.verifyTeamPassword(id, "password") } returns true
+    every { gameSubmission.teamWord } returns "word"
+    every { teamService.verifyTeamWord(id, "word") } returns true
+    every { gameSubmission.quote } returns null
+
+    val result = gameController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "password", "word")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 3) { team.id }
+    verify(exactly = 3) { gameSubmission.password }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
+    verify(exactly = 3) { gameSubmission.teamWord }
+    verify(exactly = 1) { teamService.verifyTeamWord(id, "word") }
+    verify(exactly = 1) { gameSubmission.quote }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(expectedBody, result.body)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeamPasswordWordIncorrectQuote_thenExpectOKNoQuote() {
+    every { teamService.getTeam(id) } returns team
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.password } returns "password"
+    every { teamService.verifyTeamPassword(id, "password") } returns true
+    every { gameSubmission.teamWord } returns "word"
+    every { teamService.verifyTeamWord(id, "word") } returns true
+    every { gameSubmission.quote } returns "quote"
+    every { teamService.verifyTeamQuote(id, "quote") } returns false
+
+    val result = gameController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "password", "word")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 4) { team.id }
+    verify(exactly = 3) { gameSubmission.password }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
+    verify(exactly = 3) { gameSubmission.teamWord }
+    verify(exactly = 1) { teamService.verifyTeamWord(id, "word") }
+    verify(exactly = 2) { gameSubmission.quote }
+    verify(exactly = 1) { teamService.verifyTeamQuote(id, "quote") }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(expectedBody, result.body)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeamPasswordWordQuoteNoFunFact_thenExpectOKNoFunFact() {
+    every { teamService.getTeam(id) } returns team
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.password } returns "password"
+    every { teamService.verifyTeamPassword(id, "password") } returns true
+    every { gameSubmission.teamWord } returns "word"
+    every { teamService.verifyTeamWord(id, "word") } returns true
+    every { gameSubmission.quote } returns "quote"
+    every { teamService.verifyTeamQuote(id, "quote") } returns true
+    every { gameSubmission.fact } returns null
+
+    val result = gameController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "password", "word", "quote")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 4) { team.id }
+    verify(exactly = 3) { gameSubmission.password }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
+    verify(exactly = 3) { gameSubmission.teamWord }
+    verify(exactly = 1) { teamService.verifyTeamWord(id, "word") }
+    verify(exactly = 3) { gameSubmission.quote }
+    verify(exactly = 1) { teamService.verifyTeamQuote(id, "quote") }
+    verify(exactly = 1) { gameSubmission.fact }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(expectedBody, result.body)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeamPasswordWordQuoteIncorrectFunFact_thenExpectOKNoFunFact() {
+    every { teamService.getTeam(id) } returns team
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.password } returns "password"
+    every { teamService.verifyTeamPassword(id, "password") } returns true
+    every { gameSubmission.teamWord } returns "word"
+    every { teamService.verifyTeamWord(id, "word") } returns true
+    every { gameSubmission.quote } returns "quote"
+    every { teamService.verifyTeamQuote(id, "quote") } returns true
+    every { gameSubmission.fact } returns "fact"
+    every { teamService.verifyFunFact(id, "fact") } returns false
+
+    val result = gameController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "password", "word", "quote")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 5) { team.id }
+    verify(exactly = 3) { gameSubmission.password }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
+    verify(exactly = 3) { gameSubmission.teamWord }
+    verify(exactly = 1) { teamService.verifyTeamWord(id, "word") }
+    verify(exactly = 3) { gameSubmission.quote }
+    verify(exactly = 1) { teamService.verifyTeamQuote(id, "quote") }
+    verify(exactly = 2) { gameSubmission.fact }
+    verify(exactly = 1) { teamService.verifyFunFact(id, "fact") }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(expectedBody, result.body)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeamPasswordWordQuoteFunFact_thenExpectOKAllData() {
+    every { teamService.getTeam(id) } returns team
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.password } returns "password"
+    every { teamService.verifyTeamPassword(id, "password") } returns true
+    every { gameSubmission.teamWord } returns "word"
+    every { teamService.verifyTeamWord(id, "word") } returns true
+    every { gameSubmission.quote } returns "quote"
+    every { teamService.verifyTeamQuote(id, "quote") } returns true
+    every { gameSubmission.fact } returns "fact"
+    every { teamService.verifyFunFact(id, "fact") } returns true
+
+    val result = gameController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "password", "word", "quote", "fact")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 5) { team.id }
+    verify(exactly = 3) { gameSubmission.password }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
+    verify(exactly = 3) { gameSubmission.teamWord }
+    verify(exactly = 1) { teamService.verifyTeamWord(id, "word") }
+    verify(exactly = 3) { gameSubmission.quote }
+    verify(exactly = 1) { teamService.verifyTeamQuote(id, "quote") }
+    verify(exactly = 3) { gameSubmission.fact }
+    verify(exactly = 1) { teamService.verifyFunFact(id, "fact") }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(expectedBody, result.body)
   }
 }
