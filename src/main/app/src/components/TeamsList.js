@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from "@mui/icons-material/Delete";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -40,6 +41,31 @@ export default function TeamsList({opened, creds, onClose}) {
     const selectedTeam = teams.find(team => team.id === teamId);
     setTeam(selectedTeam === undefined ? defaultTeam : selectedTeam);
     setTimeout(() => setTeamDialog(true), 50)
+  }
+
+  const deleteTeam = (teamId) => {
+    const selectedTeam = teams.find(team => team.id === teamId);
+    setTeam(selectedTeam === undefined ? defaultTeam : selectedTeam);
+    if (selectedTeam !== undefined) {
+      fetch('api/teams/' + selectedTeam.id, {
+        method: 'DELETE',
+        headers: new Headers({
+          'Authorization': 'Basic ' + creds,
+          'Content-Type': 'application/json'
+        })
+      })
+      .then((resp) => {
+        if (resp.ok) {
+          const msg = `Team ${team.name} deleted'.`;
+          onClose(true, msg);
+          return true;
+        } else {
+          return resp.json();
+        }
+      })
+      .then(data => {
+      })
+    }
   }
 
   const newTeam = () => {
@@ -98,7 +124,8 @@ export default function TeamsList({opened, creds, onClose}) {
             <Grid container spacing={2} justifyContent="center"
                   alignItems="center">
               <Grid item>
-                <Typography id="teams-modal-title" variant="h4" component="h2">
+                <Typography id="teams-modal-title" variant="h4"
+                            component="h2">
                   Teams Listing
                 </Typography>
               </Grid>
@@ -132,7 +159,8 @@ export default function TeamsList({opened, creds, onClose}) {
             <Grid container spacing={2} justifyContent="center"
                   alignItems="center">
               <Grid item>
-                <Typography id="teams-modal-title" variant="h4" component="h2">
+                <Typography id="teams-modal-title" variant="h4"
+                            component="h2">
                   Teams Listing
                 </Typography>
               </Grid>
@@ -151,10 +179,17 @@ export default function TeamsList({opened, creds, onClose}) {
                           <ListItem
                               key={team.id}
                               secondaryAction={
-                                <IconButton edge='end' aria-label='edit'
-                                            onClick={() => editTeam(team.id)}>
-                                  <EditIcon/>
-                                </IconButton>
+                                <Box>
+                                  <IconButton edge='end' aria-label='edit'
+                                              onClick={() => editTeam(team.id)}>
+                                    <EditIcon/>
+                                  </IconButton>
+                                  <IconButton edge='end' aria-label='delete'
+                                              onClick={() => deleteTeam(team.id)}
+                                              color={"warning"}>
+                                    <DeleteIcon/>
+                                  </IconButton>
+                                </Box>
                               }
                           >
                             <ListItemText primary={team.name}/>
