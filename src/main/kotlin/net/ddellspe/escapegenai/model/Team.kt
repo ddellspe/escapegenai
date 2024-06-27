@@ -27,12 +27,7 @@ data class Team(
   @JoinColumn(name = "word_id")
   var word: TeamWord = TeamWord(),
   var wordEntered: OffsetDateTime? = null,
-  @OneToOne(
-    fetch = FetchType.LAZY,
-    optional = true,
-    cascade = [CascadeType.ALL],
-    orphanRemoval = false,
-  )
+  @ManyToOne(fetch = FetchType.LAZY, optional = true, cascade = [CascadeType.DETACH])
   @JoinColumn(name = "quote_id")
   var quote: Quote? = null,
   var quoteEntered: OffsetDateTime? = null,

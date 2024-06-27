@@ -7,12 +7,14 @@ import Fab from '@mui/material/Fab';
 import LoginIcon from '@mui/icons-material/LoginTwoTone';
 import LogoutIcon from '@mui/icons-material/LogoutTwoTone';
 import QuoteIcon from '@mui/icons-material/FormatQuoteTwoTone';
+import GroupsIcon from '@mui/icons-material/Groups';
 import Snackbar from '@mui/material/Snackbar';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import LoginForm from "./LoginForm";
 import QuoteList from "./QuoteList";
+import TeamsList from "./TeamsList";
 
 export default function AdminSection() {
   var creds = sessionStorage.getItem('auth');
@@ -20,6 +22,7 @@ export default function AdminSection() {
   const [openSpeedDialOptions, setOpenSpeedDialOptions] = useState(false);
   const [openLoginModal, setOpenLoginModal] = useState(false);
   const [openQuotesModal, setOpenQuotesModal] = useState(false);
+  const [openTeamsModal, setOpenTeamsModal] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [dataSent, setDataSent] = useState("");
   const toggleDial = () => setOpenSpeedDialOptions((open) => !open);
@@ -30,6 +33,14 @@ export default function AdminSection() {
     setOpenSpeedDialOptions(false);
     setOpenQuotesModal(true);
     setOpenLoginModal(false);
+    setOpenTeamsModal(false);
+  }
+
+  const handleOpenTeamsModal = ()  => {
+    setOpenSpeedDialOptions(false);
+    setOpenQuotesModal(false);
+    setOpenLoginModal(false);
+    setOpenTeamsModal(true);
   }
   const handleCloseAll = (success, message) => {
     if (typeof success === "boolean") {
@@ -40,11 +51,13 @@ export default function AdminSection() {
     setOpenQuotesModal(false);
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(false);
+    setOpenTeamsModal(false);
   };
   const handleOpenLoginModal = () => {
     setOpenQuotesModal(false);
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(true);
+    setOpenTeamsModal(false);
   };
   const logout = () => {
     sessionStorage.removeItem('auth');
@@ -84,6 +97,12 @@ export default function AdminSection() {
               FabProps={{ color:"info" }}
           >
             <SpeedDialAction
+                key="teams"
+                icon={<GroupsIcon />}
+                tooltipTitle="Manage Teams"
+                onClick={handleOpenTeamsModal}
+            />
+            <SpeedDialAction
                 key="quotes"
                 icon={<QuoteIcon />}
                 tooltipTitle="Manage Quotes"
@@ -95,6 +114,7 @@ export default function AdminSection() {
                 tooltipTitle="Logout"
                 onClick={logout} />
           </SpeedDial>
+          <TeamsList opened={openTeamsModal} creds={creds} onClose={handleCloseAll} />
           <QuoteList opened={openQuotesModal} creds={creds} onClose={handleCloseAll} />
           <Snackbar
               anchorOrigin={{vertical:'top', horizontal: 'center'}}

@@ -5,6 +5,7 @@ import java.util.*
 import net.ddellspe.escapegenai.model.Team
 import net.ddellspe.escapegenai.model.TeamContainer
 import net.ddellspe.escapegenai.repository.TeamRepository
+import org.apache.commons.text.similarity.LevenshteinDistance
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -67,7 +68,14 @@ class TeamService(var teamRepository: TeamRepository) {
 
   fun verifyTeamQuote(id: UUID, quote: String): Boolean {
     val team = getTeam(id)
-    if (quote == team.quote?.quote) {
+    val actualQuote = team.quote?.quote ?: ""
+    val levDistance = LevenshteinDistance()
+    if (
+      levDistance.apply(
+        quote.lowercase().replace(".,!?".toRegex(), ""),
+        actualQuote.lowercase().replace(".,!?".toRegex(), ""),
+      ) <= (actualQuote.length.div(10))
+    ) {
       team.quoteEntered = team.quoteEntered ?: OffsetDateTime.now()
       teamRepository.save(team)
       return true
