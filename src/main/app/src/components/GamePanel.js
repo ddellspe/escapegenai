@@ -27,7 +27,7 @@ export default function GamePanel() {
   const selectTeam = (teamId) => {
     setTeamId(teamId);
     const team = teams.find(team => team.id === teamId);
-    setSelectedTeam(team === undefined ? undefined : team);
+    setSelectedTeam(team === "" ? "" : team);
     if (team === undefined) {
       sessionStorage.removeItem("submission");
     }
@@ -161,19 +161,19 @@ export default function GamePanel() {
                     <InputLabel id="teamLabel">Team</InputLabel>
                     <Select labelId="teamLabel" id="teamId" value={teamId !== undefined ? teamId : ""} onChange={handleChange} label="Team"
                             name="teamId" disabled={teamId
-                        !== undefined}>
+                        !== ""}>
                       {teams.map((team) => (
                           <MenuItem key={team.id} value={team.id}>{team.name}</MenuItem>
                       ))}
                     </Select>
                   </FormControl>
-                  <Button variant="contained" onClick={() => selectTeam(undefined)} disabled={teamId === undefined}>
+                  <Button variant="contained" onClick={() => selectTeam("")} disabled={teamId === ""}>
                     Change Team
                   </Button>
                 </Box>
               </Box>
             </Grid>
-            {teamId === undefined ? (
+            {teamId === "" ? (
                     <Grid item xs={12} alignItems="center" justifyContent="center">
                       <Typography id="teams-modal-title" variant="h4" component="h2" align="center">
                         Please select a team to continue.
