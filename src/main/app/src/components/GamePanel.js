@@ -8,16 +8,20 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 export default function GamePanel() {
   const [loading, setLoading] = useState(true);
   const [teams, setTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState({});
-  const [teamId, setTeamId] = useState(undefined);
+  const [teamId, setTeamId] = useState("");
   const [password, setPassword] = useState(undefined);
   const [teamWord, setTeamWord] = useState(undefined);
   const [quote, setQuote] = useState(undefined);
   const [fact, setFact] = useState(undefined);
+  const [showError, setShowError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const currentHost = `${window.location.protocol}//${window.location.hostname}${window.location.port !== "" ? (":" + window.location.port) : ""}`;
 
   const selectTeam = (teamId) => {
@@ -29,9 +33,29 @@ export default function GamePanel() {
     }
   }
 
-  const updateSubmission = (submission) => {
+  const killAlert = () => {
+    setShowError(false);
+    setTimeout(() => setErrorMsg(""), 1000);
+  }
+
+  const updateSubmission = (submission, submit) => {
     if (submission.id !== undefined) {
       selectTeam(submission.id);
+      if (submit !== undefined) {
+        if (submit.password !== undefined && submit.password !== '' && submit.password !== submission.password) {
+          setShowError(true);
+          setErrorMsg("Password Incorrect");
+        } else if (submit.teamWord !== undefined && submit.teamWord !== '' && submit.teamWord !== submission.teamWord) {
+          setShowError(true);
+          setErrorMsg("Word Incorrect");
+        } else if (submit.quote !== undefined && submit.quote !== '' && submit.quote !== submission.quote) {
+          setShowError(true);
+          setErrorMsg("Quote Incorrect");
+        } else if (submit.fact !== undefined && submit.fact !== '' && submit.fact !== submission.fact) {
+          setShowError(true);
+          setErrorMsg("Fun Fact Incorrect");
+        }
+      }
       setPassword(submission.password === null ? undefined : submission.password);
       setTeamWord(submission.teamWord === null ? undefined : submission.teamWord);
       setQuote(submission.quote === null ? undefined : submission.quote);
@@ -44,8 +68,8 @@ export default function GamePanel() {
     setLoading(true)
     const getTeams = async () => {
       fetch('game/teams')
-        .then((res) => res.json())
-        .then((json) => {
+      .then((res) => res.json())
+      .then((json) => {
         setTeams(json)
         setLoading(false);
         let submission = JSON.parse(sessionStorage.getItem("submission"));
@@ -61,13 +85,12 @@ export default function GamePanel() {
     getTeams();
     /* eslint-disable react-hooks/exhaustive-deps */
   }, []);
-
   /* eslint-enable */
 
   const handleChange = (event) => {
     if (event.target.name === 'teamId') {
       if (event.target.value !== teamId) {
-        updateSubmission({"id": event.target.value, "password": null, "teamWord": null, "quote": null, "fact": null});
+        updateSubmission({"id": event.target.value, "password": undefined, "teamWord": undefined, "quote": undefined, "fact": undefined});
       }
     }
   }
@@ -90,7 +113,7 @@ export default function GamePanel() {
       return resp.json();
     })
     .then((submission) => {
-      updateSubmission(submission);
+      updateSubmission(submission, object);
     })
   };
 
@@ -107,36 +130,46 @@ export default function GamePanel() {
   } else {
     return (
         <Grid container spacing={2} justifyContent="center" alignItems="center">
-          <Grid item xs={12} alignItems="center" justifyContent="center">
+          <Snackbar
+              anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+              open={showError}
+              autoHideDuration={6000}
+              onClose={killAlert}
+          >
+            <Alert severity="error" sx={{width: '100%'}}>{errorMsg}</Alert>
+          </Snackbar>
+          <Grid item xs={10} xsoffset={1} alignItems="center" justifyContent="center">
+            <Grid item xs={12} alignItems="center" justifyContent="center">
+              <Box sx={{width: '100%'}} textAlign="center">
+                <Typography id="teams-modal-title" variant="h4" component="h2" align="center">
+                  Choose your team!
+                </Typography>
+                <Box sx={{width: '50%', my: 1, mx: "auto"}}>
+                  <FormControl fullWidth>
+                    <InputLabel id="teamLabel">Team</InputLabel>
+                    <Select labelId="teamLabel" id="teamId" value={teamId !== undefined ? teamId : ""} onChange={handleChange} label="Team" name="teamId" disabled={teamId
+                        !== undefined}>
+                      {teams.map((team) => (
+                          <MenuItem key={team.id} value={team.id}>{team.name}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Button variant="contained" onClick={() => selectTeam(undefined)} disabled={teamId === undefined}>
+                    Change Team
+                  </Button>
+                </Box>
+              </Box>
+            </Grid>
             {teamId === undefined ? (
-                    <Box sx={{width: '100%'}}>
+                    <Grid item xs={12} alignItems="center" justifyContent="center">
                       <Typography id="teams-modal-title" variant="h4" component="h2" align="center">
-                        Choose your team!
+                        Please select a team to continue.
                       </Typography>
-                      <Box sx={{width: '50%', my: 1, mx: "auto"}}>
-                        <FormControl fullWidth>
-                          <InputLabel id="teamLabel">Team</InputLabel>
-                          <Select labelId="teamLabel" id="teamId" value={teamId} onChange={handleChange} label="Team" name="teamId">
-                            <MenuItem></MenuItem>
-                            {teams.map((team) => (
-                                <MenuItem key={team.id} value={team.id}>{team.name}</MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Box>
-                    </Box>
+                    </Grid>
                 )
                 :
                 (
                     <Grid item xs={12} alignItems="center" justifyContent="center">
-                      <Box sx={{width: '100%'}}>
-                        <Typography id="teams-modal-title" variant="h4" component="h2" align="center">
-                          {selectedTeam === undefined ? "Loading Team Details" : selectedTeam.name}
-                        </Typography>
-                        <Button variant="contained" onClick={() => selectTeam(undefined)}>
-                          Change Team
-                        </Button>
-                      </Box>
                       <Grid item xs={12} alignItems="center" justifyContent="center" component="form" onSubmit={setSubmission}>
                         <input type="hidden" name="id" value={teamId}/>
                         {password === undefined ?
@@ -282,18 +315,19 @@ export default function GamePanel() {
                                     </Typography>
                                     <Typography paragraph={true} align="center">
                                       Your final task is to look up the <b>{selectedTeam === undefined ? "PENDING"
-                                        : selectedTeam.funFactType}</b> fact for the quote you provided above, you
-                                      can find the quote using the Pinecone instance with the account label [Insert Label Here], you will likely need
-                                      to filter for your fun fact type listed before as your quote may embed to multiple items in the vector database,
-                                      the schema of the metadata is as follows:
+                                        : selectedTeam.funFactType}</b> fact for the quote you provided above, you can find the quote using the
+                                      Pinecone instance with the account label <b>Pinecone</b> with the Index: <b>quote-facts</b> and <b>no
+                                      namespace</b> set. All embeddings have been created using the <b>amazon.titan-embed-text-v1</b> model. You will
+                                      likely need to filter for your fun fact type listed before as your quote may embed to multiple items in the
+                                      vector database, the schema of the metadata is as follows:
                                     </Typography>
-                                    <Typography component="pre">
-                                      This is text
-                                    </Typography>
-                                    <Typography paragraph={true} align="center" variant="body2">
-                                      Hint: You will need to use the Titan Embedder Snap with your quote to appropriately look up in the pinecone
-                                      index.
-                                    </Typography>
+                                    <Grid container justifyContent="center" sx={{my: 1}}>
+                                      <Box sx={{p: 1, border: 2}} style={{backgroundColor: "#EEEEEE", borderColor: "#222222", borderStyle: "solid"}}>
+                                        <Typography component="pre" variant="pre">
+                                          {`{\n\t"funFactType": "<funFactType>",\n\t"funFact": "<value>"\n}`}
+                                        </Typography>
+                                      </Box>
+                                    </Grid>
                                     <TextField label="Fun Fact" required name="fact" id="fact" sx={{mr: 1, width: '100%'}}/>
                                   </Box>
                                 </Grid>
