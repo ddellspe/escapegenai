@@ -74,11 +74,11 @@ export default function GamePanel() {
         setLoading(false);
         let submission = JSON.parse(sessionStorage.getItem("submission"));
         if (submission !== null && submission.id !== undefined) {
-          setPassword(submission.password === null ? undefined : submission.password);
-          setTeamWord(submission.teamWord === null ? undefined : submission.teamWord);
-          setQuote(submission.quote === null ? undefined : submission.quote);
-          setFact(submission.fact === null ? undefined : submission.fact);
-          setTimeout(selectTeam(submission.id), 500);
+          setPassword(submission.password === null ? "" : submission.password);
+          setTeamWord(submission.teamWord === null ? "" : submission.teamWord);
+          setQuote(submission.quote === null ? "" : submission.quote);
+          setFact(submission.fact === null ? "" : submission.fact);
+          setTimeout(() => selectTeam(submission.id), 500);
         }
       });
     }
@@ -90,7 +90,19 @@ export default function GamePanel() {
   const handleChange = (event) => {
     if (event.target.name === 'teamId') {
       if (event.target.value !== teamId) {
-        updateSubmission({"id": event.target.value, "password": undefined, "teamWord": undefined, "quote": undefined, "fact": undefined});
+        const submission = {"id": event.target.value, "password": undefined, "teamWord": undefined, "quote": undefined, "fact": undefined}
+        updateSubmission(submission);
+        fetch('game/submit', {
+          method: 'POST',
+          headers: new Headers({
+            'Content-Type': 'application/json'
+          }),
+          body: JSON.stringify(submission)
+        })
+        .then((resp) => {
+          return resp.json();
+        })
+        .then();
       }
     }
   }
@@ -147,7 +159,8 @@ export default function GamePanel() {
                 <Box sx={{width: '50%', my: 1, mx: "auto"}}>
                   <FormControl fullWidth>
                     <InputLabel id="teamLabel">Team</InputLabel>
-                    <Select labelId="teamLabel" id="teamId" value={teamId !== undefined ? teamId : ""} onChange={handleChange} label="Team" name="teamId" disabled={teamId
+                    <Select labelId="teamLabel" id="teamId" value={teamId !== undefined ? teamId : ""} onChange={handleChange} label="Team"
+                            name="teamId" disabled={teamId
                         !== undefined}>
                       {teams.map((team) => (
                           <MenuItem key={team.id} value={team.id}>{team.name}</MenuItem>

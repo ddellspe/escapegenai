@@ -1,8 +1,6 @@
 package net.ddellspe.escapegenai.controller
 
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import java.util.*
 import net.ddellspe.escapegenai.model.*
 import net.ddellspe.escapegenai.service.QuotePartService
@@ -247,6 +245,7 @@ class GameControllerTest {
   @Test
   fun whenSubmitGameState_hasTeamNoPassword_thenExpectOKNoPassword() {
     every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
     every { gameSubmission.id } returns id
     every { team.id } returns id
     every { gameSubmission.password } returns null
@@ -255,7 +254,7 @@ class GameControllerTest {
     val expectedBody = GameSubmission(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
-    verify(exactly = 1) { team.id }
+    verify(exactly = 2) { team.id }
     verify(exactly = 1) { gameSubmission.password }
     verify(exactly = 1) { gameSubmission.id }
     assertNotNull(result.body)
@@ -266,6 +265,7 @@ class GameControllerTest {
   @Test
   fun whenSubmitGameState_hasTeamPasswordNotCorrect_thenExpectOKNoPassword() {
     every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
     every { gameSubmission.id } returns id
     every { team.id } returns id
     every { gameSubmission.password } returns "password"
@@ -275,7 +275,7 @@ class GameControllerTest {
     val expectedBody = GameSubmission(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
-    verify(exactly = 2) { team.id }
+    verify(exactly = 3) { team.id }
     verify(exactly = 2) { gameSubmission.password }
     verify(exactly = 1) { gameSubmission.id }
     verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
@@ -287,6 +287,7 @@ class GameControllerTest {
   @Test
   fun whenSubmitGameState_hasTeamPasswordCorrectNoWord_thenExpectOKNoWord() {
     every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
     every { gameSubmission.id } returns id
     every { team.id } returns id
     every { gameSubmission.password } returns "password"
@@ -297,7 +298,7 @@ class GameControllerTest {
     val expectedBody = GameSubmission(id, "password")
 
     verify(exactly = 1) { teamService.getTeam(id) }
-    verify(exactly = 2) { team.id }
+    verify(exactly = 3) { team.id }
     verify(exactly = 3) { gameSubmission.password }
     verify(exactly = 1) { gameSubmission.id }
     verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
@@ -310,6 +311,7 @@ class GameControllerTest {
   @Test
   fun whenSubmitGameState_hasTeamPasswordIncorrectWord_thenExpectOKNoWord() {
     every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
     every { gameSubmission.id } returns id
     every { team.id } returns id
     every { gameSubmission.password } returns "password"
@@ -321,7 +323,7 @@ class GameControllerTest {
     val expectedBody = GameSubmission(id, "password")
 
     verify(exactly = 1) { teamService.getTeam(id) }
-    verify(exactly = 3) { team.id }
+    verify(exactly = 4) { team.id }
     verify(exactly = 3) { gameSubmission.password }
     verify(exactly = 1) { gameSubmission.id }
     verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
@@ -335,6 +337,7 @@ class GameControllerTest {
   @Test
   fun whenSubmitGameState_hasTeamPasswordWordNoQuote_thenExpectOKNoQuote() {
     every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
     every { gameSubmission.id } returns id
     every { team.id } returns id
     every { gameSubmission.password } returns "password"
@@ -347,7 +350,7 @@ class GameControllerTest {
     val expectedBody = GameSubmission(id, "password", "word")
 
     verify(exactly = 1) { teamService.getTeam(id) }
-    verify(exactly = 3) { team.id }
+    verify(exactly = 4) { team.id }
     verify(exactly = 3) { gameSubmission.password }
     verify(exactly = 1) { gameSubmission.id }
     verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
@@ -362,6 +365,7 @@ class GameControllerTest {
   @Test
   fun whenSubmitGameState_hasTeamPasswordWordIncorrectQuote_thenExpectOKNoQuote() {
     every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
     every { gameSubmission.id } returns id
     every { team.id } returns id
     every { gameSubmission.password } returns "password"
@@ -375,7 +379,7 @@ class GameControllerTest {
     val expectedBody = GameSubmission(id, "password", "word")
 
     verify(exactly = 1) { teamService.getTeam(id) }
-    verify(exactly = 4) { team.id }
+    verify(exactly = 5) { team.id }
     verify(exactly = 3) { gameSubmission.password }
     verify(exactly = 1) { gameSubmission.id }
     verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
@@ -391,6 +395,7 @@ class GameControllerTest {
   @Test
   fun whenSubmitGameState_hasTeamPasswordWordQuoteNoFunFact_thenExpectOKNoFunFact() {
     every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
     every { gameSubmission.id } returns id
     every { team.id } returns id
     every { gameSubmission.password } returns "password"
@@ -405,7 +410,7 @@ class GameControllerTest {
     val expectedBody = GameSubmission(id, "password", "word", "quote")
 
     verify(exactly = 1) { teamService.getTeam(id) }
-    verify(exactly = 4) { team.id }
+    verify(exactly = 5) { team.id }
     verify(exactly = 3) { gameSubmission.password }
     verify(exactly = 1) { gameSubmission.id }
     verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
@@ -422,6 +427,7 @@ class GameControllerTest {
   @Test
   fun whenSubmitGameState_hasTeamPasswordWordQuoteIncorrectFunFact_thenExpectOKNoFunFact() {
     every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
     every { gameSubmission.id } returns id
     every { team.id } returns id
     every { gameSubmission.password } returns "password"
@@ -437,7 +443,7 @@ class GameControllerTest {
     val expectedBody = GameSubmission(id, "password", "word", "quote")
 
     verify(exactly = 1) { teamService.getTeam(id) }
-    verify(exactly = 5) { team.id }
+    verify(exactly = 6) { team.id }
     verify(exactly = 3) { gameSubmission.password }
     verify(exactly = 1) { gameSubmission.id }
     verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }
@@ -455,6 +461,7 @@ class GameControllerTest {
   @Test
   fun whenSubmitGameState_hasTeamPasswordWordQuoteFunFact_thenExpectOKAllData() {
     every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
     every { gameSubmission.id } returns id
     every { team.id } returns id
     every { gameSubmission.password } returns "password"
@@ -470,7 +477,7 @@ class GameControllerTest {
     val expectedBody = GameSubmission(id, "password", "word", "quote", "fact")
 
     verify(exactly = 1) { teamService.getTeam(id) }
-    verify(exactly = 5) { team.id }
+    verify(exactly = 6) { team.id }
     verify(exactly = 3) { gameSubmission.password }
     verify(exactly = 1) { gameSubmission.id }
     verify(exactly = 1) { teamService.verifyTeamPassword(id, "password") }

@@ -9,6 +9,7 @@ import net.ddellspe.escapegenai.util.generateFunFactType
 data class Team(
   @Id @GeneratedValue(strategy = GenerationType.UUID) var id: UUID = UUID.randomUUID(),
   var name: String = "",
+  var firstSelected: OffsetDateTime? = null,
   @OneToOne(
     fetch = FetchType.LAZY,
     optional = false,
@@ -38,6 +39,7 @@ data class Team(
     return MinimalTeam(
       this.id,
       this.name,
+      this.firstSelected,
       this.passwordEntered,
       this.wordEntered,
       this.quoteEntered,
@@ -50,6 +52,7 @@ data class Team(
     return TeamContainer(
       this.id,
       this.name,
+      this.firstSelected,
       this.password.id,
       this.passwordEntered,
       this.word.id,

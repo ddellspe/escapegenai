@@ -58,7 +58,8 @@ class DumbCoverageTests {
   @Test
   fun testToMinimalTeam() {
     val team = Team()
-    team.passwordEntered = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+    team.firstSelected = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+    team.passwordEntered = OffsetDateTime.of(2024, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC)
     team.wordEntered = OffsetDateTime.of(2024, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC)
     team.quoteEntered = OffsetDateTime.of(2024, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC)
     team.funFactEntered = OffsetDateTime.of(2024, 1, 4, 0, 0, 0, 0, ZoneOffset.UTC)
@@ -69,6 +70,7 @@ class DumbCoverageTests {
       MinimalTeam(
         team.id,
         team.name,
+        team.firstSelected,
         team.passwordEntered,
         team.wordEntered,
         team.quoteEntered,
@@ -81,7 +83,8 @@ class DumbCoverageTests {
   @Test
   fun toTeamContainerQuoteNotPresent() {
     val team = Team()
-    team.passwordEntered = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+    team.firstSelected = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+    team.passwordEntered = OffsetDateTime.of(2024, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC)
     team.wordEntered = OffsetDateTime.of(2024, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC)
 
     val teamContainer = team.toTeamContainer()
@@ -90,6 +93,7 @@ class DumbCoverageTests {
       TeamContainer(
         team.id,
         team.name,
+        team.firstSelected,
         team.password.id,
         team.passwordEntered,
         team.word.id,
@@ -107,7 +111,8 @@ class DumbCoverageTests {
     val team = Team()
     val quote = Quote(quote = "things", quoteParts = generateParts("things"))
     team.quote = quote
-    team.passwordEntered = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+    team.firstSelected = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+    team.passwordEntered = OffsetDateTime.of(2024, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC)
     team.wordEntered = OffsetDateTime.of(2024, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC)
 
     val teamContainer = team.toTeamContainer()
@@ -116,6 +121,7 @@ class DumbCoverageTests {
       TeamContainer(
         team.id,
         team.name,
+        team.firstSelected,
         team.password.id,
         team.passwordEntered,
         team.word.id,

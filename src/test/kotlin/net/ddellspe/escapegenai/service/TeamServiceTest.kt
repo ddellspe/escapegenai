@@ -153,10 +153,42 @@ class TeamServiceTest {
     every { teamRepository.findByIdOrNull(id) } returns null
 
     val exception: IllegalArgumentException =
-      assertThrows<IllegalArgumentException> { teamService.verifyTeamPassword(id, "password") }
+      assertThrows<IllegalArgumentException> { teamService.verifyTeamOpened(id) }
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     assertEquals("Team with id=${id} does not exist.", exception.message)
+  }
+
+  @Test
+  fun whenVerifyTeamOpened_hasTeam_thenExpectAppropriateMockCalls() {
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { teamRepository.save(team) } returns team
+    every { team.firstSelected } returns null
+    every { team.firstSelected = capture(dateSlot) } just runs
+
+    teamService.verifyTeamOpened(id)
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { teamRepository.save(team) }
+    verify(exactly = 1) { team.firstSelected }
+    verify(exactly = 1) { team.firstSelected = any<OffsetDateTime>() }
+    assertEquals(true, dateSlot.captured.isBefore(OffsetDateTime.now()))
+  }
+
+  @Test
+  fun whenVerifyTeamOpened_hasTeamDateAlreadySet_thenExpectAppropriateMockCalls() {
+    val dt = OffsetDateTime.now()
+    every { teamRepository.findByIdOrNull(id) } returns team
+    every { teamRepository.save(team) } returns team
+    every { team.firstSelected } returns dt
+    every { team.firstSelected = dt } just runs
+
+    teamService.verifyTeamOpened(id)
+
+    verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { teamRepository.save(team) }
+    verify(exactly = 1) { team.firstSelected }
+    verify(exactly = 1) { team.firstSelected = dt }
   }
 
   @Test
@@ -185,6 +217,7 @@ class TeamServiceTest {
     val result: Boolean = teamService.verifyTeamPassword(id, "password")
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 1) { teamRepository.save(team) }
     verify(exactly = 1) { team.password }
     verify(exactly = 1) { team.passwordEntered }
     verify(exactly = 1) { team.passwordEntered = any<OffsetDateTime>() }
