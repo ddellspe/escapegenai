@@ -44,6 +44,12 @@ class TeamService(var teamRepository: TeamRepository) {
     teamRepository.delete(team)
   }
 
+  fun verifyTeamOpened(id: UUID) {
+    val team = getTeam(id)
+    team.firstSelected = team.firstSelected ?: OffsetDateTime.now()
+    teamRepository.save(team)
+  }
+
   fun verifyTeamPassword(id: UUID, password: String): Boolean {
     val team = getTeam(id)
     if (password == team.password.password) {

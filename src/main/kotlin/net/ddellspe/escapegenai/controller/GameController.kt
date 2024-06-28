@@ -118,6 +118,7 @@ class GameController(var teamService: TeamService, var quotePartService: QuotePa
   fun submitGameState(@RequestBody gameSubmission: GameSubmission): ResponseEntity<GameSubmission> {
     try {
       val team = teamService.getTeam(gameSubmission.id)
+      teamService.verifyTeamOpened(team.id)
       val returnSubmission = GameSubmission(team.id)
       if (
         gameSubmission.password == null ||
