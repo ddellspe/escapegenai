@@ -4,36 +4,42 @@ import jakarta.persistence.*
 import java.time.OffsetDateTime
 import java.util.*
 import net.ddellspe.escapegenai.util.generateFunFactType
+import org.hibernate.annotations.Fetch
+import org.hibernate.annotations.FetchMode
 
-@Entity
+@Entity(name = "team")
+@Table(name = "team")
 data class Team(
   @Id @GeneratedValue(strategy = GenerationType.UUID) var id: UUID = UUID.randomUUID(),
   var name: String = "",
-  var firstSelected: OffsetDateTime? = null,
+  @Column(name = "first_selected") var firstSelected: OffsetDateTime? = null,
   @OneToOne(
-    fetch = FetchType.LAZY,
+    fetch = FetchType.EAGER,
     optional = false,
     cascade = [CascadeType.ALL],
     orphanRemoval = true,
   )
   @JoinColumn(name = "password_id")
+  @Fetch(FetchMode.JOIN)
   var password: Password = Password(),
-  var passwordEntered: OffsetDateTime? = null,
+  @Column(name = "password_entered") var passwordEntered: OffsetDateTime? = null,
   @OneToOne(
-    fetch = FetchType.LAZY,
+    fetch = FetchType.EAGER,
     optional = false,
     cascade = [CascadeType.ALL],
     orphanRemoval = true,
   )
   @JoinColumn(name = "word_id")
+  @Fetch(FetchMode.JOIN)
   var word: TeamWord = TeamWord(),
-  var wordEntered: OffsetDateTime? = null,
-  @ManyToOne(fetch = FetchType.LAZY, optional = true, cascade = [CascadeType.DETACH])
+  @Column(name = "word_entered") var wordEntered: OffsetDateTime? = null,
+  @ManyToOne(fetch = FetchType.EAGER, optional = true, cascade = [CascadeType.DETACH])
   @JoinColumn(name = "quote_id")
+  @Fetch(FetchMode.JOIN)
   var quote: Quote? = null,
-  var quoteEntered: OffsetDateTime? = null,
-  var funFactType: String = generateFunFactType(),
-  var funFactEntered: OffsetDateTime? = null,
+  @Column(name = "quote_entered") var quoteEntered: OffsetDateTime? = null,
+  @Column(name = "fun_fact_type") var funFactType: String = generateFunFactType(),
+  @Column(name = "fun_fact_entered") var funFactEntered: OffsetDateTime? = null,
 ) {
   fun toMinimalTeam(): MinimalTeam {
     return MinimalTeam(

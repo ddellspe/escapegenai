@@ -8,6 +8,7 @@ import LoginIcon from '@mui/icons-material/LoginTwoTone';
 import LogoutIcon from '@mui/icons-material/LogoutTwoTone';
 import QuoteIcon from '@mui/icons-material/FormatQuoteTwoTone';
 import GroupsIcon from '@mui/icons-material/Groups';
+import ScoreboardIcon from '@mui/icons-material/ScoreboardTwoTone';
 import Snackbar from '@mui/material/Snackbar';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
@@ -15,6 +16,7 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import LoginForm from "./LoginForm";
 import QuoteList from "./QuoteList";
 import TeamsList from "./TeamsList";
+import Scoreboard from "./Scoreboard";
 
 export default function AdminSection() {
   var creds = sessionStorage.getItem('auth');
@@ -23,6 +25,7 @@ export default function AdminSection() {
   const [openLoginModal, setOpenLoginModal] = useState(false);
   const [openQuotesModal, setOpenQuotesModal] = useState(false);
   const [openTeamsModal, setOpenTeamsModal] = useState(false);
+  const [openScoreboard, setOpenScoreboard] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [dataSent, setDataSent] = useState("");
   const toggleDial = () => setOpenSpeedDialOptions((open) => !open);
@@ -34,6 +37,7 @@ export default function AdminSection() {
     setOpenQuotesModal(true);
     setOpenLoginModal(false);
     setOpenTeamsModal(false);
+    setOpenScoreboard(false);
   }
 
   const handleOpenTeamsModal = ()  => {
@@ -41,6 +45,7 @@ export default function AdminSection() {
     setOpenQuotesModal(false);
     setOpenLoginModal(false);
     setOpenTeamsModal(true);
+    setOpenScoreboard(false);
   }
   const handleCloseAll = (success, message) => {
     if (typeof success === "boolean") {
@@ -52,13 +57,23 @@ export default function AdminSection() {
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(false);
     setOpenTeamsModal(false);
+    setOpenScoreboard(false);
   };
   const handleOpenLoginModal = () => {
     setOpenQuotesModal(false);
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(true);
     setOpenTeamsModal(false);
+    setOpenScoreboard(false);
   };
+
+  const handleOpenScoreboardModal = () => {
+    setOpenScoreboard(true);
+    setOpenQuotesModal(false);
+    setOpenSpeedDialOptions(false);
+    setOpenLoginModal(false);
+    setOpenTeamsModal(false);
+  }
   const logout = () => {
     sessionStorage.removeItem('auth');
     setAuth(false);
@@ -97,6 +112,12 @@ export default function AdminSection() {
               FabProps={{ color:"info" }}
           >
             <SpeedDialAction
+                key="scoreboard"
+                icon={<ScoreboardIcon />}
+                tooltipTitle="Open Scoreboard"
+                onClick={handleOpenScoreboardModal}
+            />
+            <SpeedDialAction
                 key="teams"
                 icon={<GroupsIcon />}
                 tooltipTitle="Manage Teams"
@@ -114,6 +135,7 @@ export default function AdminSection() {
                 tooltipTitle="Logout"
                 onClick={logout} />
           </SpeedDial>
+          <Scoreboard opened={openScoreboard} onClose={handleCloseAll} />
           <TeamsList opened={openTeamsModal} creds={creds} onClose={handleCloseAll} />
           <QuoteList opened={openQuotesModal} creds={creds} onClose={handleCloseAll} />
           <Snackbar
