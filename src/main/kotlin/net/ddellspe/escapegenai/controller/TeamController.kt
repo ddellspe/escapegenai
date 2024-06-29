@@ -30,7 +30,7 @@ class TeamController(
   @GetMapping("/teams")
   fun getTeams(): ResponseEntity<List<TeamContainer>> {
     val teams: List<TeamContainer> =
-      teamService.getAllTeams().stream().map { t -> t.toTeamContainer() }.toList()
+      teamService.getAllTeams().map { t -> t.toTeamContainer() }.toList()
     return ResponseEntity.ok(teams)
   }
 
