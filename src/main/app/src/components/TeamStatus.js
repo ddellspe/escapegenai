@@ -20,7 +20,7 @@ export default function TeamStatus({team}) {
   }
   if (team.funFactEntered !== null) {
     progress += 25;
-    endTime = Date.parse(team.quoteEntered);
+    endTime = Date.parse(team.funFactEntered);
   }
   let timeTaken = "";
   if (!isNaN(startTime)) {
