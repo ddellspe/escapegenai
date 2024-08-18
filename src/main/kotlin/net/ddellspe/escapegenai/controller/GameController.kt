@@ -1,5 +1,7 @@
 package net.ddellspe.escapegenai.controller
 
+import com.itextpdf.html2pdf.HtmlConverter
+import java.io.ByteArrayOutputStream
 import java.util.*
 import net.ddellspe.escapegenai.config.EscapeGenAIProperties
 import net.ddellspe.escapegenai.model.GameSubmission
@@ -8,6 +10,7 @@ import net.ddellspe.escapegenai.service.QuotePartService
 import net.ddellspe.escapegenai.service.TeamService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -43,6 +46,36 @@ class GameController(var teamService: TeamService, var quotePartService: QuotePa
         .body(
           content.replace("[TEAM_NAME]", team.name).replace("[CONTENT]", team.password.pageContent)
         )
+    } catch (e: IllegalArgumentException) {
+      return ResponseEntity<String>(e.message!!, HttpStatus.NOT_FOUND)
+    }
+  }
+
+  @GetMapping(
+    "/team/{id}/password_pdf",
+    produces = [MediaType.APPLICATION_PDF_VALUE, MediaType.TEXT_HTML_VALUE],
+  )
+  fun getTeamPasswordPDF(@PathVariable id: UUID): ResponseEntity<out Any> {
+    try {
+      val team = teamService.getTeam(id)
+      val content =
+        this::class
+          .java
+          .getResourceAsStream("/game/password_pdf_template.html")!!
+          .bufferedReader()
+          .readLines()
+          .joinToString("\n")
+      val targetOutputStream = ByteArrayOutputStream()
+      HtmlConverter.convertToPdf(
+        content.replace("[TEAM_NAME]", team.name).replace("[CONTENT]", team.password.pageContent),
+        targetOutputStream,
+      )
+      val headers = HttpHeaders()
+      headers.add("Content-Disposition", "inline; filename=${team.name} Password.pdf")
+      return ResponseEntity.ok()
+        .headers(headers)
+        .contentType(MediaType.APPLICATION_PDF)
+        .body(targetOutputStream.toByteArray())
     } catch (e: IllegalArgumentException) {
       return ResponseEntity<String>(e.message!!, HttpStatus.NOT_FOUND)
     }

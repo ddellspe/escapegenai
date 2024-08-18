@@ -89,6 +89,37 @@ class GameControllerTest {
   }
 
   @Test
+  fun whenGetTeamPasswordPDF_hasTeamNotFound_thenResultIsNotFound() {
+    every { teamService.getTeam(id) } throws IllegalArgumentException("Not Found")
+
+    val result = gameController.getTeamPasswordPDF(id)
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.NOT_FOUND, result.statusCode)
+    assertEquals("Not Found", result.body)
+  }
+
+  @Test
+  fun whenGetTeamPasswordPDF_hasTeam_thenExpectTeamNameInContent() {
+    every { teamService.getTeam(id) } returns team
+    every { team.name } returns "Team Name"
+    every { team.password } returns password
+    every { password.pageContent } returns "Content"
+
+    val result = gameController.getTeamPasswordPDF(id)
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 2) { team.name }
+    verify(exactly = 1) { team.password }
+    verify(exactly = 1) { password.pageContent }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals("Team Name Password.pdf", result.headers.contentDisposition.filename)
+    assertEquals(MediaType.APPLICATION_PDF, result.headers.contentType)
+  }
+
+  @Test
   fun whenGetTeamWord_hasTeamNotFound_thenResultIsNotFound() {
     every { teamService.getTeam(id) } throws IllegalArgumentException("Not Found")
 
