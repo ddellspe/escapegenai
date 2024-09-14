@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 
-class GameControllerTest {
+class GameDataControllerTest {
   private val teamService: TeamService = mockk()
   private val quotePartService: QuotePartService = mockk()
   private val team: Team = mockk()
@@ -21,19 +21,19 @@ class GameControllerTest {
   private val quote: Quote = mockk()
   private val quotePart: QuotePart = mockk()
   private val id = UUID.randomUUID()
-  private val gameController = GameController(teamService, quotePartService)
+  private val gameDataController = GameDataController(teamService, quotePartService)
 
   @Test
   fun dumbCoverageTests() {
-    gameController.teamService = teamService
-    gameController.quotePartService = quotePartService
+    gameDataController.teamService = teamService
+    gameDataController.quotePartService = quotePartService
   }
 
   @Test
   fun whenGetTeams_hasNoTeams_thenNoTeamsPresent() {
     every { teamService.getAllTeams() } returns emptyList()
 
-    val result = gameController.getTeams()
+    val result = gameDataController.getTeams()
 
     verify(exactly = 1) { teamService.getAllTeams() }
     assertNotNull(result.body)
@@ -46,7 +46,7 @@ class GameControllerTest {
     every { teamService.getAllTeams() } returns listOf(team)
     every { team.toMinimalTeam() } returns minimalTeam
 
-    val result = gameController.getTeams()
+    val result = gameDataController.getTeams()
 
     verify(exactly = 1) { teamService.getAllTeams() }
     verify(exactly = 1) { team.toMinimalTeam() }
@@ -60,7 +60,7 @@ class GameControllerTest {
   fun whenGetTeamPassword_hasTeamNotFound_thenResultIsNotFound() {
     every { teamService.getTeam(id) } throws IllegalArgumentException("Not Found")
 
-    val result = gameController.getTeamPassword(id)
+    val result = gameDataController.getTeamPassword(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
     assertNotNull(result.body)
@@ -75,7 +75,7 @@ class GameControllerTest {
     every { team.password } returns password
     every { password.pageContent } returns "Content"
 
-    val result = gameController.getTeamPassword(id)
+    val result = gameDataController.getTeamPassword(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
     verify(exactly = 1) { team.name }
@@ -92,7 +92,7 @@ class GameControllerTest {
   fun whenGetTeamPasswordPDF_hasTeamNotFound_thenResultIsNotFound() {
     every { teamService.getTeam(id) } throws IllegalArgumentException("Not Found")
 
-    val result = gameController.getTeamPasswordPDF(id)
+    val result = gameDataController.getTeamPasswordPDF(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
     assertNotNull(result.body)
@@ -107,7 +107,7 @@ class GameControllerTest {
     every { team.password } returns password
     every { password.pageContent } returns "Content"
 
-    val result = gameController.getTeamPasswordPDF(id)
+    val result = gameDataController.getTeamPasswordPDF(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
     verify(exactly = 2) { team.name }
@@ -123,7 +123,7 @@ class GameControllerTest {
   fun whenGetTeamWord_hasTeamNotFound_thenResultIsNotFound() {
     every { teamService.getTeam(id) } throws IllegalArgumentException("Not Found")
 
-    val result = gameController.getTeamWord(id)
+    val result = gameDataController.getTeamWord(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
     assertNotNull(result.body)
@@ -138,7 +138,7 @@ class GameControllerTest {
     every { team.word } returns word
     every { word.generatedContent } returns "Content"
 
-    val result = gameController.getTeamWord(id)
+    val result = gameDataController.getTeamWord(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
     verify(exactly = 1) { team.name }
@@ -155,7 +155,7 @@ class GameControllerTest {
   fun whenGetQuoteParts_hasTeamNotFound_thenResultIsNotFound() {
     every { teamService.getTeam(id) } throws IllegalArgumentException("Not Found")
 
-    val result = gameController.getQuoteParts(id)
+    val result = gameDataController.getQuoteParts(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
     assertNull(result.body)
@@ -171,7 +171,7 @@ class GameControllerTest {
     every { quote.quoteParts } returns mutableListOf(quotePart, quotePart)
     every { quotePart.id }.returnsMany(id1, id2)
 
-    val result = gameController.getQuoteParts(id)
+    val result = gameDataController.getQuoteParts(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
     verify(exactly = 1) { team.quote }
@@ -205,7 +205,7 @@ class GameControllerTest {
     every { quote.quoteParts } returns mutableListOf(quotePart, quotePart)
     every { quotePart.id }.returnsMany(id2, id1)
 
-    val result = gameController.getQuoteParts(id)
+    val result = gameDataController.getQuoteParts(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
     verify(exactly = 1) { team.quote }
@@ -234,7 +234,7 @@ class GameControllerTest {
   fun whenGetQuoteDocument_hasTeamNotFound_thenResultIsNotFound() {
     every { quotePartService.getQuotePart(id) } throws IllegalArgumentException("Not Found")
 
-    val result = gameController.getQuoteDocument(id)
+    val result = gameDataController.getQuoteDocument(id)
 
     verify(exactly = 1) { quotePartService.getQuotePart(id) }
     assertNotNull(result.body)
@@ -247,7 +247,7 @@ class GameControllerTest {
     every { quotePartService.getQuotePart(id) } returns quotePart
     every { quotePart.generatedContent } returns "Content"
 
-    val result = gameController.getQuoteDocument(id)
+    val result = gameDataController.getQuoteDocument(id)
 
     verify(exactly = 1) { quotePartService.getQuotePart(id) }
     verify(exactly = 1) { quotePart.generatedContent }
@@ -263,7 +263,7 @@ class GameControllerTest {
     every { teamService.getTeam(id) } throws IllegalArgumentException("No Team")
     every { gameSubmission.id } returns id
 
-    val result = gameController.submitGameState(gameSubmission)
+    val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
@@ -281,7 +281,7 @@ class GameControllerTest {
     every { team.id } returns id
     every { gameSubmission.password } returns null
 
-    val result = gameController.submitGameState(gameSubmission)
+    val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
@@ -302,7 +302,7 @@ class GameControllerTest {
     every { gameSubmission.password } returns "password"
     every { teamService.verifyTeamPassword(id, "password") } returns false
 
-    val result = gameController.submitGameState(gameSubmission)
+    val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id)
 
     verify(exactly = 1) { teamService.getTeam(id) }
@@ -325,7 +325,7 @@ class GameControllerTest {
     every { teamService.verifyTeamPassword(id, "password") } returns true
     every { gameSubmission.teamWord } returns null
 
-    val result = gameController.submitGameState(gameSubmission)
+    val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "password")
 
     verify(exactly = 1) { teamService.getTeam(id) }
@@ -350,7 +350,7 @@ class GameControllerTest {
     every { gameSubmission.teamWord } returns "word"
     every { teamService.verifyTeamWord(id, "word") } returns false
 
-    val result = gameController.submitGameState(gameSubmission)
+    val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "password")
 
     verify(exactly = 1) { teamService.getTeam(id) }
@@ -377,7 +377,7 @@ class GameControllerTest {
     every { teamService.verifyTeamWord(id, "word") } returns true
     every { gameSubmission.quote } returns null
 
-    val result = gameController.submitGameState(gameSubmission)
+    val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "password", "word")
 
     verify(exactly = 1) { teamService.getTeam(id) }
@@ -406,7 +406,7 @@ class GameControllerTest {
     every { gameSubmission.quote } returns "quote"
     every { teamService.verifyTeamQuote(id, "quote") } returns false
 
-    val result = gameController.submitGameState(gameSubmission)
+    val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "password", "word")
 
     verify(exactly = 1) { teamService.getTeam(id) }
@@ -437,7 +437,7 @@ class GameControllerTest {
     every { teamService.verifyTeamQuote(id, "quote") } returns true
     every { gameSubmission.fact } returns null
 
-    val result = gameController.submitGameState(gameSubmission)
+    val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "password", "word", "quote")
 
     verify(exactly = 1) { teamService.getTeam(id) }
@@ -470,7 +470,7 @@ class GameControllerTest {
     every { gameSubmission.fact } returns "fact"
     every { teamService.verifyFunFact(id, "fact") } returns false
 
-    val result = gameController.submitGameState(gameSubmission)
+    val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "password", "word", "quote")
 
     verify(exactly = 1) { teamService.getTeam(id) }
@@ -504,7 +504,7 @@ class GameControllerTest {
     every { gameSubmission.fact } returns "fact"
     every { teamService.verifyFunFact(id, "fact") } returns true
 
-    val result = gameController.submitGameState(gameSubmission)
+    val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "password", "word", "quote", "fact")
 
     verify(exactly = 1) { teamService.getTeam(id) }

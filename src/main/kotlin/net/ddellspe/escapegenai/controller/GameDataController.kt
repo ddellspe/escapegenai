@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/game")
 @EnableConfigurationProperties(EscapeGenAIProperties::class)
-class GameController(var teamService: TeamService, var quotePartService: QuotePartService) {
+class GameDataController(var teamService: TeamService, var quotePartService: QuotePartService) {
 
   @Autowired private var props: EscapeGenAIProperties = EscapeGenAIProperties()
 
