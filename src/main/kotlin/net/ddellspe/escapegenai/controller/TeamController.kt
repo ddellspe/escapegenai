@@ -11,12 +11,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api")
-class TeamController(
-  var teamService: TeamService,
-  var passwordService: PasswordService,
-  var teamWordService: TeamWordService,
-  var quoteService: QuoteService,
-) {
+class TeamController(var teamService: TeamService) {
 
   @GetMapping("/team_details")
   fun getTeamDetails(): ResponseEntity<List<Team>> {

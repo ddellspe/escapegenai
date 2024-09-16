@@ -5,7 +5,6 @@ import java.util.*
 import net.ddellspe.escapegenai.model.Team
 import net.ddellspe.escapegenai.model.TeamContainer
 import net.ddellspe.escapegenai.repository.TeamRepository
-import org.apache.commons.text.similarity.LevenshteinDistance
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
