@@ -4,8 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import java.util.*
-import net.ddellspe.escapegenai.model.TeamWord
-import net.ddellspe.escapegenai.repository.TeamWordRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

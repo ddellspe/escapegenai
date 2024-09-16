@@ -2,10 +2,6 @@ package net.ddellspe.escapegenai.service
 
 import io.mockk.*
 import java.util.*
-import net.ddellspe.escapegenai.model.Quote
-import net.ddellspe.escapegenai.model.QuoteContainer
-import net.ddellspe.escapegenai.model.QuotePart
-import net.ddellspe.escapegenai.repository.QuoteRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

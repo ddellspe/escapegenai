@@ -7,9 +7,4 @@ data class MinimalTeam(
   var id: UUID,
   var name: String,
   var firstSelected: OffsetDateTime? = null,
-  var passwordEntered: OffsetDateTime? = null,
-  var wordEntered: OffsetDateTime? = null,
-  var quoteEntered: OffsetDateTime? = null,
-  var funFactType: String? = null,
-  var funFactEntered: OffsetDateTime? = null,
 )

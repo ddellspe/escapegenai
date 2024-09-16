@@ -3,7 +3,6 @@ package net.ddellspe.escapegenai.util
 import kotlin.math.max
 import kotlin.math.min
 import net.datafaker.Faker
-import net.ddellspe.escapegenai.model.QuotePart
 
 private val FAKER = Faker()
 private val POSSIBLE_CHARACTERS: String =

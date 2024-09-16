@@ -3,7 +3,6 @@ package net.ddellspe.escapegenai.controller
 import io.mockk.*
 import java.util.*
 import net.ddellspe.escapegenai.model.*
-import net.ddellspe.escapegenai.service.QuotePartService
 import net.ddellspe.escapegenai.service.TeamService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

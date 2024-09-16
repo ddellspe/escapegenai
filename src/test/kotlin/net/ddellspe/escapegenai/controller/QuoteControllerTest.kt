@@ -3,9 +3,6 @@ package net.ddellspe.escapegenai.controller
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.ddellspe.escapegenai.model.Quote
-import net.ddellspe.escapegenai.model.QuoteContainer
-import net.ddellspe.escapegenai.service.QuoteService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test

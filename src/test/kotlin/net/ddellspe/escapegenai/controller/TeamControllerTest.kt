@@ -3,10 +3,7 @@ package net.ddellspe.escapegenai.controller
 import io.mockk.*
 import java.util.*
 import net.ddellspe.escapegenai.model.*
-import net.ddellspe.escapegenai.service.PasswordService
-import net.ddellspe.escapegenai.service.QuoteService
 import net.ddellspe.escapegenai.service.TeamService
-import net.ddellspe.escapegenai.service.TeamWordService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
