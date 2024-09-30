@@ -18,9 +18,7 @@ class ProductService(var productRepository: ProductRepository) {
     if (!productsInitialized) {
       val count = productRepository.count()
       if (count < MAX_PRODUCT_COUNT) {
-        for (i in 1..(MAX_PRODUCT_COUNT - count)) {
-          productRepository.save(Product())
-        }
+        (1..(MAX_PRODUCT_COUNT - count)).forEach { _ -> productRepository.save(Product()) }
       }
       productsInitialized = true
     }

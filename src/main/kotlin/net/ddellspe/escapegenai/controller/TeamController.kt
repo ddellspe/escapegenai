@@ -56,6 +56,11 @@ class TeamController(var teamService: TeamService) {
       val team: Team
       try {
         team = teamService.getTeam(teamContainer.id!!)
+        if (teamContainer.name != team.name) {
+          team.name = teamContainer.name
+        }
+        val updatedTeam = teamService.updateTeam(team)
+        return ResponseEntity.ok(TeamContainerWithError(updatedTeam.toTeamContainer()))
       } catch (e: IllegalArgumentException) {
         errorMap["error"] = true
         errorMap["message"] =

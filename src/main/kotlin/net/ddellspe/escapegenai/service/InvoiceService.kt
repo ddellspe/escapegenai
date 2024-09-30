@@ -36,7 +36,7 @@ class InvoiceService(
     return invoiceRepository.save(invoice)
   }
 
-  fun getInvoice(id: Int): Invoice {
+  fun getInvoice(id: Long): Invoice {
     return invoiceRepository.findByIdOrNull(id)
       ?: throw IllegalArgumentException("Invoice with id=${id} does not exist.")
   }

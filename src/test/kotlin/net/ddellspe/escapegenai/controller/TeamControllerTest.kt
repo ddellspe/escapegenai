@@ -2,7 +2,9 @@ package net.ddellspe.escapegenai.controller
 
 import io.mockk.*
 import java.util.*
-import net.ddellspe.escapegenai.model.*
+import net.ddellspe.escapegenai.model.Team
+import net.ddellspe.escapegenai.model.TeamContainer
+import net.ddellspe.escapegenai.model.TeamContainerWithError
 import net.ddellspe.escapegenai.service.TeamService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -96,6 +98,75 @@ class TeamControllerTest {
       mapOf("error" to true, "message" to "Team has no id present, please use create instead."),
       result.body?.error,
     )
+  }
+
+  @Test
+  fun whenUpdateTeam_hasId_TeamNotFound_thenReturnError() {
+    every { teamContainer.id } returns id
+    every { teamService.getTeam(id) } throws IllegalArgumentException("Team Not Found")
+
+    val result: ResponseEntity<TeamContainerWithError> = teamController.updateTeam(teamContainer)
+
+    verify(exactly = 3) { teamContainer.id }
+    verify(exactly = 1) { teamService.getTeam(id) }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+    assertEquals(teamContainer, result.body?.teamContainer)
+    assertEquals(
+      mapOf(
+        "error" to true,
+        "message" to "Team with id=${id} not found, please use create instead.",
+      ),
+      result.body?.error,
+    )
+  }
+
+  @Test
+  fun whenUpdateTeam_hasId_noChangeToName_thenProcessData() {
+    every { teamContainer.id } returns id
+    every { teamService.getTeam(id) } returns team
+    every { teamContainer.name } returns "name"
+    every { team.name } returns "name"
+    every { teamService.updateTeam(team) } returns team
+    every { team.toTeamContainer() } returns teamContainer
+
+    val result: ResponseEntity<TeamContainerWithError> = teamController.updateTeam(teamContainer)
+
+    verify(exactly = 2) { teamContainer.id }
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 1) { teamContainer.name }
+    verify(exactly = 1) { team.name }
+    verify(exactly = 1) { teamService.updateTeam(team) }
+    verify(exactly = 1) { team.toTeamContainer() }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(teamContainer, result.body?.teamContainer)
+    assertNull(result.body?.error)
+  }
+
+  @Test
+  fun whenUpdateTeam_hasId_AndChangeToName_thenProcessData() {
+    every { teamContainer.id } returns id
+    every { teamService.getTeam(id) } returns team
+    every { teamContainer.name } returns "new name"
+    every { team.name } returns "name"
+    every { teamService.updateTeam(team) } returns team
+    every { team.toTeamContainer() } returns teamContainer
+    every { team.name = "new name" } just runs
+
+    val result: ResponseEntity<TeamContainerWithError> = teamController.updateTeam(teamContainer)
+
+    verify(exactly = 2) { teamContainer.id }
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 2) { teamContainer.name }
+    verify(exactly = 1) { team.name }
+    verify(exactly = 1) { team.name = "new name" }
+    verify(exactly = 1) { teamService.updateTeam(team) }
+    verify(exactly = 1) { team.toTeamContainer() }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(teamContainer, result.body?.teamContainer)
+    assertNull(result.body?.error)
   }
 
   @Test
