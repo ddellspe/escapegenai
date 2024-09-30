@@ -3,7 +3,6 @@ package net.ddellspe.escapegenai.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.util.*
-import kotlin.random.Random
 
 @Entity
 @Table(
@@ -14,7 +13,7 @@ class InvoiceProduct(
   @Id @GeneratedValue(strategy = GenerationType.UUID) var id: UUID = UUID.randomUUID(),
   @ManyToOne @JoinColumn(name = "invoice_id", updatable = false) @JsonIgnore var invoice: Invoice,
   @ManyToOne @JoinColumn(name = "product_id", updatable = false) var product: Product,
-  @Column(name = "qty") var quantity: Int = Random.nextInt(1, 10),
+  @Column(name = "qty") var quantity: Int = (1..10).random(),
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

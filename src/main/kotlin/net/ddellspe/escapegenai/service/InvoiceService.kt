@@ -1,10 +1,13 @@
 package net.ddellspe.escapegenai.service
 
-import kotlin.random.Random
 import net.ddellspe.escapegenai.model.Invoice
+import net.ddellspe.escapegenai.model.Invoice.InvoiceConstants.MAX_INVOICE_PRODUCT_COUNT
+import net.ddellspe.escapegenai.model.Invoice.InvoiceConstants.MIN_INVOICE_PRODUCT_COUNT
 import net.ddellspe.escapegenai.model.InvoiceProduct
+import net.ddellspe.escapegenai.model.Product.ProductConstants.MAX_PRODUCT_COUNT
 import net.ddellspe.escapegenai.repository.InvoiceRepository
 import net.ddellspe.escapegenai.repository.ProductRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,12 +19,12 @@ class InvoiceService(
     return invoiceRepository.findAll()
   }
 
-  fun createNewInvoice(): Invoice {
-    var invoice = Invoice()
-    val productCount = Random.nextInt(3, 8)
+  fun createNewInvoice(difference: Int = 0): Invoice {
+    var invoice = Invoice(difference = difference)
+    val productCount = (MIN_INVOICE_PRODUCT_COUNT..MAX_INVOICE_PRODUCT_COUNT).random()
     val productIds = HashSet<Int>()
     while (productIds.size < productCount) {
-      productIds.add(Random.nextInt(1, 20))
+      productIds.add((1..MAX_PRODUCT_COUNT).random())
     }
     invoice = invoiceRepository.save(invoice)
     val invoiceProducts = invoice.invoiceProducts
@@ -33,11 +36,8 @@ class InvoiceService(
     return invoiceRepository.save(invoice)
   }
 
-  fun createInvoice(invoice: Invoice): Invoice {
-    return invoiceRepository.save(invoice)
-  }
-
-  fun updateInvoice(invoice: Invoice): Invoice {
-    return invoiceRepository.save(invoice)
+  fun getInvoice(id: Int): Invoice {
+    return invoiceRepository.findByIdOrNull(id)
+      ?: throw IllegalArgumentException("Invoice with id=${id} does not exist.")
   }
 }

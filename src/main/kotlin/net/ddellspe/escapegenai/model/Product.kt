@@ -4,15 +4,14 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import kotlin.random.Random
 import net.ddellspe.escapegenai.util.generateProductName
 
 @Entity
 @Table(name = "product")
 class Product(
-  @Id @GeneratedValue var id: Long?,
+  @Id @GeneratedValue var id: Long? = null,
   var name: String = generateProductName(),
-  var price: Int = Random.nextInt(10, 300),
+  var price: Int = (10..300).random(),
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -34,5 +33,9 @@ class Product(
 
   override fun toString(): String {
     return "Product(id=$id, name='$name', price=$price)"
+  }
+
+  object ProductConstants {
+    const val MAX_PRODUCT_COUNT = 40
   }
 }

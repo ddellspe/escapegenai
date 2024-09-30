@@ -2,6 +2,8 @@ package net.ddellspe.escapegenai.model
 
 import jakarta.persistence.*
 import java.time.LocalDate
+import net.ddellspe.escapegenai.util.generateCompanyName
+import net.ddellspe.escapegenai.util.generateFormattedCompanyAddress
 
 @Entity
 @Table(name = "invoice")
@@ -16,6 +18,8 @@ class Invoice(
   )
   var id: Long? = null,
   var date: LocalDate = LocalDate.now(),
+  var company: String = generateCompanyName(),
+  var address: String = generateFormattedCompanyAddress(),
   var difference: Int = 0,
   @OneToMany(
     mappedBy = "invoice",
@@ -32,6 +36,8 @@ class Invoice(
     other as Invoice
 
     if (date != other.date) return false
+    if (company != other.company) return false
+    if (address != other.address) return false
     if (difference != other.difference) return false
     if (invoiceProducts != other.invoiceProducts) return false
 
@@ -40,12 +46,19 @@ class Invoice(
 
   override fun hashCode(): Int {
     var result = date.hashCode()
+    result = 31 * result + company.hashCode()
+    result = 31 * result + address.hashCode()
     result = 31 * result + difference
     result = 31 * result + invoiceProducts.hashCode()
     return result
   }
 
   override fun toString(): String {
-    return "Invoice(id=$id, date=$date, difference=$difference, invoiceProducts=$invoiceProducts)"
+    return "Invoice(id=$id, date=$date, company=$company, address=$address, difference=$difference, invoiceProducts=$invoiceProducts)"
+  }
+
+  object InvoiceConstants {
+    const val MIN_INVOICE_PRODUCT_COUNT = 8
+    const val MAX_INVOICE_PRODUCT_COUNT = 16
   }
 }

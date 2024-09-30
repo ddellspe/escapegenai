@@ -1,32 +1,28 @@
 package net.ddellspe.escapegenai.service
 
-import kotlin.random.Random
 import net.ddellspe.escapegenai.model.Product
+import net.ddellspe.escapegenai.model.Product.ProductConstants.MAX_PRODUCT_COUNT
 import net.ddellspe.escapegenai.repository.ProductRepository
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
 class ProductService(var productRepository: ProductRepository) {
+  var productsInitialized = false
+
   fun getAllProducts(): List<Product> {
-    val count = productRepository.count()
-    if (count < 20) {
-      for (i in 1..(20 - count)) {
-        productRepository.save(Product(null))
-      }
-    }
+    initializeProductDatabase()
     return productRepository.findAll()
   }
 
-  fun getRandomProduct(): Product {
-    var product: Product? = null
-    while (product == null) {
-      product = productRepository.findByIdOrNull(Random.nextInt(1, 20))
+  fun initializeProductDatabase() {
+    if (!productsInitialized) {
+      val count = productRepository.count()
+      if (count < MAX_PRODUCT_COUNT) {
+        for (i in 1..(MAX_PRODUCT_COUNT - count)) {
+          productRepository.save(Product())
+        }
+      }
+      productsInitialized = true
     }
-    return product
-  }
-
-  fun getProduct(productId: Int): Product {
-    return productRepository.findById(productId).get()
   }
 }
