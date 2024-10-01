@@ -4,22 +4,14 @@ import java.util.*
 import net.ddellspe.escapegenai.model.Team
 import net.ddellspe.escapegenai.model.TeamContainer
 import net.ddellspe.escapegenai.model.TeamContainerWithError
-import net.ddellspe.escapegenai.service.PasswordService
-import net.ddellspe.escapegenai.service.QuoteService
 import net.ddellspe.escapegenai.service.TeamService
-import net.ddellspe.escapegenai.service.TeamWordService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api")
-class TeamController(
-  var teamService: TeamService,
-  var passwordService: PasswordService,
-  var teamWordService: TeamWordService,
-  var quoteService: QuoteService,
-) {
+class TeamController(var teamService: TeamService) {
 
   @GetMapping("/team_details")
   fun getTeamDetails(): ResponseEntity<List<Team>> {
@@ -60,63 +52,15 @@ class TeamController(
     if (teamContainer.id == null) {
       errorMap["error"] = true
       errorMap["message"] = "Team has no id present, please use create instead."
-    } else if (teamContainer.passwordId == null) {
-      errorMap["error"] = true
-      errorMap["message"] =
-        "Team has no passwordId present, please use create to generate a password."
-    } else if (teamContainer.wordId == null) {
-      errorMap["error"] = true
-      errorMap["message"] = "Team has no wordId present, please use create to generate a word."
     } else {
       val team: Team
       try {
         team = teamService.getTeam(teamContainer.id!!)
-        if (team.password.id != teamContainer.passwordId!!) {
-          try {
-            team.password = passwordService.getPassword(teamContainer.passwordId!!)
-            team.passwordEntered = null
-          } catch (e: IllegalArgumentException) {
-            errorMap["error"] = true
-            errorMap["message"] =
-              "Password with id=${teamContainer.passwordId} not found, please create a new team " +
-                "to generate a new password."
-          }
+        if (teamContainer.name != team.name) {
+          team.name = teamContainer.name
         }
-        if (errorMap.isEmpty() && team.word.id != teamContainer.wordId!!) {
-          try {
-            team.word = teamWordService.getTeamWord(teamContainer.wordId!!)
-            team.wordEntered = null
-          } catch (e: IllegalArgumentException) {
-            errorMap["error"] = true
-            errorMap["message"] =
-              "Word with id=${teamContainer.wordId} not found, please create a new team to " +
-                "generate a new word."
-          }
-        }
-        if (
-          errorMap.isEmpty() &&
-            teamContainer.quoteId != null &&
-            team.quote?.id != teamContainer.quoteId
-        ) {
-          try {
-            team.quote = quoteService.getQuote(teamContainer.quoteId!!)
-            team.quoteEntered = null
-          } catch (e: IllegalArgumentException) {
-            errorMap["error"] = true
-            errorMap["message"] =
-              "Quote with id=${teamContainer.quoteId} not found, please create a new quote " +
-                "first, then associate it with the team."
-          }
-        }
-        if (errorMap.isEmpty()) {
-          try {
-            val updatedTeam: Team = teamService.updateTeam(team)
-            return ResponseEntity.ok(TeamContainerWithError(updatedTeam.toTeamContainer(), null))
-          } catch (e: IllegalArgumentException) {
-            errorMap["error"] = true
-            errorMap["message"] = e.message!!
-          }
-        }
+        val updatedTeam = teamService.updateTeam(team)
+        return ResponseEntity.ok(TeamContainerWithError(updatedTeam.toTeamContainer()))
       } catch (e: IllegalArgumentException) {
         errorMap["error"] = true
         errorMap["message"] =

@@ -1,8 +1,7 @@
 package net.ddellspe.escapegenai.repository
 
-import java.util.*
-import net.ddellspe.escapegenai.model.TeamWord
+import net.ddellspe.escapegenai.model.Invoice
 import org.springframework.data.repository.ListCrudRepository
 import org.springframework.stereotype.Repository
 
-@Repository interface TeamWordRepository : ListCrudRepository<TeamWord, UUID> {}
+@Repository interface InvoiceRepository : ListCrudRepository<Invoice, Long> {}

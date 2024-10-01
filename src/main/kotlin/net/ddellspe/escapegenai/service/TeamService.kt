@@ -5,7 +5,6 @@ import java.util.*
 import net.ddellspe.escapegenai.model.Team
 import net.ddellspe.escapegenai.model.TeamContainer
 import net.ddellspe.escapegenai.repository.TeamRepository
-import org.apache.commons.text.similarity.LevenshteinDistance
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -48,81 +47,5 @@ class TeamService(var teamRepository: TeamRepository) {
     val team = getTeam(id)
     team.firstSelected = team.firstSelected ?: OffsetDateTime.now()
     teamRepository.save(team)
-  }
-
-  fun verifyTeamPassword(id: UUID, password: String): Boolean {
-    val team = getTeam(id)
-    if (password == team.password.password) {
-      team.passwordEntered = team.passwordEntered ?: OffsetDateTime.now()
-      teamRepository.save(team)
-      return true
-    } else {
-      return false
-    }
-  }
-
-  fun verifyTeamWord(id: UUID, word: String): Boolean {
-    val team = getTeam(id)
-    if (word == team.word.word) {
-      team.wordEntered = team.wordEntered ?: OffsetDateTime.now()
-      teamRepository.save(team)
-      return true
-    } else {
-      return false
-    }
-  }
-
-  fun verifyTeamQuote(id: UUID, quote: String): Boolean {
-    val team = getTeam(id)
-    val actualQuote = team.quote?.quote ?: ""
-    val levDistance = LevenshteinDistance()
-    if (
-      levDistance.apply(
-        quote.lowercase().replace(".,!?".toRegex(), ""),
-        actualQuote.lowercase().replace(".,!?".toRegex(), ""),
-      ) <= (actualQuote.length.div(10))
-    ) {
-      team.quoteEntered = team.quoteEntered ?: OffsetDateTime.now()
-      teamRepository.save(team)
-      return true
-    } else {
-      return false
-    }
-  }
-
-  fun verifyFunFact(id: UUID, funFact: String): Boolean {
-    val team = getTeam(id)
-    val quote = team.quote ?: return false
-    val lookup: String? =
-      when (team.funFactType) {
-        "author" -> {
-          quote.author
-        }
-        "authorAddress" -> {
-          quote.authorAddress
-        }
-        "authorTitle" -> {
-          quote.authorTitle
-        }
-        "company" -> {
-          quote.company
-        }
-        "companyAddress" -> {
-          quote.companyAddress
-        }
-        "companyIndustry" -> {
-          quote.companyIndustry
-        }
-        else -> {
-          null
-        }
-      }
-    if (lookup != null && lookup == funFact) {
-      team.funFactEntered = team.funFactEntered ?: OffsetDateTime.now()
-      teamRepository.save(team)
-      return true
-    } else {
-      return false
-    }
   }
 }
