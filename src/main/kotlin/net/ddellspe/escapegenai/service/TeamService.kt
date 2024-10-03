@@ -9,7 +9,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
-class TeamService(var teamRepository: TeamRepository) {
+class TeamService(var teamRepository: TeamRepository, var invoiceService: InvoiceService) {
   fun createTeam(teamContainer: TeamContainer): Team {
     if (teamContainer.id != null) {
       if (teamRepository.findByIdOrNull(teamContainer.id) != null) {
