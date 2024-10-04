@@ -23,14 +23,22 @@ class InvoiceService(
     var invoice = Invoice(difference = difference)
     val productCount = (MIN_INVOICE_PRODUCT_COUNT..MAX_INVOICE_PRODUCT_COUNT).random()
     val productIds = HashSet<Int>()
+    val quantities = HashSet<Int>()
     while (productIds.size < productCount) {
       productIds.add((1..MAX_PRODUCT_COUNT).random())
     }
+    while (quantities.size < productCount) {
+      quantities.add((10..50).random())
+    }
     invoice = invoiceRepository.save(invoice)
     val invoiceProducts = invoice.invoiceProducts
-    for (productId in productIds) {
+    for ((productId, quantity) in productIds.zip(quantities)) {
       invoiceProducts.add(
-        InvoiceProduct(invoice = invoice, product = productRepository.findById(productId).get())
+        InvoiceProduct(
+          invoice = invoice,
+          product = productRepository.findById(productId).get(),
+          quantity = quantity,
+        )
       )
     }
     return invoiceRepository.save(invoice)

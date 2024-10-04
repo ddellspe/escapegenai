@@ -52,29 +52,41 @@ class DumbCoverageTests {
   @Test
   fun toTeamContainerPrimaryInvoicePresent() {
     val team = Team()
-    val invoice: Invoice = mockk()
-    every { invoice.id } returns 1L
+    val teamInvoice: TeamInvoice = mockk()
+    val uuid = UUID.randomUUID()
+    every { teamInvoice.id } returns uuid
+    every { teamInvoice.firstTask } returns true
     team.firstSelected = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-    team.primaryInvoice = invoice
+    team.teamInvoices = mutableListOf(teamInvoice)
 
     val teamContainer = team.toTeamContainer()
 
-    val expected = TeamContainer(team.id, team.name, team.firstSelected, 1L)
+    val expected = TeamContainer(team.id, team.name, team.firstSelected, uuid)
     assertEquals(expected, teamContainer)
-    verify(exactly = 1) { invoice.id }
+    verify(exactly = 1) { teamInvoice.id }
+    verify(exactly = 1) { teamInvoice.firstTask }
   }
 
   @Test
   fun testInvoice() {
+    val invoiceProduct: InvoiceProduct = mockk()
     val invoice =
-      Invoice(1L, LocalDate.now(), "Company Name", "Company, Address, place", 1, ArrayList())
-    var invoice2 =
+      Invoice(
+        id = 1L,
+        date = LocalDate.now(),
+        company = "Company Name",
+        address = "Company, Address, place",
+        difference = 1,
+        invoiceProducts = ArrayList(),
+      )
+    val invoice2 =
       Invoice(
         date = LocalDate.now(),
         company = "Company Name",
         address = "Company, Address, place",
         difference = 1,
       )
+
     assertFalse(invoice.equals(null))
     assertFalse(invoice.equals(""))
     assertTrue(invoice.equals(invoice))
@@ -92,7 +104,7 @@ class DumbCoverageTests {
     invoice2.difference = 0
     assertFalse(invoice == invoice2)
     invoice2.difference = invoice.difference
-    invoice2.invoiceProducts.add(InvoiceProduct(invoice = invoice, product = Product()))
+    invoice2.invoiceProducts.add(invoiceProduct)
     assertFalse(invoice == invoice2)
     assertEquals(
       "Invoice(id=1, date=${LocalDate.now()}, company=Company Name, address=Company, Address, place, difference=1, invoiceProducts=[])",
@@ -131,8 +143,8 @@ class DumbCoverageTests {
     val invoiceProduct = InvoiceProduct(uuid, invoice, product, 1)
     val invoiceProduct2 = InvoiceProduct(invoice = invoice, product = product)
 
-    assertTrue(invoiceProduct2.quantity >= 1)
-    assertTrue(invoiceProduct2.quantity <= 10)
+    assertTrue(invoiceProduct2.quantity >= 10)
+    assertTrue(invoiceProduct2.quantity <= 50)
     invoiceProduct2.quantity = 1
     assertFalse(invoiceProduct.equals(null))
     assertFalse(invoiceProduct.equals(""))
@@ -151,5 +163,31 @@ class DumbCoverageTests {
       "InvoiceProduct(id=$uuid, product=$product, quantity=1)",
       invoiceProduct.toString(),
     )
+  }
+
+  @Test
+  fun testTeamInvoice() {
+    val team: Team = mockk()
+    val team2: Team = mockk()
+    val invoice: Invoice = mockk()
+    val invoice2: Invoice = mockk()
+    val uuid = UUID.randomUUID()
+    val teamInvoice = TeamInvoice(id = uuid, team = team, invoice = invoice, firstTask = false)
+    val teamInvoice2 = TeamInvoice(team = team, invoice = invoice)
+
+    assertFalse(teamInvoice.equals(null))
+    assertFalse(teamInvoice.equals(""))
+    assertTrue(teamInvoice.equals(teamInvoice))
+    assertTrue(teamInvoice.equals(teamInvoice2))
+    assertTrue(teamInvoice.hashCode() == teamInvoice2.hashCode())
+    teamInvoice2.team = team2
+    assertFalse(teamInvoice == teamInvoice2)
+    teamInvoice2.team = team
+    teamInvoice2.invoice = invoice2
+    assertFalse(teamInvoice == teamInvoice2)
+    teamInvoice2.invoice = invoice
+    teamInvoice2.firstTask = true
+    assertFalse(teamInvoice == teamInvoice2)
+    assertEquals("TeamInvoice(id=$uuid, invoice=$invoice, firstTask=false)", teamInvoice.toString())
   }
 }
