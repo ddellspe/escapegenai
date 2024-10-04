@@ -2,8 +2,10 @@ package net.ddellspe.escapegenai.service
 
 import java.time.OffsetDateTime
 import java.util.*
+import net.ddellspe.escapegenai.model.Invoice
 import net.ddellspe.escapegenai.model.Team
 import net.ddellspe.escapegenai.model.TeamContainer
+import net.ddellspe.escapegenai.model.TeamInvoice
 import net.ddellspe.escapegenai.repository.TeamRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -18,7 +20,26 @@ class TeamService(var teamRepository: TeamRepository, var invoiceService: Invoic
         )
       }
     }
-    return teamRepository.save(Team(name = teamContainer.name))
+    val invoices: MutableList<Invoice> = ArrayList()
+    val noDiff = (1..3).random()
+    val minus = (1..3).filter { v -> v != noDiff }.random()
+    val plus = (1..3).filter { v -> v != noDiff && v != minus }.random()
+    (1..3).forEach { i ->
+      var diff = 0
+      if (i == minus) {
+        diff = (-3000..-1000).random()
+      } else if (i == plus) {
+        diff = (1000..3000).random()
+      }
+      invoices.add(invoiceService.createNewInvoice(difference = diff))
+    }
+    val team = teamRepository.save(Team(name = teamContainer.name))
+    var first = false
+    invoices.forEach { invoice ->
+      team.teamInvoices.add(TeamInvoice(team = team, invoice = invoice, firstTask = !first))
+      first = true
+    }
+    return teamRepository.save(team)
   }
 
   fun updateTeam(team: Team): Team {

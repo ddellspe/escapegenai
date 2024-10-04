@@ -3,34 +3,63 @@ package net.ddellspe.escapegenai.service
 import io.mockk.*
 import java.time.OffsetDateTime
 import java.util.*
-import net.ddellspe.escapegenai.model.*
+import net.ddellspe.escapegenai.model.Invoice
+import net.ddellspe.escapegenai.model.Team
+import net.ddellspe.escapegenai.model.TeamContainer
+import net.ddellspe.escapegenai.model.TeamInvoice
 import net.ddellspe.escapegenai.repository.TeamRepository
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
 
 class TeamServiceTest {
   private val teamRepository: TeamRepository = mockk()
-  private val teamService = TeamService(teamRepository)
+  private val invoiceService: InvoiceService = mockk()
+  private val teamService = TeamService(teamRepository, invoiceService)
   private val team: Team = mockk()
+  private val invoiceMinus: Invoice = mockk()
+  private val invoiceNoDiff: Invoice = mockk()
+  private val invoicePlus: Invoice = mockk()
+  private val teamInvoices: MutableList<TeamInvoice> = mockk()
+  private val teamInvoiceCaptures = mutableListOf<TeamInvoice>()
   private val dateSlot = slot<OffsetDateTime>()
   private val id = UUID.randomUUID()
 
   @Test
   fun dumbCoverageTest() {
     teamService.teamRepository = teamRepository
+    teamService.invoiceService = invoiceService
   }
 
   @Test
   fun whenCreateTeam_hasNoId_thenReturnTeam() {
     val teamContainer = TeamContainer(name = "test")
     every { teamRepository.save(match { it.name == "test" }) } returns team
+    every { teamRepository.save(team) } returns team
+    every { team.teamInvoices } returns teamInvoices
+    every { invoiceService.createNewInvoice(difference = match { it < 0 }) } returns invoiceMinus
+    every { invoiceService.createNewInvoice(difference = match { it == 0 }) } returns invoiceNoDiff
+    every { invoiceService.createNewInvoice(difference = match { it > 0 }) } returns invoicePlus
+    every { teamInvoices.add(capture(teamInvoiceCaptures)) } returns true
 
     val result: Team = teamService.createTeam(teamContainer)
 
-    verify(exactly = 1) { teamRepository.save(match { it.name == "test" }) }
+    verify(exactly = 2) { teamRepository.save(any()) }
+    verify(exactly = 1) { teamRepository.save(team) }
+    verify(exactly = 3) { team.teamInvoices }
+    verify(exactly = 1) { invoiceService.createNewInvoice(difference = match { it < 0 }) }
+    verify(exactly = 1) { invoiceService.createNewInvoice(difference = match { it == 0 }) }
+    verify(exactly = 1) { invoiceService.createNewInvoice(difference = match { it > 0 }) }
+    verify(exactly = 3) { teamInvoices.add(any()) }
     assertEquals(team, result)
+    assertEquals(3, teamInvoiceCaptures.size)
+    assertEquals(1, teamInvoiceCaptures.filter { inv -> inv.firstTask }.size)
+    val invoicesFound = teamInvoiceCaptures.stream().map { teamInv -> teamInv.invoice }.toList()
+    assertTrue(invoicesFound.contains(invoicePlus))
+    assertTrue(invoicesFound.contains(invoiceMinus))
+    assertTrue(invoicesFound.contains(invoiceNoDiff))
   }
 
   @Test
@@ -50,12 +79,30 @@ class TeamServiceTest {
     val teamContainer = TeamContainer(id = id, name = "test")
     every { teamRepository.findByIdOrNull(id) } returns null
     every { teamRepository.save(match { it.name == "test" }) } returns team
+    every { teamRepository.save(team) } returns team
+    every { team.teamInvoices } returns teamInvoices
+    every { invoiceService.createNewInvoice(difference = match { it < 0 }) } returns invoiceMinus
+    every { invoiceService.createNewInvoice(difference = match { it == 0 }) } returns invoiceNoDiff
+    every { invoiceService.createNewInvoice(difference = match { it > 0 }) } returns invoicePlus
+    every { teamInvoices.add(capture(teamInvoiceCaptures)) } returns true
 
     val result: Team = teamService.createTeam(teamContainer)
 
-    verify(exactly = 1) { teamRepository.save(match { it.name == "test" }) }
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
+    verify(exactly = 2) { teamRepository.save(any()) }
+    verify(exactly = 1) { teamRepository.save(team) }
+    verify(exactly = 3) { team.teamInvoices }
+    verify(exactly = 1) { invoiceService.createNewInvoice(difference = match { it < 0 }) }
+    verify(exactly = 1) { invoiceService.createNewInvoice(difference = match { it == 0 }) }
+    verify(exactly = 1) { invoiceService.createNewInvoice(difference = match { it > 0 }) }
+    verify(exactly = 3) { teamInvoices.add(any()) }
     assertEquals(team, result)
+    assertEquals(3, teamInvoiceCaptures.size)
+    assertEquals(1, teamInvoiceCaptures.filter { inv -> inv.firstTask }.size)
+    val invoicesFound = teamInvoiceCaptures.stream().map { teamInv -> teamInv.invoice }.toList()
+    assertTrue(invoicesFound.contains(invoicePlus))
+    assertTrue(invoicesFound.contains(invoiceMinus))
+    assertTrue(invoicesFound.contains(invoiceNoDiff))
   }
 
   @Test

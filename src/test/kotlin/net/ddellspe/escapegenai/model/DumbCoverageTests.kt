@@ -57,7 +57,7 @@ class DumbCoverageTests {
     every { teamInvoice.id } returns uuid
     every { teamInvoice.firstTask } returns true
     team.firstSelected = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-    team.invoices = mutableListOf(teamInvoice)
+    team.teamInvoices = mutableListOf(teamInvoice)
 
     val teamContainer = team.toTeamContainer()
 

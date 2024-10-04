@@ -17,7 +17,7 @@ data class Team(
     cascade = [CascadeType.ALL],
     orphanRemoval = true,
   )
-  var invoices: List<TeamInvoice> = ArrayList(),
+  var teamInvoices: MutableList<TeamInvoice> = ArrayList(),
 ) {
   fun toMinimalTeam(): MinimalTeam {
     return MinimalTeam(this.id, this.name, this.firstSelected)
@@ -28,9 +28,9 @@ data class Team(
       this.id,
       this.name,
       this.firstSelected,
-      this.invoices
+      this.teamInvoices
         .stream()
-        .filter { teamInvoice -> teamInvoice.firstTask }
+        .filter { teamInvoices -> teamInvoices.firstTask }
         .findFirst()
         .getOrNull()
         ?.id,
