@@ -2,6 +2,7 @@ package net.ddellspe.escapegenai.service
 
 import java.time.OffsetDateTime
 import java.util.*
+import kotlin.math.abs
 import net.ddellspe.escapegenai.model.Invoice
 import net.ddellspe.escapegenai.model.Team
 import net.ddellspe.escapegenai.model.TeamContainer
@@ -68,5 +69,108 @@ class TeamService(var teamRepository: TeamRepository, var invoiceService: Invoic
     val team = getTeam(id)
     team.firstSelected = team.firstSelected ?: OffsetDateTime.now()
     teamRepository.save(team)
+  }
+
+  fun verifyProductsIdentified(id: UUID, highCost: String, highQuantity: String): Boolean {
+    val team = getTeam(id)
+    val invoice =
+      team.teamInvoices.stream().filter { inv -> inv.firstTask }.findFirst().get().invoice
+    val highQuantityName =
+      invoice.invoiceProducts
+        .stream()
+        .sorted { o1, o2 -> o2.quantity.compareTo(o1.quantity) }
+        .findFirst()
+        .get()
+        .product
+        .name
+    val highCostName =
+      invoice.invoiceProducts
+        .stream()
+        .sorted { o1, o2 ->
+          (o2.quantity * o2.product.price).compareTo((o1.quantity * o1.product.price))
+        }
+        .findFirst()
+        .get()
+        .product
+        .name
+    if (highCost.trim() == highCostName && highQuantity.trim() == highQuantityName) {
+      team.productsIdentified = team.productsIdentified ?: OffsetDateTime.now()
+      teamRepository.save(team)
+      return true
+    } else {
+      return false
+    }
+  }
+
+  fun verifyLeakageIdentified(
+    id: UUID,
+    underpaidInvoiceId: String,
+    overpaidInvoiceId: String,
+  ): Boolean {
+    val team = getTeam(id)
+    val overpaidInvoiceIdVal =
+      team.teamInvoices
+        .stream()
+        .filter { inv -> inv.invoice.difference > 0 }
+        .findFirst()
+        .get()
+        .invoice
+        .id!!
+    val underpaidInvoiceIdVal =
+      team.teamInvoices
+        .stream()
+        .filter { inv -> inv.invoice.difference < 0 }
+        .findFirst()
+        .get()
+        .invoice
+        .id!!
+    if (
+      underpaidInvoiceId.trim() == underpaidInvoiceIdVal.toString() &&
+        overpaidInvoiceId.trim() == overpaidInvoiceIdVal.toString()
+    ) {
+      team.leakageIdentified = team.leakageIdentified ?: OffsetDateTime.now()
+      teamRepository.save(team)
+      return true
+    } else {
+      return false
+    }
+  }
+
+  fun verifySupplierEmails(id: UUID, underpaidEmail: String, overpaidEmail: String): Boolean {
+    val team = getTeam(id)
+    val overpaidInvoice =
+      team.teamInvoices
+        .stream()
+        .filter { inv -> inv.invoice.difference > 0 }
+        .findFirst()
+        .get()
+        .invoice
+    val underpaidInvoice =
+      team.teamInvoices
+        .stream()
+        .filter { inv -> inv.invoice.difference < 0 }
+        .findFirst()
+        .get()
+        .invoice
+    if (
+      (underpaidEmail.lowercase().contains(underpaidInvoice.company.lowercase()) &&
+        underpaidEmail.contains(underpaidInvoice.id.toString()) &&
+        underpaidEmail.lowercase().contains("under") &&
+        (underpaidEmail.contains(abs(underpaidInvoice.difference).toString()) ||
+          underpaidEmail.contains("%,d".format(abs(underpaidInvoice.difference))))) &&
+        (overpaidEmail.lowercase().contains(overpaidInvoice.company.lowercase()) &&
+          overpaidEmail.contains(overpaidInvoice.id.toString()) &&
+          overpaidEmail.lowercase().contains("over") &&
+          (overpaidEmail.contains(abs(overpaidInvoice.difference).toString()) ||
+            overpaidEmail.contains("%,d".format(abs(overpaidInvoice.difference)))))
+    ) {
+      team.suppliersContacted = team.suppliersContacted ?: OffsetDateTime.now()
+      team.underpaidEmail = underpaidEmail
+      team.overpaidEmail = overpaidEmail
+      teamRepository.save(team)
+      return true
+    } else {
+      return false
+    }
   }
 }

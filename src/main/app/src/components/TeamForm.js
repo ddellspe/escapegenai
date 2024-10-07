@@ -6,48 +6,19 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import Snackbar from '@mui/material/Snackbar';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-export default function ScoreForm({opened, creds, onClose, team, quotes}) {
+export default function ScoreForm({opened, creds, onClose, team}) {
   const [id, setId] = useState(team.id);
   const [name, setName] = useState(team.name);
-  const [passwordId, setPasswordId] = useState(team.passwordId);
-  const [passwordEntered, setPasswordEntered] = useState(team.passwordEntered);
-  const [wordId, setWordId] = useState(team.wordId);
-  const [wordEntered, setWordEntered] = useState(team.wordEntered);
-  const [quoteId, setQuoteId] = useState(team.quoteId);
-  const [quoteEntered, setQuoteEntered] = useState(team.quoteEntered);
-  const [funFactType, setFunFactType] = useState(team.funFactType);
-  const [funFactEntered, setFunFactEntered] = useState(team.funFactEntered);
   const [showError, setShowError] = useState(false);
   const [dataSent, setDataSent] = useState("");
   const killAlert = () => {
     setShowError(false);
     setTimeout(() => setDataSent(""), 1000);
-  }
-
-  const funFactTypes = [
-    {value: "author", label: "Author"},
-    {value: "authorAddress", label: "Author Address"},
-    {value: "authorTitle", label: "Author Title"},
-    {value: "company", label: "Company"},
-    {value: "companyAddress", label: "Company Address"},
-    {value: "companyIndustry", label: "Company Industry"}
-  ];
-
-  const handleChange = (event) => {
-    if (event.target.name === 'funFactType') {
-      setFunFactType(event.target.value);
-    } else {
-      setQuoteId(event.target.value);
-    }
   }
 
   const setTeam = (event) => {
@@ -86,14 +57,6 @@ export default function ScoreForm({opened, creds, onClose, team, quotes}) {
   useEffect(() => {
     setId(team.id)
     setName(team.name)
-    setPasswordId(team.passwordId)
-    setPasswordEntered(team.passwordEntered)
-    setWordId(team.wordId)
-    setWordEntered(team.wordEntered)
-    setQuoteId(team.quoteId)
-    setQuoteEntered(team.quoteEntered)
-    setFunFactType(team.funFactType)
-    setFunFactEntered(team.funFactEntered)
   }, [team]);
 
   return (
@@ -131,56 +94,6 @@ export default function ScoreForm({opened, creds, onClose, team, quotes}) {
                 sx={{mr: 1, width: '100%'}}
             />
           </Box>
-          <input type="hidden" name="passwordId"
-                 value={passwordId === null ? undefined : passwordId}/>
-          <input type="hidden" name="passwordEntered"
-                 value={passwordEntered === null ? undefined
-                     : passwordEntered}/>
-          <input type="hidden" name="wordId"
-                 value={wordId === null ? undefined : wordId}/>
-          <input type="hidden" name="wordEntered"
-                 value={wordEntered === null ? undefined : wordEntered}/>
-          <Box sx={{width: '100%', my: 1}}>
-            <FormControl fullWidth>
-              <InputLabel id="quoteIdLabel">Quote</InputLabel>
-              <Select
-                  labelId="quoteIdLabel"
-                  id="quoteId"
-                  value={quoteId}
-                  onChange={handleChange}
-                  label="Quote"
-                  name="quoteId"
-              >
-                {quotes.map((quote) => (
-                    <MenuItem key={quote.id}
-                              value={quote.id}>{quote.quote}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          <input type="hidden" name="quoteEntered"
-                 value={quoteEntered === null ? undefined : quoteEntered}/>
-          <Box sx={{width: '100%', my: 1}}>
-            <FormControl fullWidth>
-              <InputLabel id="funFactTypeLabel">Fun Fact Type</InputLabel>
-              <Select
-                  labelId="funFactTypeLabel"
-                  id="funFactType"
-                  value={funFactType}
-                  onChange={handleChange}
-                  label="Fun Fact Type"
-                  name="funFactType"
-              >
-                {funFactTypes.map((funFactType) => (
-                    <MenuItem key={funFactType.value}
-                              value={funFactType.value}>{funFactType.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          <input type="hidden" name="funFactEntered"
-                 value={funFactEntered === null ? undefined
-                     : funFactEntered}/>
         </DialogContent>
         <DialogActions>
           <Box sx={{justifyContent: 'space-between'}}>

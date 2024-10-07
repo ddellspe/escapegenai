@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
-import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteIcon from '@mui/icons-material/Delete';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -14,6 +14,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import RestoreIcon from '@mui/icons-material/Restore';
 import Typography from '@mui/material/Typography';
 import TeamForm from './TeamForm';
 
@@ -21,18 +22,8 @@ export default function TeamsList({opened, creds, onClose}) {
   const defaultTeam = {
     "id": null,
     "name": "",
-    "passwordId": null,
-    "passwordEntered": null,
-    "wordId": null,
-    "wordEntered": null,
-    "quoteId": null,
-    "quoteEntered": null,
-    "funFactType": null,
-    "funFactEntered": null
   };
   const [teams, setTeams] = useState([]);
-  const [quotes, setQuotes] = useState(
-      [{"00000000-0000-0000-0000-000000000000": "Nothing"}]);
   const [team, setTeam] = useState(defaultTeam);
   const [loading, setLoading] = useState(true);
   const [teamDialog, setTeamDialog] = useState(false);
@@ -57,6 +48,31 @@ export default function TeamsList({opened, creds, onClose}) {
       .then((resp) => {
         if (resp.ok) {
           const msg = `Team ${team.name} deleted'.`;
+          onClose(true, msg);
+          return true;
+        } else {
+          return resp.json();
+        }
+      })
+      .then(data => {
+      })
+    }
+  }
+
+  const resetTeam = (teamId) => {
+    const selectedTeam = teams.find(team => team.id === teamId);
+    setTeam(selectedTeam === undefined ? defaultTeam : selectedTeam);
+    if (selectedTeam !== undefined) {
+      fetch('api/teams/' + selectedTeam.id + '/reset', {
+        method: 'DELETE',
+        headers: new Headers({
+          'Authorization': 'Basic ' + creds,
+          'Content-Type': 'application/json'
+        })
+      })
+      .then((resp) => {
+        if (resp.ok) {
+          const msg = `Team ${team.name} reset'.`;
           onClose(true, msg);
           return true;
         } else {
@@ -96,16 +112,6 @@ export default function TeamsList({opened, creds, onClose}) {
       } catch (err) {
       }
     }
-    const getQuotes = async () => {
-      try {
-        const response = await fetch('api/quotes',
-            {headers: new Headers({'Authorization': 'Basic ' + creds})});
-        const data = await response.json();
-        setQuotes(data)
-      } catch (err) {
-      }
-    }
-    getQuotes();
     getTeams();
   }, [opened, creds]);
   if (loading) {
@@ -184,6 +190,11 @@ export default function TeamsList({opened, creds, onClose}) {
                                               onClick={() => editTeam(team.id)}>
                                     <EditIcon/>
                                   </IconButton>
+                                  <IconButton edge='end' aria-label='reset'
+                                              onClick={() => resetTeam(team.id)}
+                                              color={"secondary"}>
+                                    <RestoreIcon/>
+                                  </IconButton>
                                   <IconButton edge='end' aria-label='delete'
                                               onClick={() => deleteTeam(team.id)}
                                               color={"warning"}>
@@ -205,7 +216,7 @@ export default function TeamsList({opened, creds, onClose}) {
               Add Team
             </Button>
             <TeamForm opened={teamDialog} creds={creds}
-                      onClose={closeTeamModal} team={team} quotes={quotes}/>
+                      onClose={closeTeamModal} team={team}/>
           </DialogActions>
         </Dialog>
     )

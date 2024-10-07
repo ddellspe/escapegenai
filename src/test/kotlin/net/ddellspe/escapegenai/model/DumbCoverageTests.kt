@@ -24,28 +24,68 @@ class DumbCoverageTests {
   fun gameSubmissionTest() {
     val gameSubmission = GameSubmission(UUID.randomUUID())
 
-    assertEquals(null, gameSubmission.fact)
+    assertEquals(null, gameSubmission.highCost)
   }
 
   @Test
   fun testToMinimalTeam() {
     val team = Team()
+    val teamInvoice: TeamInvoice = mockk()
+    val uuid = UUID.randomUUID()
+    val teamInvoice2: TeamInvoice = mockk()
+    val uuid2 = UUID.randomUUID()
+    every { teamInvoice.id } returns uuid
+    every { teamInvoice.firstTask } returns true
+    every { teamInvoice2.id } returns uuid2
+    every { teamInvoice2.firstTask } returns false
     team.firstSelected = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+    team.productsIdentified = OffsetDateTime.of(2024, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC)
+    team.leakageIdentified = OffsetDateTime.of(2024, 1, 1, 2, 0, 0, 0, ZoneOffset.UTC)
+    team.suppliersContacted = OffsetDateTime.of(2024, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC)
+    team.overpaidEmail = "email1"
+    team.underpaidEmail = "email2"
+    team.teamInvoices = mutableListOf(teamInvoice2, teamInvoice)
 
     val minimalTeam = team.toMinimalTeam()
 
-    val expected = MinimalTeam(team.id, team.name, team.firstSelected)
+    val expected =
+      MinimalTeam(
+        id = team.id,
+        name = team.name,
+        firstSelected = team.firstSelected,
+        productsIdentified = team.productsIdentified,
+        leakageIdentified = team.leakageIdentified,
+        suppliersContacted = team.suppliersContacted,
+        primaryInvoiceId = uuid,
+        invoiceIds = listOf(uuid2, uuid),
+      )
+    MinimalTeam(id = team.id, name = team.name, primaryInvoiceId = uuid, invoiceIds = listOf(uuid))
     assertEquals(expected, minimalTeam)
+    verify(exactly = 2) { teamInvoice.id }
+    verify(exactly = 1) { teamInvoice.firstTask }
+    verify(exactly = 1) { teamInvoice2.id }
+    verify(exactly = 1) { teamInvoice2.firstTask }
   }
 
   @Test
   fun toTeamContainerPrimaryInvoiceNotPresent() {
     val team = Team()
     team.firstSelected = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+    team.productsIdentified = OffsetDateTime.of(2024, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC)
+    team.leakageIdentified = OffsetDateTime.of(2024, 1, 1, 2, 0, 0, 0, ZoneOffset.UTC)
+    team.suppliersContacted = OffsetDateTime.of(2024, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC)
 
     val teamContainer = team.toTeamContainer()
 
-    val expected = TeamContainer(team.id, team.name, team.firstSelected)
+    val expected =
+      TeamContainer(
+        team.id,
+        team.name,
+        team.firstSelected,
+        team.productsIdentified,
+        team.leakageIdentified,
+        team.suppliersContacted,
+      )
     assertEquals(expected, teamContainer)
   }
 
@@ -57,11 +97,23 @@ class DumbCoverageTests {
     every { teamInvoice.id } returns uuid
     every { teamInvoice.firstTask } returns true
     team.firstSelected = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
+    team.productsIdentified = OffsetDateTime.of(2024, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC)
+    team.leakageIdentified = OffsetDateTime.of(2024, 1, 1, 2, 0, 0, 0, ZoneOffset.UTC)
+    team.suppliersContacted = OffsetDateTime.of(2024, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC)
     team.teamInvoices = mutableListOf(teamInvoice)
 
     val teamContainer = team.toTeamContainer()
 
-    val expected = TeamContainer(team.id, team.name, team.firstSelected, uuid)
+    val expected =
+      TeamContainer(
+        team.id,
+        team.name,
+        team.firstSelected,
+        team.productsIdentified,
+        team.leakageIdentified,
+        team.suppliersContacted,
+        uuid,
+      )
     assertEquals(expected, teamContainer)
     verify(exactly = 1) { teamInvoice.id }
     verify(exactly = 1) { teamInvoice.firstTask }
@@ -189,5 +241,44 @@ class DumbCoverageTests {
     teamInvoice2.firstTask = true
     assertFalse(teamInvoice == teamInvoice2)
     assertEquals("TeamInvoice(id=$uuid, invoice=$invoice, firstTask=false)", teamInvoice.toString())
+  }
+
+  @Test
+  fun testInvoiceDocument() {
+    val uuid = UUID.randomUUID()
+    val invoiceProductDocument =
+      InvoiceProductDocument(id = uuid, name = "product", qty = 1, price = 2, total = 2)
+    val invoiceDocument =
+      InvoiceDocument(
+        id = 1L,
+        teamName = "name",
+        company = "company",
+        address = "address",
+        total = 2L,
+        products = listOf(invoiceProductDocument),
+      )
+    invoiceProductDocument.id = uuid
+    invoiceProductDocument.name = "product"
+    invoiceProductDocument.qty = 1
+    invoiceProductDocument.price = 2
+    invoiceProductDocument.total = 2
+    invoiceDocument.id = 1L
+    invoiceDocument.teamName = "name"
+    invoiceDocument.company = "company"
+    invoiceDocument.address = "address"
+    invoiceDocument.total = 2L
+    invoiceDocument.products = listOf(invoiceProductDocument)
+
+    assertEquals(uuid, invoiceProductDocument.id)
+    assertEquals("product", invoiceProductDocument.name)
+    assertEquals(1, invoiceProductDocument.qty)
+    assertEquals(2, invoiceProductDocument.price)
+    assertEquals(2, invoiceProductDocument.total)
+    assertEquals(1L, invoiceDocument.id)
+    assertEquals("name", invoiceDocument.teamName)
+    assertEquals("company", invoiceDocument.company)
+    assertEquals("address", invoiceDocument.address)
+    assertEquals(2L, invoiceDocument.total)
+    assertEquals(invoiceProductDocument, invoiceDocument.products.first())
   }
 }
