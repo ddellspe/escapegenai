@@ -16,21 +16,24 @@ export default function GamePanel() {
   const [teams, setTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState({});
   const [teamId, setTeamId] = useState("");
-  const [password, setPassword] = useState(undefined);
-  const [teamWord, setTeamWord] = useState(undefined);
-  const [quote, setQuote] = useState(undefined);
-  const [fact, setFact] = useState(undefined);
+  const [started, setStarted] = useState(false);
+  const [highQuantity, setHighQuantity] = useState(undefined);
+  const [highCost, setHighCost] = useState(undefined);
+  const [overpaidInvoiceId, setOverpaidInvoiceId] = useState(undefined);
+  const [underpaidInvoiceId, setUnderpaidInvoiceId] = useState(undefined);
+  const [overpaidEmail, setOverpaidEmail] = useState(undefined);
+  const [underpaidEmail, setUnderpaidEmail] = useState(undefined);
   const [showError, setShowError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const currentHost = `${window.location.protocol}//${window.location.hostname}${window.location.port !== "" ? (":" + window.location.port) : ""}`;
 
   const selectTeam = (teamId) => {
     setTeamId(teamId);
-    const team = teams.find(team => team.id === teamId);
-    setSelectedTeam(team === "" ? "" : team);
-    if (team === undefined) {
+    if (teamId === "" ) {
+      setStarted(false);
       sessionStorage.removeItem("submission");
     }
+    const team = teams.find(team => team.id === teamId);
+    setSelectedTeam(team === "" || team === undefined ? "" : team);
   }
 
   const killAlert = () => {
@@ -42,24 +45,13 @@ export default function GamePanel() {
     if (submission.id !== undefined) {
       selectTeam(submission.id);
       if (submit !== undefined) {
-        if (submit.password !== undefined && submit.password !== '' && submit.password !== submission.password) {
-          setShowError(true);
-          setErrorMsg("Password Incorrect");
-        } else if (submit.teamWord !== undefined && submit.teamWord !== '' && submit.teamWord !== submission.teamWord) {
-          setShowError(true);
-          setErrorMsg("Word Incorrect");
-        } else if (submit.quote !== undefined && submit.quote !== '' && submit.quote !== submission.quote) {
-          setShowError(true);
-          setErrorMsg("Quote Incorrect");
-        } else if (submit.fact !== undefined && submit.fact !== '' && submit.fact !== submission.fact) {
-          setShowError(true);
-          setErrorMsg("Fun Fact Incorrect");
-        }
       }
-      setPassword(submission.password === null ? undefined : submission.password);
-      setTeamWord(submission.teamWord === null ? undefined : submission.teamWord);
-      setQuote(submission.quote === null ? undefined : submission.quote);
-      setFact(submission.fact === null ? undefined : submission.fact);
+      setHighQuantity(submission.highQuantity === null ? undefined : submission.highQuantity);
+      setHighCost(submission.highCost === null ? undefined : submission.highCost);
+      setOverpaidInvoiceId(submission.overpaidInvoiceId === null ? undefined: submission.overpaidInvoiceId);
+      setUnderpaidInvoiceId(submission.underpaidInvoiceId === null ? undefined : submission.underpaidInvoiceId);
+      setOverpaidEmail(submission.overpaidEmail === null ? undefined : submission.overpaidEmail);
+      setUnderpaidEmail(submission.underpaidEmail === null ? undefined : submission.underpaidEmail);
       sessionStorage.setItem('submission', JSON.stringify(submission));
     }
   }
@@ -74,10 +66,12 @@ export default function GamePanel() {
         setLoading(false);
         let submission = JSON.parse(sessionStorage.getItem("submission"));
         if (submission !== null && submission.id !== undefined) {
-          setPassword(submission.password === null ? "" : submission.password);
-          setTeamWord(submission.teamWord === null ? "" : submission.teamWord);
-          setQuote(submission.quote === null ? "" : submission.quote);
-          setFact(submission.fact === null ? "" : submission.fact);
+          setHighQuantity(submission.highQuantity === null ? undefined : submission.highQuantity);
+          setHighCost(submission.highCost === null ? undefined : submission.highCost);
+          setOverpaidInvoiceId(submission.overpaidInvoiceId === null ? undefined: submission.overpaidInvoiceId);
+          setUnderpaidInvoiceId(submission.underpaidInvoiceId === null ? undefined: submission.underpaidInvoiceId);
+          setOverpaidEmail(submission.overpaidEmail === null ? undefined: submission.overpaidEmail);
+          setUnderpaidEmail(submission.underpaidEmail === null ? undefined: submission.underpaidEmail);
           setTimeout(() => selectTeam(submission.id), 500);
         }
       });
@@ -90,20 +84,44 @@ export default function GamePanel() {
   const handleChange = (event) => {
     if (event.target.name === 'teamId') {
       if (event.target.value !== teamId) {
-        const submission = {"id": event.target.value, "password": undefined, "teamWord": undefined, "quote": undefined, "fact": undefined}
+        const submission = {
+          "id": event.target.value,
+          "highQuantity": undefined,
+          "highCost": undefined,
+          "overpaidInvoiceId": undefined,
+          "underpaidInvoice": undefined,
+          "overpaidEmail": undefined,
+          "underpaidEmail": undefined
+        }
         updateSubmission(submission);
-        fetch('game/submit', {
-          method: 'POST',
-          headers: new Headers({
-            'Content-Type': 'application/json'
-          }),
-          body: JSON.stringify(submission)
-        })
-        .then((resp) => {
-          return resp.json();
-        })
-        .then();
       }
+    }
+  }
+
+  const submitTeamStart = (event) => {
+    if (event.target.name === 'start') {
+      const submission = {
+        "id": teamId,
+        "highQuantity": undefined,
+        "highCost": undefined,
+        "overpaidInvoiceId": undefined,
+        "underpaidInvoice": undefined,
+        "overpaidEmail": undefined,
+        "underpaidEmail": undefined
+      }
+      fetch('game/submit', {
+        method: 'POST',
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify(submission)
+      })
+      .then((resp) => {
+        setTimeout(() => setStarted(true), 600);
+        setTimeout(() => selectTeam(teamId), 100);
+        return resp.json();
+      })
+      .then();
     }
   }
 
@@ -160,23 +178,31 @@ export default function GamePanel() {
                   <FormControl fullWidth>
                     <InputLabel id="teamLabel">Team</InputLabel>
                     <Select labelId="teamLabel" id="teamId" value={teamId !== undefined ? teamId : ""} onChange={handleChange} label="Team"
-                            name="teamId" disabled={teamId
-                        !== ""}>
+                            name="teamId" disabled={started}>
                       {teams.map((team) => (
                           <MenuItem key={team.id} value={team.id}>{team.name}</MenuItem>
                       ))}
                     </Select>
                   </FormControl>
-                  <Button variant="contained" onClick={() => selectTeam("")} disabled={teamId === ""}>
-                    Change Team
-                  </Button>
+                  { !started ? (
+                      <Button variant="contained" name="start" onClick={(e) => submitTeamStart(e)} disabled={teamId === ""}>
+                        Start Escape
+                      </Button>
+                    )
+                    :
+                    (
+                      <Button variant="contained" onClick={() => selectTeam("")} disabled={!started}>
+                        Change Team
+                      </Button>
+                    )
+                  }
                 </Box>
               </Box>
             </Grid>
-            {teamId === "" ? (
+            { !started ? (
                     <Grid item xs={12} alignItems="center" justifyContent="center">
                       <Typography id="teams-modal-title" variant="h4" component="h2" align="center">
-                        Please select a team to continue.
+                        Please select a team and click Start Escape to continue.
                       </Typography>
                     </Grid>
                 )
@@ -185,186 +211,187 @@ export default function GamePanel() {
                     <Grid item xs={12} alignItems="center" justifyContent="center">
                       <Grid item xs={12} alignItems="center" justifyContent="center" component="form" onSubmit={setSubmission}>
                         <input type="hidden" name="id" value={teamId}/>
-                        {password === undefined ?
+                        {(highQuantity === undefined || highCost === undefined) ?
                             (
                                 <Grid item xs={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
-                                      Task 1: Discover your password
+                                      Task 1: Verify product details
                                     </Typography>
                                     <Typography paragraph={true} align="center">
-                                      Your first task is to go to the following link and find your password, for some reason, the inventors of this
-                                      escape room thought that it would be a brilliant idea to hide passwords within webpages somewhere and we're not
-                                      quite sure where it is, but I have a feeling that a Large Language Model would be able to extract your password
-                                      from this page. Use a LLM with an appropriate prompt to uncover your password, enter your password into the
-                                      following field and then submit your guess!
+                                      Your first task is to use the provided invoice and report the product name with the most items
+                                      invoiced, as well as the product name with the highest total cost in the invoice.
                                     </Typography>
                                     <Typography align="center" component="h6">
-                                      Your password can be somewhere in the following page:
+                                      Use the following Invoice to answer these questions:
                                       <Typography align="center" component="a"
-                                                  href={"/game/team/" + teamId + "/password"} sx={{mx: 1}}>
-                                        {currentHost + "/game/team/" + teamId + "/password"}
+                                                  href={"/game/invoice/" + selectedTeam.primaryInvoiceId} sx={{mx: 1}}>
+                                        {"Invoice PDF"}
                                       </Typography>
                                     </Typography>
-                                    <Typography paragraph={true} align="center" variant="body2">Hint: Your password will contain 15-20 characters with
-                                      characters from a-z, A-Z, 0-9, and !@#$%^&*()-=+_{}[] and no spaces.
-                                    </Typography>
-                                    <TextField label="Password" required name="password" id="password" sx={{mr: 1, width: '100%'}}/>
+                                    <Grid container spacing={4} sx={{pt: 2}}>
+                                      <Grid item xs={6}>
+                                        <TextField label="Product with largest item count" required name="highQuantity" id="highQuantity" sx={{mr: 1}} fullWidth/>
+                                      </Grid>
+                                      <Grid item xs={6}>
+                                        <TextField label="Product with highest cost" required name="highCost" id="highCost" sx={{mr: 1}} fullWidth/>
+                                      </Grid>
+                                    </Grid>
                                   </Box>
                                 </Grid>
                             ) : (
                                 <Grid item xs={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
-                                      Task 1: Discover your password
+                                      Task 1: Verify product details
                                     </Typography>
-                                    <TextField label="Password" name="password" id="password" sx={{mr: 1, width: '100%'}} value={password} disabled/>
-                                    <input type="hidden" name="password" id="password" value={password}/>
+                                    <Grid container spacing={4} sx={{pt: 2}}>
+                                      <Grid item xs={6}>
+                                        <TextField label="Product with largest item count" required name="highQuantity" id="highQuantity" sx={{mr: 1}} fullWidth value={highQuantity} disabled/>
+                                      </Grid>
+                                      <Grid item xs={6}>
+                                        <TextField label="Product with highest cost" required name="highCost" id="highCost" sx={{mr: 1}} fullWidth value={highCost} disabled/>
+                                      </Grid>
+                                    </Grid>
+                                    <input type="hidden" name="highQuantity" value={highQuantity}/>
+                                    <input type="hidden" name="highCost" value={highCost}/>
                                   </Box>
                                 </Grid>
                             )
                         }
                         {(() => {
-                          if (password !== undefined && teamWord === undefined) {
+                          if (highCost !== undefined && highQuantity !== undefined && (overpaidInvoiceId === undefined || underpaidInvoiceId === undefined)) {
                             return (
                                 <Grid item xs={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
-                                      Task 2: Count some words!
+                                      Task 2: Identify revenue leakage
                                     </Typography>
                                     <Typography paragraph={true} align="center">
-                                      Your second task is to go to the following link and determine which word appears the most. For some reason the
-                                      escape room organizers got REALLY bored and just wanted to make this task absolutely astronomically difficult,
-                                      leading to over 100,000 words being present to have to analyze. Use a Large Language Model to process which
-                                      word is the most common in the page and submit that word to the escape room attendant and then we will see what
-                                      the next steps really are. Good Luck!
+                                      Your second task is to look through all of your invoices to identify the invoices where the total cost of products does
+                                      not match the total charged invoice price. You have been overcharged in one invoice and undercharged in one invoice.
+                                      You need to identify the invoice where you were overcharged (charged amount was more than the total product cost)
+                                      and identify the invoice where you were undercharged (charged amount was less than the total product cost) and submit
+                                      the corresponding invoice ID into the appropriate field to continue.
                                     </Typography>
                                     <Typography align="center" component="h6">
-                                      Your data to count from can be found at:
-                                      <Typography align="center" component="a"
-                                                  href={"/game/team/" + teamId + "/word"} sx={{mx: 1}}>
-                                        {currentHost + "/game/team/" + teamId + "/word"}
-                                      </Typography>
+                                      Use the following invoice PDFs to find your revenue leakage:
+                                      {selectedTeam.invoiceIds.map((item, index) => (
+                                          <Typography align="center" component="a"
+                                                      href={"/game/invoice/" + item} sx={{mx: 1}}>
+                                              {"Invoice PDF " + (index + 1)}
+                                          </Typography>))
+                                      }
                                     </Typography>
                                     <Typography paragraph={true} align="center" variant="body2">
-                                      Hint: You may need to split your payload into smaller sections and aggregate counts. The most frequent word in
-                                      one section of the document is not necessarily the most frequent word across the whole page.
+                                      Hint: You may want to upload all of your PDFs into your SnapLogic account in order to browse for all of them and process them in series.  You may also need more than Generative AI to validate the data
                                     </Typography>
-                                    <TextField label="Word" required name="teamWord" id="teamWord" sx={{mr: 1, width: '100%'}}/>
-                                  </Box>
-                                </Grid>
-                            );
-                          } else if (teamWord !== undefined) {
-                            return (
-                                <Grid item xs={12} alignItems="center" justifyContent="center">
-                                  <Box sx={{width: '100%', my: 1}}>
-                                    <Typography variant="h5" component="h3" align="center">
-                                      Task 2: Count some words!
-                                    </Typography>
-                                    <TextField label="Hidden Word" name="teamWord" id="teamWord" sx={{mr: 1, width: '100%'}} value={teamWord}
-                                               disabled/>
-                                    <input type="hidden" name="teamWord" value={teamWord}/>
-                                  </Box>
-                                </Grid>
-                            );
-                          } else {
-                            return (<input type="hidden" name="teamWord" value={teamWord}/>);
-                          }
-                        })()}
-                        {(() => {
-                          if (password !== undefined && teamWord !== undefined && quote === undefined) {
-                            return (
-                                <Grid item xs={12} alignItems="center" justifyContent="center">
-                                  <Box sx={{width: '100%', my: 1}}>
-                                    <Typography variant="h5" component="h3" align="center">
-                                      Task 3: Unscramble the quote!
-                                    </Typography>
-                                    <Typography paragraph={true} align="center">
-                                      Your third task is to find the words in each of the individual links in the provided link below (it is a JSON
-                                      response with multiple links). Once you collect the most frequent word in each of the attached links, that forms
-                                      a quote when appropriately unscrambled. Your task is to provide that quote to the escape room attendant in order
-                                      to unlock your last escape room challenge and FINALLY break free from this torture.
-                                    </Typography>
-                                    <Typography align="center" component="h6">
-                                      Your data to see all of the links can be found at:
-                                      <Typography align="center" component="a"
-                                                  href={"/game/team/" + teamId + "/quote"} sx={{mx: 1}}>
-                                        {currentHost + "/game/team/" + teamId + "/quote"}
-                                      </Typography>
-                                    </Typography>
-                                    <Typography paragraph={true} align="center" variant="body2">
-                                      Hint: When entering your quote, be sure it only uses the words from your clue (no period is necessary).
-                                    </Typography>
-                                    <TextField label="Quote" required name="quote" id="quote" sx={{mr: 1, width: '100%'}}/>
-                                  </Box>
-                                </Grid>
-                            );
-                          } else if (quote !== undefined) {
-                            return (
-                                <Grid item xs={12} alignItems="center" justifyContent="center">
-                                  <Box sx={{width: '100%', my: 1}}>
-                                    <Typography variant="h5" component="h3" align="center">
-                                      Task 3: Unscramble the quote!
-                                    </Typography>
-                                    <TextField label="Unscrambled Quote" name="quote" id="quote" sx={{mr: 1, width: '100%'}} value={quote}
-                                               disabled/>
-                                    <input type="hidden" name="quote" value={quote}/>
-                                  </Box>
-                                </Grid>
-                            );
-                          } else {
-                            return (
-                                <input type="hidden" name="quote" value={quote}/>
-                            );
-                          }
-                        })()}
-                        {(() => {
-                          if (password !== undefined && teamWord !== undefined && quote !== undefined && fact === undefined) {
-                            return (
-                                <Grid item xs={12} alignItems="center" justifyContent="center">
-                                  <Box sx={{width: '100%', my: 1}}>
-                                    <Typography variant="h5" component="h3" align="center">
-                                      Task 4: Give me the FACTS!
-                                    </Typography>
-                                    <Typography paragraph={true} align="center">
-                                      Your final task is to look up the <b>{selectedTeam === undefined ? "PENDING"
-                                        : selectedTeam.funFactType}</b> fact for the quote you provided above, you can find the quote using the
-                                      Pinecone instance with the account label <b>Pinecone</b> with the Index: <b>quote-facts</b> and <b>no
-                                      namespace</b> set. All embeddings have been created using the <b>amazon.titan-embed-text-v1</b> model. You will
-                                      likely need to filter for your fun fact type listed before as your quote may embed to multiple items in the
-                                      vector database, the schema of the metadata is as follows:
-                                    </Typography>
-                                    <Grid container justifyContent="center" sx={{my: 1}}>
-                                      <Box sx={{p: 1, border: 2}} style={{backgroundColor: "#EEEEEE", borderColor: "#222222", borderStyle: "solid"}}>
-                                        <Typography component="pre" variant="pre">
-                                          {`{\n\t"funFactType": "<funFactType>",\n\t"funFact": "<value>"\n}`}
-                                        </Typography>
-                                      </Box>
+                                    <Grid container spacing={4} sx={{pt: 2}}>
+                                      <Grid item xs={6}>
+                                        <TextField label="Overpaid Invoice ID" required name="overpaidInvoiceId" id="overpaidInvoiceId" sx={{mr: 1}} fullWidth/>
+                                      </Grid>
+                                      <Grid item xs={6}>
+                                        <TextField label="Underpaid Invoice ID" required name="underpaidInvoiceId" id="underpaidInvoiceId" sx={{mr: 1}} fullWidth/>
+                                      </Grid>
                                     </Grid>
-                                    <TextField label="Fun Fact" required name="fact" id="fact" sx={{mr: 1, width: '100%'}}/>
                                   </Box>
                                 </Grid>
                             );
-                          } else if (quote !== undefined) {
+                          } else if (overpaidInvoiceId !== undefined && underpaidInvoiceId !== undefined) {
                             return (
                                 <Grid item xs={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
-                                      Task 4: Give me the FACTS!
+                                      Task 2: Identify revenue leakage
                                     </Typography>
-                                    <TextField label="Fun Fact" name="fact" id="fact" sx={{mr: 1, width: '100%'}} value={fact}
-                                               disabled/>
-                                    <input type="hidden" name="fact" value={fact}/>
+                                    <Grid container spacing={4} sx={{pt: 2}}>
+                                      <Grid item xs={6}>
+                                        <TextField label="Overpaid Invoice ID" required name="overpaidInvoiceId" id="overpaidInvoiceId" sx={{mr: 1}} fullWidth value={overpaidInvoiceId} disabled/>
+                                      </Grid>
+                                      <Grid item xs={6}>
+                                        <TextField label="Underpaid Invoice ID" required name="underpaidInvoiceId" id="underpaidInvoiceId" sx={{mr: 1}} fullWidth value={underpaidInvoiceId} disabled/>
+                                      </Grid>
+                                    </Grid>
+                                    <input type="hidden" name="overpaidInvoiceId" value={overpaidInvoiceId}/>
+                                    <input type="hidden" name="underpaidInvoiceId" value={underpaidInvoiceId}/>
                                   </Box>
                                 </Grid>
                             );
                           } else {
                             return (
-                                <input type="hidden" name="fact" value={fact}/>
+                              <span>
+                                <input type="hidden" name="overpaidInvoiceId" value={overpaidInvoiceId}/>
+                                <input type="hidden" name="underpaidInvoiceId" value={underpaidInvoiceId}/>
+                              </span>
                             );
                           }
                         })()}
-                        {(password === undefined || teamWord === undefined || quote === undefined || fact === undefined) ? (
+                        {(() => {
+                          if (highCost !== undefined && highQuantity !== undefined && overpaidInvoiceId !== undefined && underpaidInvoiceId !== undefined && (overpaidEmail === undefined || underpaidEmail === undefined)) {
+                            return (
+                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                  <Box sx={{width: '100%', my: 1}}>
+                                    <Typography variant="h5" component="h3" align="center">
+                                      Task 3: Contact your suppliers
+                                    </Typography>
+                                    <Typography paragraph={true} align="center">
+                                      Your third task is to put together an email to your suppliers (named in the invoices) who you overpaid and underpaid in order
+                                      to work through how you will pay them the difference in the product cost and charged amount or how you expect to get reimbursement
+                                      for the overpayment.
+                                    </Typography>
+                                    <Typography align="center" component="h6">
+                                      Use the following invoice PDFs to obtain the details to contact your suppliers:
+                                      {selectedTeam.invoiceIds.map((item, index) => (
+                                          <Typography align="center" component="a"
+                                                      href={"/game/invoice/" + item} sx={{mx: 1}}>
+                                              {"Invoice PDF " + (index + 1)}
+                                          </Typography>))
+                                      }
+                                    </Typography>
+                                    <Typography paragraph={true} align="center" variant="body2">
+                                      Hint: Copy and paste the entire email into the field to ensure the appropriate details are available.
+                                    </Typography>
+                                    <Grid container spacing={4} sx={{pt: 2}}>
+                                      <Grid item xs={12}>
+                                        <TextField label="Overpaid Supplier Email" required name="overpaidEmail" id="overpaidEmail" sx={{mr: 1}} fullWidth multiline/>
+                                      </Grid>
+                                      <Grid item xs={12}>
+                                        <TextField label="Underpaid Supplier Email" required name="underpaidEmail" id="underpaidEmail" sx={{mr: 1}} fullWidth multiline/>
+                                      </Grid>
+                                    </Grid>
+                                  </Box>
+                                </Grid>
+                            );
+                          } else if (overpaidEmail !== undefined && underpaidEmail !== undefined) {
+                            return (
+                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                  <Box sx={{width: '100%', my: 1}}>
+                                    <Typography variant="h5" component="h3" align="center">
+                                      Task 3: Contact your suppliers
+                                    </Typography>
+                                    <Grid container spacing={4} sx={{pt: 2}}>
+                                      <Grid item xs={12}>
+                                        <TextField label="Overpaid Supplier Email" required name="overpaidEmail" id="overpaidEmail" sx={{mr: 1}} fullWidth multiline value={overpaidEmail} disabled/>
+                                      </Grid>
+                                      <Grid item xs={12}>
+                                        <TextField label="Underpaid Supplier Email" required name="underpaidEmail" id="underpaidEmail" sx={{mr: 1}} fullWidth multiline value={underpaidEmail} disabled/>
+                                      </Grid>
+                                    </Grid>
+                                    <input type="hidden" name="overpaidEmail" value={overpaidEmail}/>
+                                    <input type="hidden" name="underpaidEmail" value={underpaidEmail}/>
+                                  </Box>
+                                </Grid>
+                            );
+                          } else {
+                            return (
+                              <span>
+                                <input type="hidden" name="overpaidEmail" value={overpaidEmail}/>
+                                <input type="hidden" name="underpaidEmail" value={underpaidEmail}/>
+                              </span>
+                            );
+                          }
+                        })()}
+                        {(highCost === undefined || highQuantity === undefined || overpaidInvoiceId === undefined || underpaidInvoiceId === undefined || overpaidEmail === undefined || underpaidEmail === undefined) ? (
                             <Box sx={{justifyContent: 'space-between', ml: 'auto'}}>
                               <Button type="submit" variant="contained">
                                 Submit Guess

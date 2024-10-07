@@ -11,6 +11,9 @@ data class Team(
   @Id @GeneratedValue(strategy = GenerationType.UUID) var id: UUID = UUID.randomUUID(),
   var name: String = "",
   @Column(name = "first_selected") var firstSelected: OffsetDateTime? = null,
+  @Column(name = "products_identified") var productsIdentified: OffsetDateTime? = null,
+  @Column(name = "leakage_identified") var leakageIdentified: OffsetDateTime? = null,
+  @Column(name = "suppliers_contacted") var suppliersContacted: OffsetDateTime? = null,
   @OneToMany(
     mappedBy = "team",
     fetch = FetchType.LAZY,
@@ -18,9 +21,25 @@ data class Team(
     orphanRemoval = true,
   )
   var teamInvoices: MutableList<TeamInvoice> = ArrayList(),
+  var overpaidEmail: String? = null,
+  var underpaidEmail: String? = null,
 ) {
   fun toMinimalTeam(): MinimalTeam {
-    return MinimalTeam(this.id, this.name, this.firstSelected)
+    return MinimalTeam(
+      this.id,
+      this.name,
+      this.firstSelected,
+      this.productsIdentified,
+      this.leakageIdentified,
+      this.suppliersContacted,
+      this.teamInvoices
+        .stream()
+        .filter { teamInvoices -> teamInvoices.firstTask }
+        .findFirst()
+        .get()
+        .id,
+      this.teamInvoices.stream().map { teamInvoice -> teamInvoice.id }.toList(),
+    )
   }
 
   fun toTeamContainer(): TeamContainer {
@@ -28,6 +47,9 @@ data class Team(
       this.id,
       this.name,
       this.firstSelected,
+      this.productsIdentified,
+      this.leakageIdentified,
+      this.suppliersContacted,
       this.teamInvoices
         .stream()
         .filter { teamInvoices -> teamInvoices.firstTask }

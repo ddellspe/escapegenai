@@ -85,4 +85,24 @@ class TeamController(var teamService: TeamService) {
       )
     }
   }
+
+  @DeleteMapping("/teams/{id}/reset")
+  fun resetTeam(@PathVariable id: UUID): ResponseEntity<Map<String, Any>> {
+    try {
+      val team = teamService.getTeam(id)
+      team.firstSelected = null
+      team.productsIdentified = null
+      team.leakageIdentified = null
+      team.suppliersContacted = null
+      team.overpaidEmail = null
+      team.underpaidEmail = null
+      teamService.updateTeam(team)
+      return ResponseEntity(null, HttpStatus.NO_CONTENT)
+    } catch (e: IllegalArgumentException) {
+      return ResponseEntity(
+        mapOf<String, Any>("error" to true, "message" to e.message!!),
+        HttpStatus.BAD_REQUEST,
+      )
+    }
+  }
 }

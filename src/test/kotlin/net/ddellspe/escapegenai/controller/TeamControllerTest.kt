@@ -191,4 +191,41 @@ class TeamControllerTest {
     assertNull(result.body)
     assertEquals(HttpStatus.NO_CONTENT, result.statusCode)
   }
+
+  @Test
+  fun whenResetTeam_hasErrorResetting_thenReturnError() {
+    every { teamService.getTeam(id) } throws IllegalArgumentException("Error")
+
+    val result: ResponseEntity<Map<String, Any>> = teamController.resetTeam(id)
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+    assertEquals(mapOf("error" to true, "message" to "Error"), result.body)
+  }
+
+  @Test
+  fun whenResetTeam_hasNoErrorResetting_thenReturnSuccess() {
+    every { teamService.getTeam(id) } returns team
+    every { team.firstSelected = null } just runs
+    every { team.productsIdentified = null } just runs
+    every { team.leakageIdentified = null } just runs
+    every { team.suppliersContacted = null } just runs
+    every { team.overpaidEmail = null } just runs
+    every { team.underpaidEmail = null } just runs
+    every { teamService.updateTeam(team) } returns team
+
+    val result: ResponseEntity<Map<String, Any>> = teamController.resetTeam(id)
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 1) { team.firstSelected = null }
+    verify(exactly = 1) { team.productsIdentified = null }
+    verify(exactly = 1) { team.leakageIdentified = null }
+    verify(exactly = 1) { team.suppliersContacted = null }
+    verify(exactly = 1) { team.overpaidEmail = null }
+    verify(exactly = 1) { team.underpaidEmail = null }
+    verify(exactly = 1) { teamService.updateTeam(team) }
+    assertNull(result.body)
+    assertEquals(HttpStatus.NO_CONTENT, result.statusCode)
+  }
 }

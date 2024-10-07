@@ -6,22 +6,6 @@ export default function TeamStatus({team}) {
   let progress = 0;
   let startTime = Date.parse(team.firstSelected);
   let endTime = Date.now();
-  if (team.passwordEntered !== null) {
-    progress += 25;
-    endTime = Date.parse(team.passwordEntered);
-  }
-  if (team.wordEntered !== null) {
-    progress += 25;
-    endTime = Date.parse(team.wordEntered);
-  }
-  if (team.quoteEntered !== null) {
-    progress += 25;
-    endTime = Date.parse(team.quoteEntered);
-  }
-  if (team.funFactEntered !== null) {
-    progress += 25;
-    endTime = Date.parse(team.funFactEntered);
-  }
   let timeTaken = "";
   if (!isNaN(startTime)) {
     let time = endTime - startTime;

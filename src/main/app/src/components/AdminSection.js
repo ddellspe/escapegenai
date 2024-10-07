@@ -6,7 +6,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Fab from '@mui/material/Fab';
 import LoginIcon from '@mui/icons-material/LoginTwoTone';
 import LogoutIcon from '@mui/icons-material/LogoutTwoTone';
-import QuoteIcon from '@mui/icons-material/FormatQuoteTwoTone';
 import GroupsIcon from '@mui/icons-material/Groups';
 import ScoreboardIcon from '@mui/icons-material/ScoreboardTwoTone';
 import Snackbar from '@mui/material/Snackbar';
@@ -14,7 +13,6 @@ import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import LoginForm from "./LoginForm";
-import QuoteList from "./QuoteList";
 import TeamsList from "./TeamsList";
 import Scoreboard from "./Scoreboard";
 
@@ -23,7 +21,6 @@ export default function AdminSection() {
   const [auth, setAuth] = useState(false);
   const [openSpeedDialOptions, setOpenSpeedDialOptions] = useState(false);
   const [openLoginModal, setOpenLoginModal] = useState(false);
-  const [openQuotesModal, setOpenQuotesModal] = useState(false);
   const [openTeamsModal, setOpenTeamsModal] = useState(false);
   const [openScoreboard, setOpenScoreboard] = useState(false);
   const [loginError, setLoginError] = useState(false);
@@ -32,17 +29,9 @@ export default function AdminSection() {
   const killAlert = () => {
     setDataSent("");
   }
-  const handleOpenQuotesModal = () => {
-    setOpenSpeedDialOptions(false);
-    setOpenQuotesModal(true);
-    setOpenLoginModal(false);
-    setOpenTeamsModal(false);
-    setOpenScoreboard(false);
-  }
 
   const handleOpenTeamsModal = ()  => {
     setOpenSpeedDialOptions(false);
-    setOpenQuotesModal(false);
     setOpenLoginModal(false);
     setOpenTeamsModal(true);
     setOpenScoreboard(false);
@@ -53,14 +42,12 @@ export default function AdminSection() {
         setDataSent(message);
       }
     }
-    setOpenQuotesModal(false);
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(false);
     setOpenTeamsModal(false);
     setOpenScoreboard(false);
   };
   const handleOpenLoginModal = () => {
-    setOpenQuotesModal(false);
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(true);
     setOpenTeamsModal(false);
@@ -69,7 +56,6 @@ export default function AdminSection() {
 
   const handleOpenScoreboardModal = () => {
     setOpenScoreboard(true);
-    setOpenQuotesModal(false);
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(false);
     setOpenTeamsModal(false);
@@ -124,12 +110,6 @@ export default function AdminSection() {
                 onClick={handleOpenTeamsModal}
             />
             <SpeedDialAction
-                key="quotes"
-                icon={<QuoteIcon />}
-                tooltipTitle="Manage Quotes"
-                onClick={handleOpenQuotesModal}
-              />
-            <SpeedDialAction
                 key="logout"
                 icon={<LogoutIcon />}
                 tooltipTitle="Logout"
@@ -137,7 +117,6 @@ export default function AdminSection() {
           </SpeedDial>
           <Scoreboard opened={openScoreboard} onClose={handleCloseAll} />
           <TeamsList opened={openTeamsModal} creds={creds} onClose={handleCloseAll} />
-          <QuoteList opened={openQuotesModal} creds={creds} onClose={handleCloseAll} />
           <Snackbar
               anchorOrigin={{vertical:'top', horizontal: 'center'}}
               open={dataSent !== ""}
