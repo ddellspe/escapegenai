@@ -10,5 +10,4 @@ data class TeamContainer(
   var productsIdentified: OffsetDateTime? = null,
   var leakageIdentified: OffsetDateTime? = null,
   var suppliersContacted: OffsetDateTime? = null,
-  var primaryInvoiceId: UUID? = null,
 )

@@ -3,7 +3,6 @@ package net.ddellspe.escapegenai.model
 import jakarta.persistence.*
 import java.time.OffsetDateTime
 import java.util.*
-import kotlin.jvm.optionals.getOrNull
 
 @Entity(name = "team")
 @Table(name = "team")
@@ -39,6 +38,8 @@ data class Team(
         .get()
         .id,
       this.teamInvoices.stream().map { teamInvoice -> teamInvoice.id }.toList(),
+      this.underpaidEmail,
+      this.overpaidEmail,
     )
   }
 
@@ -50,12 +51,6 @@ data class Team(
       this.productsIdentified,
       this.leakageIdentified,
       this.suppliersContacted,
-      this.teamInvoices
-        .stream()
-        .filter { teamInvoices -> teamInvoices.firstTask }
-        .findFirst()
-        .getOrNull()
-        ?.id,
     )
   }
 }
