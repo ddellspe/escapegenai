@@ -24,7 +24,8 @@ class GameDataControllerApplicationTest {
       ?.perform(get("/game/invoice/00000000-0000-0000-0000-000000000002"))
       ?.andExpect(status().isOk())
       ?.andExpect(
-        header().string(CONTENT_DISPOSITION, "inline; filename=teamName First Invoice.pdf")
+        header()
+          .string(CONTENT_DISPOSITION, "inline; filename=teamName First Invoice 123456789.pdf")
       )
   }
 
@@ -34,6 +35,8 @@ class GameDataControllerApplicationTest {
     mockMvc
       ?.perform(get("/game/invoice/00000000-0000-0000-0000-000000000005"))
       ?.andExpect(status().isOk())
-      ?.andExpect(header().string(CONTENT_DISPOSITION, "inline; filename=teamName Invoice.pdf"))
+      ?.andExpect(
+        header().string(CONTENT_DISPOSITION, "inline; filename=teamName Invoice 123456790.pdf")
+      )
   }
 }

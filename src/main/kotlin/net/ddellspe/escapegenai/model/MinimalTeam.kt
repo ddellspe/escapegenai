@@ -12,4 +12,6 @@ data class MinimalTeam(
   var suppliersContacted: OffsetDateTime? = null,
   var primaryInvoiceId: UUID,
   var invoiceIds: List<UUID>,
+  var underpaidEmail: String? = null,
+  var overpaidEmail: String? = null,
 )

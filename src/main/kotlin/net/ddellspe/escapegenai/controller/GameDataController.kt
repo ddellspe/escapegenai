@@ -99,7 +99,7 @@ class GameDataController(var teamService: TeamService, var teamInvoiceService: T
       val headers = HttpHeaders()
       headers.add(
         CONTENT_DISPOSITION,
-        "inline; filename=${team.name} ${if (teamInvoice.firstTask) "First " else ""}Invoice.pdf",
+        "inline; filename=${team.name} ${if (teamInvoice.firstTask) "First " else ""}Invoice ${invoice.id}.pdf",
       )
       return ResponseEntity.ok()
         .headers(headers)

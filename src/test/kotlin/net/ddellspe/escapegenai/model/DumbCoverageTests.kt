@@ -58,6 +58,8 @@ class DumbCoverageTests {
         suppliersContacted = team.suppliersContacted,
         primaryInvoiceId = uuid,
         invoiceIds = listOf(uuid2, uuid),
+        underpaidEmail = team.underpaidEmail,
+        overpaidEmail = team.overpaidEmail,
       )
     MinimalTeam(id = team.id, name = team.name, primaryInvoiceId = uuid, invoiceIds = listOf(uuid))
     assertEquals(expected, minimalTeam)
@@ -68,7 +70,7 @@ class DumbCoverageTests {
   }
 
   @Test
-  fun toTeamContainerPrimaryInvoiceNotPresent() {
+  fun toTeamContainer() {
     val team = Team()
     team.firstSelected = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
     team.productsIdentified = OffsetDateTime.of(2024, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC)
@@ -87,36 +89,6 @@ class DumbCoverageTests {
         team.suppliersContacted,
       )
     assertEquals(expected, teamContainer)
-  }
-
-  @Test
-  fun toTeamContainerPrimaryInvoicePresent() {
-    val team = Team()
-    val teamInvoice: TeamInvoice = mockk()
-    val uuid = UUID.randomUUID()
-    every { teamInvoice.id } returns uuid
-    every { teamInvoice.firstTask } returns true
-    team.firstSelected = OffsetDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-    team.productsIdentified = OffsetDateTime.of(2024, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC)
-    team.leakageIdentified = OffsetDateTime.of(2024, 1, 1, 2, 0, 0, 0, ZoneOffset.UTC)
-    team.suppliersContacted = OffsetDateTime.of(2024, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC)
-    team.teamInvoices = mutableListOf(teamInvoice)
-
-    val teamContainer = team.toTeamContainer()
-
-    val expected =
-      TeamContainer(
-        team.id,
-        team.name,
-        team.firstSelected,
-        team.productsIdentified,
-        team.leakageIdentified,
-        team.suppliersContacted,
-        uuid,
-      )
-    assertEquals(expected, teamContainer)
-    verify(exactly = 1) { teamInvoice.id }
-    verify(exactly = 1) { teamInvoice.firstTask }
   }
 
   @Test
