@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
@@ -224,10 +225,10 @@ export default function GamePanel() {
                                     </Typography>
                                     <Typography align="center" component="h6">
                                       Use the following Invoice to answer these questions:
-                                      <Typography align="center" component="a"
+                                      <Link align="center" target="_blank" rel="noopener"
                                                   href={"/game/invoice/" + selectedTeam.primaryInvoiceId} sx={{mx: 1}}>
                                         {"Invoice PDF"}
-                                      </Typography>
+                                      </Link>
                                     </Typography>
                                     <Grid container spacing={4} sx={{pt: 2}}>
                                       <Grid item xs={6}>
@@ -277,10 +278,10 @@ export default function GamePanel() {
                                     <Typography align="center" component="h6">
                                       Use the following invoice PDFs to find your revenue leakage:
                                       {selectedTeam.invoiceIds.map((item, index) => (
-                                          <Typography align="center" component="a"
+                                          <Link align="center"  target="_blank" rel="noopener"
                                                       href={"/game/invoice/" + item} sx={{mx: 1}}>
                                               {"Invoice PDF " + (index + 1)}
-                                          </Typography>))
+                                          </Link>))
                                       }
                                     </Typography>
                                     <Typography paragraph={true} align="center" variant="body2">
@@ -342,10 +343,10 @@ export default function GamePanel() {
                                     <Typography align="center" component="h6">
                                       Use the following invoice PDFs to obtain the details to contact your suppliers:
                                       {selectedTeam.invoiceIds.map((item, index) => (
-                                          <Typography align="center" component="a"
+                                          <Link align="center"  target="_blank" rel="noopener"
                                                       href={"/game/invoice/" + item} sx={{mx: 1}}>
                                               {"Invoice PDF " + (index + 1)}
-                                          </Typography>))
+                                          </Link>))
                                       }
                                     </Typography>
                                     <Typography paragraph={true} align="center" variant="body2">
