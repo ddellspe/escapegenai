@@ -3,10 +3,7 @@ package net.ddellspe.escapegenai.service
 import java.time.OffsetDateTime
 import java.util.*
 import kotlin.math.abs
-import net.ddellspe.escapegenai.model.Invoice
-import net.ddellspe.escapegenai.model.Team
-import net.ddellspe.escapegenai.model.TeamContainer
-import net.ddellspe.escapegenai.model.TeamInvoice
+import net.ddellspe.escapegenai.model.*
 import net.ddellspe.escapegenai.repository.TeamRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -71,7 +68,7 @@ class TeamService(var teamRepository: TeamRepository, var invoiceService: Invoic
     teamRepository.save(team)
   }
 
-  fun verifyProductsIdentified(id: UUID, highCost: String, highQuantity: String): Boolean {
+  fun verifyProductsIdentified(id: UUID, highCost: String, highQuantity: String): VerifyResponse {
     val team = getTeam(id)
     val invoice =
       team.teamInvoices.stream().filter { inv -> inv.firstTask }.findFirst().get().invoice
@@ -93,12 +90,16 @@ class TeamService(var teamRepository: TeamRepository, var invoiceService: Invoic
         .get()
         .product
         .name
-    if (highCost.trim() == highCostName && highQuantity.trim() == highQuantityName) {
-      team.productsIdentified = team.productsIdentified ?: OffsetDateTime.now()
-      teamRepository.save(team)
-      return true
+    if (highCost.trim() == highCostName) {
+      if (highQuantity.trim() == highQuantityName) {
+        team.productsIdentified = team.productsIdentified ?: OffsetDateTime.now()
+        teamRepository.save(team)
+        return VerifyResponse(true)
+      } else {
+        return VerifyResponse(false, "Incorrect Product with Highest Count.")
+      }
     } else {
-      return false
+      return VerifyResponse(false, "Incorrect Product with Highest Cost.")
     }
   }
 
@@ -106,7 +107,7 @@ class TeamService(var teamRepository: TeamRepository, var invoiceService: Invoic
     id: UUID,
     underpaidInvoiceId: String,
     overpaidInvoiceId: String,
-  ): Boolean {
+  ): VerifyResponse {
     val team = getTeam(id)
     val overpaidInvoiceIdVal =
       team.teamInvoices
@@ -124,19 +125,24 @@ class TeamService(var teamRepository: TeamRepository, var invoiceService: Invoic
         .get()
         .invoice
         .id!!
-    if (
-      underpaidInvoiceId.trim() == underpaidInvoiceIdVal.toString() &&
-        overpaidInvoiceId.trim() == overpaidInvoiceIdVal.toString()
-    ) {
-      team.leakageIdentified = team.leakageIdentified ?: OffsetDateTime.now()
-      teamRepository.save(team)
-      return true
+    if (underpaidInvoiceId.trim() == underpaidInvoiceIdVal.toString()) {
+      if (overpaidInvoiceId.trim() == overpaidInvoiceIdVal.toString()) {
+        team.leakageIdentified = team.leakageIdentified ?: OffsetDateTime.now()
+        teamRepository.save(team)
+        return VerifyResponse(true)
+      } else {
+        return VerifyResponse(false, "Incorrect Overpaid Invoice ID.")
+      }
     } else {
-      return false
+      return VerifyResponse(false, "Incorrect Underpaid Invoice ID.")
     }
   }
 
-  fun verifySupplierEmails(id: UUID, underpaidEmail: String, overpaidEmail: String): Boolean {
+  fun verifySupplierEmails(
+    id: UUID,
+    underpaidEmail: String,
+    overpaidEmail: String,
+  ): VerifyResponse {
     val team = getTeam(id)
     val overpaidInvoice =
       team.teamInvoices
@@ -152,25 +158,66 @@ class TeamService(var teamRepository: TeamRepository, var invoiceService: Invoic
         .findFirst()
         .get()
         .invoice
-    if (
-      (underpaidEmail.lowercase().contains(underpaidInvoice.company.lowercase()) &&
-        underpaidEmail.contains(underpaidInvoice.id.toString()) &&
-        underpaidEmail.lowercase().contains("under") &&
-        (underpaidEmail.contains(abs(underpaidInvoice.difference).toString()) ||
-          underpaidEmail.contains("%,d".format(abs(underpaidInvoice.difference))))) &&
-        (overpaidEmail.lowercase().contains(overpaidInvoice.company.lowercase()) &&
-          overpaidEmail.contains(overpaidInvoice.id.toString()) &&
-          overpaidEmail.lowercase().contains("over") &&
-          (overpaidEmail.contains(abs(overpaidInvoice.difference).toString()) ||
-            overpaidEmail.contains("%,d".format(abs(overpaidInvoice.difference)))))
-    ) {
-      team.suppliersContacted = team.suppliersContacted ?: OffsetDateTime.now()
-      team.underpaidEmail = underpaidEmail
-      team.overpaidEmail = overpaidEmail
-      teamRepository.save(team)
-      return true
+    if (underpaidEmail.lowercase().contains(underpaidInvoice.company.lowercase())) {
+      if (underpaidEmail.contains(underpaidInvoice.id.toString())) {
+        if (underpaidEmail.lowercase().contains("under")) {
+          if (
+            (underpaidEmail.contains(abs(underpaidInvoice.difference).toString()) ||
+              underpaidEmail.contains("%,d".format(abs(underpaidInvoice.difference))))
+          ) {
+            if (overpaidEmail.lowercase().contains(overpaidInvoice.company.lowercase())) {
+              if (overpaidEmail.contains(overpaidInvoice.id.toString())) {
+                if (overpaidEmail.lowercase().contains("over")) {
+                  if (
+                    (overpaidEmail.contains(abs(overpaidInvoice.difference).toString()) ||
+                      overpaidEmail.contains("%,d".format(abs(overpaidInvoice.difference))))
+                  ) {
+                    team.suppliersContacted = team.suppliersContacted ?: OffsetDateTime.now()
+                    team.underpaidEmail = underpaidEmail
+                    team.overpaidEmail = overpaidEmail
+                    teamRepository.save(team)
+                    return VerifyResponse(true)
+                  } else {
+                    return VerifyResponse(
+                      false,
+                      "${overpaidInvoice.company} is unsure how much they owe you.",
+                    )
+                  }
+                } else {
+                  return VerifyResponse(
+                    false,
+                    "${overpaidInvoice.company} isn't sure what was incorrect about the invoice.",
+                  )
+                }
+              } else {
+                return VerifyResponse(
+                  false,
+                  "${overpaidInvoice.company} isn't sure which invoice you're talking about, they have multiple with you.",
+                )
+              }
+            } else {
+              return VerifyResponse(false, "We're not sure if you've contacted the right company.")
+            }
+          } else {
+            return VerifyResponse(
+              false,
+              "${underpaidInvoice.company} is unsure how much you still owe.",
+            )
+          }
+        } else {
+          return VerifyResponse(
+            false,
+            "${underpaidInvoice.company} isn't sure what was incorrect about the invoice.",
+          )
+        }
+      } else {
+        return VerifyResponse(
+          false,
+          "${underpaidInvoice.company} isn't sure which invoice you are talking about, they have multiple with you.",
+        )
+      }
     } else {
-      return false
+      return VerifyResponse(false, "We're not sure if you've contacted the right company.")
     }
   }
 }

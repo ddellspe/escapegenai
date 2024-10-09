@@ -255,7 +255,9 @@ class TeamServiceTest {
     every { product1.name } returns "product1"
     every { product2.name } returns "product2"
 
-    assertFalse(teamService.verifyProductsIdentified(id, "product2", "product2"))
+    val result = teamService.verifyProductsIdentified(id, "product2", "product2")
+    assertFalse(result.verified)
+    assertEquals("Incorrect Product with Highest Count.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 1) { team.teamInvoices }
@@ -290,7 +292,9 @@ class TeamServiceTest {
     every { product1.name } returns "product1"
     every { product2.name } returns "product2"
 
-    assertFalse(teamService.verifyProductsIdentified(id, "product1", "product1"))
+    val result = teamService.verifyProductsIdentified(id, "product1", "product1")
+    assertFalse(result.verified)
+    assertEquals("Incorrect Product with Highest Cost.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 1) { team.teamInvoices }
@@ -325,7 +329,9 @@ class TeamServiceTest {
     every { product1.name } returns "product1"
     every { product2.name } returns "product2"
 
-    assertFalse(teamService.verifyProductsIdentified(id, "product1", "product2"))
+    val result = teamService.verifyProductsIdentified(id, "product1", "product2")
+    assertFalse(result.verified)
+    assertEquals("Incorrect Product with Highest Cost.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 1) { team.teamInvoices }
@@ -363,7 +369,9 @@ class TeamServiceTest {
     every { team.productsIdentified = capture(dateSlot) } just runs
     every { teamRepository.save(team) } returns team
 
-    assertTrue(teamService.verifyProductsIdentified(id, "product2", "product1"))
+    val result = teamService.verifyProductsIdentified(id, "product2", "product1")
+    assertTrue(result.verified)
+    assertNull(result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 1) { team.teamInvoices }
@@ -406,7 +414,9 @@ class TeamServiceTest {
     every { team.productsIdentified = dt } just runs
     every { teamRepository.save(team) } returns team
 
-    assertTrue(teamService.verifyProductsIdentified(id, "product2", "product1"))
+    val result = teamService.verifyProductsIdentified(id, "product2", "product1")
+    assertTrue(result.verified)
+    assertNull(result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 1) { team.teamInvoices }
@@ -441,7 +451,9 @@ class TeamServiceTest {
     every { invoicePlus.difference } returns 1
     every { invoicePlus.id } returns 2L
 
-    assertFalse(teamService.verifyLeakageIdentified(id, "2", "2"))
+    val result = teamService.verifyLeakageIdentified(id, "2", "2")
+    assertFalse(result.verified)
+    assertEquals("Incorrect Underpaid Invoice ID.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -469,7 +481,9 @@ class TeamServiceTest {
     every { invoicePlus.difference } returns 1
     every { invoicePlus.id } returns 2L
 
-    assertFalse(teamService.verifyLeakageIdentified(id, "1", "1"))
+    val result = teamService.verifyLeakageIdentified(id, "1", "1")
+    assertFalse(result.verified)
+    assertEquals("Incorrect Overpaid Invoice ID.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -497,7 +511,9 @@ class TeamServiceTest {
     every { invoicePlus.difference } returns 1
     every { invoicePlus.id } returns 2L
 
-    assertFalse(teamService.verifyLeakageIdentified(id, "2", "1"))
+    val result = teamService.verifyLeakageIdentified(id, "2", "1")
+    assertFalse(result.verified)
+    assertEquals("Incorrect Underpaid Invoice ID.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -528,7 +544,9 @@ class TeamServiceTest {
     every { team.leakageIdentified = capture(dateSlot) } just runs
     every { teamRepository.save(team) } returns team
 
-    assertTrue(teamService.verifyLeakageIdentified(id, "1", "2"))
+    val result = teamService.verifyLeakageIdentified(id, "1", "2")
+    assertTrue(result.verified)
+    assertNull(result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -564,7 +582,9 @@ class TeamServiceTest {
     every { team.leakageIdentified = dt } just runs
     every { teamRepository.save(team) } returns team
 
-    assertTrue(teamService.verifyLeakageIdentified(id, "1", "2"))
+    val result = teamService.verifyLeakageIdentified(id, "1", "2")
+    assertTrue(result.verified)
+    assertNull(result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -594,7 +614,9 @@ class TeamServiceTest {
     every { invoicePlus.difference } returns 1500
     every { invoiceMinus.company } returns "company 1"
 
-    assertFalse(teamService.verifySupplierEmails(id, "company 2", "2"))
+    val result = teamService.verifySupplierEmails(id, "company 2", "2")
+    assertFalse(result.verified)
+    assertEquals("We're not sure if you've contacted the right company.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -621,7 +643,12 @@ class TeamServiceTest {
     every { invoiceMinus.company } returns "company 1"
     every { invoiceMinus.id } returns 10L
 
-    assertFalse(teamService.verifySupplierEmails(id, "company 1 11", "2"))
+    val result = teamService.verifySupplierEmails(id, "company 1 11", "2")
+    assertFalse(result.verified)
+    assertEquals(
+      "company 1 isn't sure which invoice you are talking about, they have multiple with you.",
+      result.incorrectItem,
+    )
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -631,7 +658,7 @@ class TeamServiceTest {
     verify(exactly = 2) { invoiceNoDiff.difference }
     verify(exactly = 2) { invoiceMinus.difference }
     verify(exactly = 1) { invoicePlus.difference }
-    verify(exactly = 1) { invoiceMinus.company }
+    verify(exactly = 2) { invoiceMinus.company }
     verify(exactly = 1) { invoiceMinus.id }
   }
 
@@ -649,7 +676,9 @@ class TeamServiceTest {
     every { invoiceMinus.company } returns "company 1"
     every { invoiceMinus.id } returns 10L
 
-    assertFalse(teamService.verifySupplierEmails(id, "company 1 10 overpaid", "2"))
+    val result = teamService.verifySupplierEmails(id, "company 1 10 overpaid", "2")
+    assertFalse(result.verified)
+    assertEquals("company 1 isn't sure what was incorrect about the invoice.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -659,7 +688,7 @@ class TeamServiceTest {
     verify(exactly = 2) { invoiceNoDiff.difference }
     verify(exactly = 2) { invoiceMinus.difference }
     verify(exactly = 1) { invoicePlus.difference }
-    verify(exactly = 1) { invoiceMinus.company }
+    verify(exactly = 2) { invoiceMinus.company }
     verify(exactly = 1) { invoiceMinus.id }
   }
 
@@ -677,7 +706,9 @@ class TeamServiceTest {
     every { invoiceMinus.company } returns "company 1"
     every { invoiceMinus.id } returns 10L
 
-    assertFalse(teamService.verifySupplierEmails(id, "company 1 10 underpaid 160", "2"))
+    val result = teamService.verifySupplierEmails(id, "company 1 10 underpaid 160", "2")
+    assertFalse(result.verified)
+    assertEquals("company 1 is unsure how much you still owe.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -687,7 +718,7 @@ class TeamServiceTest {
     verify(exactly = 2) { invoiceNoDiff.difference }
     verify(exactly = 4) { invoiceMinus.difference }
     verify(exactly = 1) { invoicePlus.difference }
-    verify(exactly = 1) { invoiceMinus.company }
+    verify(exactly = 2) { invoiceMinus.company }
     verify(exactly = 1) { invoiceMinus.id }
   }
 
@@ -706,7 +737,9 @@ class TeamServiceTest {
     every { invoiceMinus.id } returns 10L
     every { invoicePlus.company } returns "company 2"
 
-    assertFalse(teamService.verifySupplierEmails(id, "company 1 10 underpaid 1500", "2"))
+    val result = teamService.verifySupplierEmails(id, "company 1 10 underpaid 1500", "2")
+    assertFalse(result.verified)
+    assertEquals("We're not sure if you've contacted the right company.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -736,7 +769,9 @@ class TeamServiceTest {
     every { invoiceMinus.id } returns 10L
     every { invoicePlus.company } returns "company 2"
 
-    assertFalse(teamService.verifySupplierEmails(id, "company 1 10 underpaid 1,500", "2"))
+    val result = teamService.verifySupplierEmails(id, "company 1 10 underpaid 1,500", "2")
+    assertFalse(result.verified)
+    assertEquals("We're not sure if you've contacted the right company.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -767,8 +802,12 @@ class TeamServiceTest {
     every { invoicePlus.company } returns "company 2"
     every { invoicePlus.id } returns 33L
 
-    assertFalse(
+    val result =
       teamService.verifySupplierEmails(id, "company 1 10 underpaid 1,500", "company 2 32")
+    assertFalse(result.verified)
+    assertEquals(
+      "company 2 isn't sure which invoice you're talking about, they have multiple with you.",
+      result.incorrectItem,
     )
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
@@ -781,7 +820,7 @@ class TeamServiceTest {
     verify(exactly = 1) { invoicePlus.difference }
     verify(exactly = 1) { invoiceMinus.company }
     verify(exactly = 1) { invoiceMinus.id }
-    verify(exactly = 1) { invoicePlus.company }
+    verify(exactly = 2) { invoicePlus.company }
     verify(exactly = 1) { invoicePlus.id }
   }
 
@@ -801,9 +840,10 @@ class TeamServiceTest {
     every { invoicePlus.company } returns "company 2"
     every { invoicePlus.id } returns 33L
 
-    assertFalse(
+    val result =
       teamService.verifySupplierEmails(id, "company 1 10 underpaid 1,500", "company 2 33 underpaid")
-    )
+    assertFalse(result.verified)
+    assertEquals("company 2 isn't sure what was incorrect about the invoice.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -815,7 +855,7 @@ class TeamServiceTest {
     verify(exactly = 1) { invoicePlus.difference }
     verify(exactly = 1) { invoiceMinus.company }
     verify(exactly = 1) { invoiceMinus.id }
-    verify(exactly = 1) { invoicePlus.company }
+    verify(exactly = 2) { invoicePlus.company }
     verify(exactly = 1) { invoicePlus.id }
   }
 
@@ -835,13 +875,14 @@ class TeamServiceTest {
     every { invoicePlus.company } returns "company 2"
     every { invoicePlus.id } returns 33L
 
-    assertFalse(
+    val result =
       teamService.verifySupplierEmails(
         id,
         "company 1 10 underpaid 1,500",
         "company 2 33 overpaid 1234",
       )
-    )
+    assertFalse(result.verified)
+    assertEquals("company 2 is unsure how much they owe you.", result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -853,7 +894,7 @@ class TeamServiceTest {
     verify(exactly = 3) { invoicePlus.difference }
     verify(exactly = 1) { invoiceMinus.company }
     verify(exactly = 1) { invoiceMinus.id }
-    verify(exactly = 1) { invoicePlus.company }
+    verify(exactly = 2) { invoicePlus.company }
     verify(exactly = 1) { invoicePlus.id }
   }
 
@@ -878,13 +919,14 @@ class TeamServiceTest {
     every { team.overpaidEmail = "company 2 33 overpaid 1500" } just runs
     every { teamRepository.save(team) } returns team
 
-    assertTrue(
+    val result =
       teamService.verifySupplierEmails(
         id,
         "company 1 10 underpaid 1,500",
         "company 2 33 overpaid 1500",
       )
-    )
+    assertTrue(result.verified)
+    assertNull(result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }
@@ -928,13 +970,14 @@ class TeamServiceTest {
     every { team.overpaidEmail = "company 2 33 overpaid 1,500" } just runs
     every { teamRepository.save(team) } returns team
 
-    assertTrue(
+    val result =
       teamService.verifySupplierEmails(
         id,
         "company 1 10 underpaid 1,500",
         "company 2 33 overpaid 1,500",
       )
-    )
+    assertTrue(result.verified)
+    assertNull(result.incorrectItem)
 
     verify(exactly = 1) { teamRepository.findByIdOrNull(id) }
     verify(exactly = 2) { team.teamInvoices }

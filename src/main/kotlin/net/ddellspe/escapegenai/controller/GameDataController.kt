@@ -34,53 +34,106 @@ class GameDataController(var teamService: TeamService, var teamInvoiceService: T
   }
 
   @PostMapping("/submit")
-  fun submitGameState(@RequestBody gameSubmission: GameSubmission): ResponseEntity<GameSubmission> {
+  fun submitGameState(
+    @RequestBody gameSubmission: GameSubmission
+  ): ResponseEntity<GameSubmissionResponse> {
     try {
       val team = teamService.getTeam(gameSubmission.id)
       teamService.verifyTeamOpened(team.id)
       val returnSubmission = GameSubmission(team.id)
-      if (
-        gameSubmission.highCost == null ||
-          gameSubmission.highQuantity == null ||
-          !teamService.verifyProductsIdentified(
-            team.id,
-            gameSubmission.highCost!!,
-            gameSubmission.highQuantity!!,
-          )
-      ) {
-        return ResponseEntity(returnSubmission, HttpStatus.OK)
+      if (gameSubmission.highCost.isNullOrEmpty() || gameSubmission.highQuantity.isNullOrEmpty()) {
+        return ResponseEntity(
+          GameSubmissionResponse(returnSubmission, SubmissionFeedback(correct = "Team Selected")),
+          HttpStatus.OK,
+        )
+      }
+      val productVerification =
+        teamService.verifyProductsIdentified(
+          team.id,
+          gameSubmission.highCost!!,
+          gameSubmission.highQuantity!!,
+        )
+      if (!productVerification.verified) {
+        return ResponseEntity(
+          GameSubmissionResponse(
+            returnSubmission,
+            SubmissionFeedback(incorrect = productVerification.incorrectItem),
+          ),
+          HttpStatus.OK,
+        )
       }
       returnSubmission.highCost = gameSubmission.highCost
       returnSubmission.highQuantity = gameSubmission.highQuantity
       if (
-        gameSubmission.underpaidInvoiceId == null ||
-          gameSubmission.overpaidInvoiceId == null ||
-          !teamService.verifyLeakageIdentified(
-            team.id,
-            gameSubmission.underpaidInvoiceId!!,
-            gameSubmission.overpaidInvoiceId!!,
-          )
+        gameSubmission.underpaidInvoiceId.isNullOrEmpty() ||
+          gameSubmission.overpaidInvoiceId.isNullOrEmpty()
       ) {
-        return ResponseEntity(returnSubmission, HttpStatus.OK)
+        return ResponseEntity(
+          GameSubmissionResponse(
+            returnSubmission,
+            SubmissionFeedback(correct = "Products Verified"),
+          ),
+          HttpStatus.OK,
+        )
+      }
+      val leakageVerification =
+        teamService.verifyLeakageIdentified(
+          team.id,
+          gameSubmission.underpaidInvoiceId!!,
+          gameSubmission.overpaidInvoiceId!!,
+        )
+      if (!leakageVerification.verified) {
+        return ResponseEntity(
+          GameSubmissionResponse(
+            returnSubmission,
+            SubmissionFeedback(incorrect = leakageVerification.incorrectItem),
+          ),
+          HttpStatus.OK,
+        )
       }
       returnSubmission.underpaidInvoiceId = gameSubmission.underpaidInvoiceId
       returnSubmission.overpaidInvoiceId = gameSubmission.overpaidInvoiceId
       if (
-        gameSubmission.underpaidEmail == null ||
-          gameSubmission.overpaidEmail == null ||
-          !teamService.verifySupplierEmails(
-            team.id,
-            gameSubmission.underpaidEmail!!,
-            gameSubmission.overpaidEmail!!,
-          )
+        gameSubmission.underpaidEmail.isNullOrEmpty() ||
+          gameSubmission.overpaidEmail.isNullOrEmpty()
       ) {
-        return ResponseEntity(returnSubmission, HttpStatus.OK)
+        return ResponseEntity(
+          GameSubmissionResponse(
+            returnSubmission,
+            SubmissionFeedback(correct = "Leakage Verified"),
+          ),
+          HttpStatus.OK,
+        )
+      }
+      val emailVerified =
+        teamService.verifySupplierEmails(
+          team.id,
+          gameSubmission.underpaidEmail!!,
+          gameSubmission.overpaidEmail!!,
+        )
+      if (!emailVerified.verified) {
+        return ResponseEntity(
+          GameSubmissionResponse(
+            returnSubmission,
+            SubmissionFeedback(incorrect = emailVerified.incorrectItem),
+          ),
+          HttpStatus.OK,
+        )
       }
       returnSubmission.underpaidEmail = gameSubmission.underpaidEmail
       returnSubmission.overpaidEmail = gameSubmission.overpaidEmail
-      return ResponseEntity(returnSubmission, HttpStatus.OK)
+      return ResponseEntity(
+        GameSubmissionResponse(
+          returnSubmission,
+          SubmissionFeedback(correct = "All Tasks Completed!"),
+        ),
+        HttpStatus.OK,
+      )
     } catch (e: IllegalArgumentException) {
-      return ResponseEntity(GameSubmission(gameSubmission.id), HttpStatus.BAD_REQUEST)
+      return ResponseEntity(
+        GameSubmissionResponse(GameSubmission(gameSubmission.id), SubmissionFeedback()),
+        HttpStatus.BAD_REQUEST,
+      )
     }
   }
 

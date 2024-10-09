@@ -26,6 +26,8 @@ export default function GamePanel() {
   const [underpaidEmail, setUnderpaidEmail] = useState(undefined);
   const [showError, setShowError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
 
   const selectTeam = (teamId) => {
     setTeamId(teamId);
@@ -37,9 +39,14 @@ export default function GamePanel() {
     setSelectedTeam(team === "" || team === undefined ? "" : team);
   }
 
-  const killAlert = () => {
+  const killError = () => {
     setShowError(false);
     setTimeout(() => setErrorMsg(""), 1000);
+  }
+
+  const killSuccess = () => {
+    setShowSuccess(false);
+    setTimeout(() => setSuccessMsg(""), 1000);
   }
 
   const updateSubmission = (submission, submit) => {
@@ -144,7 +151,15 @@ export default function GamePanel() {
       return resp.json();
     })
     .then((submission) => {
-      updateSubmission(submission, object);
+      updateSubmission(submission.submission, object);
+      if (submission.feedback.correct !== null) {
+        setSuccessMsg(submission.feedback.correct);
+        setShowSuccess(true);
+      }
+      if (submission.feedback.incorrect !== null) {
+        setErrorMsg(submission.feedback.incorrect);
+        setShowError(true);
+      }
     })
   };
 
@@ -165,9 +180,17 @@ export default function GamePanel() {
               anchorOrigin={{vertical: 'top', horizontal: 'center'}}
               open={showError}
               autoHideDuration={6000}
-              onClose={killAlert}
+              onClose={killError}
           >
             <Alert severity="error" sx={{width: '100%'}}>{errorMsg}</Alert>
+          </Snackbar>
+          <Snackbar
+              anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+              open={showSuccess}
+              autoHideDuration={6000}
+              onClose={killSuccess}
+          >
+            <Alert severity="success" sx={{width: '100%'}}>{successMsg}</Alert>
           </Snackbar>
           <Grid item xs={10} xsoffset={1} alignItems="center" justifyContent="center">
             <Grid item xs={12} alignItems="center" justifyContent="center">
@@ -248,10 +271,10 @@ export default function GamePanel() {
                                     </Typography>
                                     <Grid container spacing={4} sx={{pt: 2}}>
                                       <Grid item xs={6}>
-                                        <TextField label="Product with largest item count" required name="highQuantity" id="highQuantity" sx={{mr: 1}} fullWidth value={highQuantity} disabled/>
+                                        <TextField label="Product with largest item count" required name="highQuantity2" id="highQuantity2" sx={{mr: 1}} fullWidth value={highQuantity} disabled/>
                                       </Grid>
                                       <Grid item xs={6}>
-                                        <TextField label="Product with highest cost" required name="highCost" id="highCost" sx={{mr: 1}} fullWidth value={highCost} disabled/>
+                                        <TextField label="Product with highest cost" required name="highCost2" id="highCost2" sx={{mr: 1}} fullWidth value={highCost} disabled/>
                                       </Grid>
                                     </Grid>
                                     <input type="hidden" name="highQuantity" value={highQuantity}/>
@@ -307,10 +330,10 @@ export default function GamePanel() {
                                     </Typography>
                                     <Grid container spacing={4} sx={{pt: 2}}>
                                       <Grid item xs={6}>
-                                        <TextField label="Overpaid Invoice ID" required name="overpaidInvoiceId" id="overpaidInvoiceId" sx={{mr: 1}} fullWidth value={overpaidInvoiceId} disabled/>
+                                        <TextField label="Overpaid Invoice ID" required name="overpaidInvoiceId2" id="overpaidInvoiceId2" sx={{mr: 1}} fullWidth value={overpaidInvoiceId} disabled/>
                                       </Grid>
                                       <Grid item xs={6}>
-                                        <TextField label="Underpaid Invoice ID" required name="underpaidInvoiceId" id="underpaidInvoiceId" sx={{mr: 1}} fullWidth value={underpaidInvoiceId} disabled/>
+                                        <TextField label="Underpaid Invoice ID" required name="underpaidInvoiceId2" id="underpaidInvoiceId2" sx={{mr: 1}} fullWidth value={underpaidInvoiceId} disabled/>
                                       </Grid>
                                     </Grid>
                                     <input type="hidden" name="overpaidInvoiceId" value={overpaidInvoiceId}/>
@@ -372,10 +395,10 @@ export default function GamePanel() {
                                     </Typography>
                                     <Grid container spacing={4} sx={{pt: 2}}>
                                       <Grid item xs={12}>
-                                        <TextField label="Overpaid Supplier Email" required name="overpaidEmail" id="overpaidEmail" sx={{mr: 1}} fullWidth multiline value={overpaidEmail} disabled/>
+                                        <TextField label="Overpaid Supplier Email" required name="overpaidEmail2" id="overpaidEmail2" sx={{mr: 1}} fullWidth multiline value={overpaidEmail} disabled/>
                                       </Grid>
                                       <Grid item xs={12}>
-                                        <TextField label="Underpaid Supplier Email" required name="underpaidEmail" id="underpaidEmail" sx={{mr: 1}} fullWidth multiline value={underpaidEmail} disabled/>
+                                        <TextField label="Underpaid Supplier Email" required name="underpaidEmail2" id="underpaidEmail2" sx={{mr: 1}} fullWidth multiline value={underpaidEmail} disabled/>
                                       </Grid>
                                     </Grid>
                                     <input type="hidden" name="overpaidEmail" value={overpaidEmail}/>
