@@ -14,10 +14,6 @@ class GameDataControllerTest {
   private val teamService: TeamService = mockk()
   private val teamInvoiceService: TeamInvoiceService = mockk()
   private val team: Team = mockk()
-  private val invoice: Invoice = mockk()
-  private val invoiceProduct: InvoiceProduct = mockk()
-  private val product: Product = mockk()
-  private val teamInvoice: TeamInvoice = mockk()
   private val minimalTeam: MinimalTeam = mockk()
   private val gameSubmission: GameSubmission = mockk()
   private val id = UUID.randomUUID()
@@ -68,7 +64,8 @@ class GameDataControllerTest {
     verify(exactly = 2) { gameSubmission.id }
     assertNotNull(result.body)
     assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
   }
 
   @Test
@@ -89,7 +86,11 @@ class GameDataControllerTest {
     verify(exactly = 2) { team.id }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertEquals("Team Selected", result.body?.feedback?.correct)
   }
 
   @Test
@@ -112,7 +113,11 @@ class GameDataControllerTest {
     verify(exactly = 2) { team.id }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertEquals("Team Selected", result.body?.feedback?.correct)
   }
 
   @Test
@@ -123,7 +128,8 @@ class GameDataControllerTest {
     every { team.id } returns id
     every { gameSubmission.highCost } returns "highCost"
     every { gameSubmission.highQuantity } returns "highQuantity"
-    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns false
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(false, "incorrect")
 
     val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id)
@@ -137,7 +143,11 @@ class GameDataControllerTest {
     verify(exactly = 1) { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.incorrect)
+    assertEquals("incorrect", result.body?.feedback?.incorrect)
   }
 
   @Test
@@ -148,7 +158,8 @@ class GameDataControllerTest {
     every { team.id } returns id
     every { gameSubmission.highCost } returns "highCost"
     every { gameSubmission.highQuantity } returns "highQuantity"
-    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns true
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
     every { gameSubmission.underpaidInvoiceId } returns null
 
     val result = gameDataController.submitGameState(gameSubmission)
@@ -164,7 +175,11 @@ class GameDataControllerTest {
     verify(exactly = 1) { gameSubmission.underpaidInvoiceId }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertNotNull("Products Verified", result.body?.feedback?.correct)
   }
 
   @Test
@@ -175,7 +190,8 @@ class GameDataControllerTest {
     every { team.id } returns id
     every { gameSubmission.highCost } returns "highCost"
     every { gameSubmission.highQuantity } returns "highQuantity"
-    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns true
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
     every { gameSubmission.underpaidInvoiceId } returns "1"
     every { gameSubmission.overpaidInvoiceId } returns null
 
@@ -193,7 +209,11 @@ class GameDataControllerTest {
     verify(exactly = 1) { gameSubmission.overpaidInvoiceId }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertNotNull("Leakage Verified", result.body?.feedback?.correct)
   }
 
   @Test
@@ -204,10 +224,12 @@ class GameDataControllerTest {
     every { team.id } returns id
     every { gameSubmission.highCost } returns "highCost"
     every { gameSubmission.highQuantity } returns "highQuantity"
-    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns true
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
     every { gameSubmission.underpaidInvoiceId } returns "1"
     every { gameSubmission.overpaidInvoiceId } returns "2"
-    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns false
+    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns
+      VerifyResponse(false, "incorrect")
 
     val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "highQuantity", "highCost")
@@ -224,7 +246,11 @@ class GameDataControllerTest {
     verify(exactly = 1) { teamService.verifyLeakageIdentified(id, "1", "2") }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.incorrect)
+    assertEquals("incorrect", result.body?.feedback?.incorrect)
   }
 
   @Test
@@ -235,10 +261,11 @@ class GameDataControllerTest {
     every { team.id } returns id
     every { gameSubmission.highCost } returns "highCost"
     every { gameSubmission.highQuantity } returns "highQuantity"
-    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns true
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
     every { gameSubmission.underpaidInvoiceId } returns "1"
     every { gameSubmission.overpaidInvoiceId } returns "2"
-    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns true
+    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns VerifyResponse(true)
     every { gameSubmission.underpaidEmail } returns null
 
     val result = gameDataController.submitGameState(gameSubmission)
@@ -257,7 +284,11 @@ class GameDataControllerTest {
     verify(exactly = 1) { gameSubmission.underpaidEmail }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertNotNull("Products Verified", result.body?.feedback?.correct)
   }
 
   @Test
@@ -268,10 +299,11 @@ class GameDataControllerTest {
     every { team.id } returns id
     every { gameSubmission.highCost } returns "highCost"
     every { gameSubmission.highQuantity } returns "highQuantity"
-    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns true
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
     every { gameSubmission.underpaidInvoiceId } returns "1"
     every { gameSubmission.overpaidInvoiceId } returns "2"
-    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns true
+    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns VerifyResponse(true)
     every { gameSubmission.underpaidEmail } returns "underpaidEmail"
     every { gameSubmission.overpaidEmail } returns null
 
@@ -292,7 +324,11 @@ class GameDataControllerTest {
     verify(exactly = 1) { gameSubmission.overpaidEmail }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertNotNull("Products Verified", result.body?.feedback?.correct)
   }
 
   @Test
@@ -303,13 +339,15 @@ class GameDataControllerTest {
     every { team.id } returns id
     every { gameSubmission.highCost } returns "highCost"
     every { gameSubmission.highQuantity } returns "highQuantity"
-    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns true
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
     every { gameSubmission.underpaidInvoiceId } returns "1"
     every { gameSubmission.overpaidInvoiceId } returns "2"
-    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns true
+    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns VerifyResponse(true)
     every { gameSubmission.underpaidEmail } returns "underpaidEmail"
     every { gameSubmission.overpaidEmail } returns "overpaidEmail"
-    every { teamService.verifySupplierEmails(id, "underpaidEmail", "overpaidEmail") } returns false
+    every { teamService.verifySupplierEmails(id, "underpaidEmail", "overpaidEmail") } returns
+      VerifyResponse(false, "incorrect")
 
     val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "highQuantity", "highCost", "2", "1")
@@ -329,7 +367,11 @@ class GameDataControllerTest {
     verify(exactly = 1) { teamService.verifySupplierEmails(id, "underpaidEmail", "overpaidEmail") }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.incorrect)
+    assertEquals("incorrect", result.body?.feedback?.incorrect)
   }
 
   @Test
@@ -340,13 +382,15 @@ class GameDataControllerTest {
     every { team.id } returns id
     every { gameSubmission.highCost } returns "highCost"
     every { gameSubmission.highQuantity } returns "highQuantity"
-    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns true
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
     every { gameSubmission.underpaidInvoiceId } returns "1"
     every { gameSubmission.overpaidInvoiceId } returns "2"
-    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns true
+    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns VerifyResponse(true)
     every { gameSubmission.underpaidEmail } returns "underpaidEmail"
     every { gameSubmission.overpaidEmail } returns "overpaidEmail"
-    every { teamService.verifySupplierEmails(id, "underpaidEmail", "overpaidEmail") } returns true
+    every { teamService.verifySupplierEmails(id, "underpaidEmail", "overpaidEmail") } returns
+      VerifyResponse(true)
 
     val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody =
@@ -367,7 +411,11 @@ class GameDataControllerTest {
     verify(exactly = 1) { teamService.verifySupplierEmails(id, "underpaidEmail", "overpaidEmail") }
     assertNotNull(result.body)
     assertEquals(HttpStatus.OK, result.statusCode)
-    assertEquals(expectedBody, result.body)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertNotNull("All Tasks Completed!", result.body?.feedback?.correct)
   }
 
   @Test
