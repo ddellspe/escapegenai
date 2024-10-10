@@ -14,12 +14,14 @@ import org.springframework.stereotype.Service
 class InvoiceService(
   var invoiceRepository: InvoiceRepository,
   var productRepository: ProductRepository,
+  var productService: ProductService,
 ) {
   fun getAllInvoices(): List<Invoice> {
     return invoiceRepository.findAll()
   }
 
   fun createNewInvoice(difference: Int = 0): Invoice {
+    productService.initializeProductDatabase()
     var invoice = Invoice(difference = difference)
     val productCount = (MIN_INVOICE_PRODUCT_COUNT..MAX_INVOICE_PRODUCT_COUNT).random()
     val productIds = HashSet<Int>()
