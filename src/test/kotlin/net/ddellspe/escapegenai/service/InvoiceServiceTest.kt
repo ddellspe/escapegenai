@@ -1,9 +1,6 @@
 package net.ddellspe.escapegenai.service
 
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
+import io.mockk.*
 import java.util.*
 import net.ddellspe.escapegenai.model.Invoice
 import net.ddellspe.escapegenai.model.Invoice.InvoiceConstants.MAX_INVOICE_PRODUCT_COUNT
@@ -20,7 +17,8 @@ import org.springframework.data.repository.findByIdOrNull
 class InvoiceServiceTest {
   private val invoiceRepository: InvoiceRepository = mockk()
   private val productRepository: ProductRepository = mockk()
-  private val invoiceService = InvoiceService(invoiceRepository, productRepository)
+  private val productService: ProductService = mockk()
+  private val invoiceService = InvoiceService(invoiceRepository, productRepository, productService)
   private val invoice: Invoice = mockk()
   private val product: Product = mockk()
   private val invoiceSlot = slot<Invoice>()
@@ -31,6 +29,7 @@ class InvoiceServiceTest {
   fun dumbCoverageTests() {
     invoiceService.invoiceRepository = invoiceRepository
     invoiceService.productRepository = productRepository
+    invoiceService.productService = productService
   }
 
   @Test
@@ -77,6 +76,7 @@ class InvoiceServiceTest {
 
   @Test
   fun whenCreateNewInvoiceSpecifiesNoDifference_newInvoiceCreated() {
+    every { productService.initializeProductDatabase() } just runs
     every { invoiceRepository.save(capture(invoiceSlot)) } returns invoice
     every { invoiceRepository.save(invoice) } returns invoice
     every { invoice.invoiceProducts } returns invoiceProductList
@@ -85,6 +85,7 @@ class InvoiceServiceTest {
 
     val result = invoiceService.createNewInvoice()
 
+    verify(exactly = 1) { productService.initializeProductDatabase() }
     verify(exactly = 2) { invoiceRepository.save(any()) }
     verify(exactly = 1) { invoiceRepository.save(invoice) }
     verify(atLeast = MIN_INVOICE_PRODUCT_COUNT, atMost = MAX_INVOICE_PRODUCT_COUNT) {
@@ -100,6 +101,7 @@ class InvoiceServiceTest {
 
   @Test
   fun whenCreateNewInvoiceSpecifiesADifference_newInvoiceCreatedWithDifference() {
+    every { productService.initializeProductDatabase() } just runs
     every { invoiceRepository.save(capture(invoiceSlot)) } returns invoice
     every { invoiceRepository.save(invoice) } returns invoice
     every { invoice.invoiceProducts } returns invoiceProductList
@@ -108,6 +110,7 @@ class InvoiceServiceTest {
 
     val result = invoiceService.createNewInvoice(3)
 
+    verify(exactly = 1) { productService.initializeProductDatabase() }
     verify(exactly = 2) { invoiceRepository.save(any()) }
     verify(exactly = 1) { invoiceRepository.save(invoice) }
     verify(atLeast = MIN_INVOICE_PRODUCT_COUNT, atMost = MAX_INVOICE_PRODUCT_COUNT) {
