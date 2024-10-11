@@ -94,6 +94,31 @@ class GameDataControllerTest {
   }
 
   @Test
+  fun whenSubmitGameState_hasTeam_highCostEmpty_thenExpectSuccessOnlyId() {
+    every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.highCost } returns ""
+
+    val result = gameDataController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id)
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 1) { teamService.verifyTeamOpened(id) }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 1) { gameSubmission.highCost }
+    verify(exactly = 2) { team.id }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertEquals("Team Selected", result.body?.feedback?.correct)
+  }
+
+  @Test
   fun whenSubmitGameState_hasTeam_highQuantityNull_thenExpectSuccessOnlyId() {
     every { teamService.getTeam(id) } returns team
     every { teamService.verifyTeamOpened(id) } just runs
@@ -101,6 +126,33 @@ class GameDataControllerTest {
     every { team.id } returns id
     every { gameSubmission.highCost } returns "highCost"
     every { gameSubmission.highQuantity } returns null
+
+    val result = gameDataController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id)
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 1) { teamService.verifyTeamOpened(id) }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 1) { gameSubmission.highCost }
+    verify(exactly = 1) { gameSubmission.highQuantity }
+    verify(exactly = 2) { team.id }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertEquals("Team Selected", result.body?.feedback?.correct)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeam_highQuantityEmpty_thenExpectSuccessOnlyId() {
+    every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.highCost } returns "highCost"
+    every { gameSubmission.highQuantity } returns ""
 
     val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id)
@@ -183,6 +235,38 @@ class GameDataControllerTest {
   }
 
   @Test
+  fun whenSubmitGameState_hasTeam_verifyProductPasses_underpaidInvoiceEmpty_thenExpectSuccessOnlyId() {
+    every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.highCost } returns "highCost"
+    every { gameSubmission.highQuantity } returns "highQuantity"
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
+    every { gameSubmission.underpaidInvoiceId } returns ""
+
+    val result = gameDataController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "highQuantity", "highCost")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 1) { teamService.verifyTeamOpened(id) }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 3) { gameSubmission.highCost }
+    verify(exactly = 3) { gameSubmission.highQuantity }
+    verify(exactly = 3) { team.id }
+    verify(exactly = 1) { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") }
+    verify(exactly = 1) { gameSubmission.underpaidInvoiceId }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertNotNull("Products Verified", result.body?.feedback?.correct)
+  }
+
+  @Test
   fun whenSubmitGameState_hasTeam_ProductVerified_overpaidInvoiceNull_thenExpectSuccessOnlyId() {
     every { teamService.getTeam(id) } returns team
     every { teamService.verifyTeamOpened(id) } just runs
@@ -194,6 +278,40 @@ class GameDataControllerTest {
       VerifyResponse(true)
     every { gameSubmission.underpaidInvoiceId } returns "1"
     every { gameSubmission.overpaidInvoiceId } returns null
+
+    val result = gameDataController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "highQuantity", "highCost")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 1) { teamService.verifyTeamOpened(id) }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 3) { gameSubmission.highCost }
+    verify(exactly = 3) { gameSubmission.highQuantity }
+    verify(exactly = 3) { team.id }
+    verify(exactly = 1) { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") }
+    verify(exactly = 1) { gameSubmission.underpaidInvoiceId }
+    verify(exactly = 1) { gameSubmission.overpaidInvoiceId }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertNotNull("Leakage Verified", result.body?.feedback?.correct)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeam_ProductVerified_overpaidInvoiceEmpty_thenExpectSuccessOnlyId() {
+    every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.highCost } returns "highCost"
+    every { gameSubmission.highQuantity } returns "highQuantity"
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
+    every { gameSubmission.underpaidInvoiceId } returns "1"
+    every { gameSubmission.overpaidInvoiceId } returns ""
 
     val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "highQuantity", "highCost")
@@ -292,6 +410,44 @@ class GameDataControllerTest {
   }
 
   @Test
+  fun whenSubmitGameState_hasTeam_ProductVerified_LeakageVerified_underpaidEmailEmpty_thenExpectSuccessOnlyId() {
+    every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.highCost } returns "highCost"
+    every { gameSubmission.highQuantity } returns "highQuantity"
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
+    every { gameSubmission.underpaidInvoiceId } returns "1"
+    every { gameSubmission.overpaidInvoiceId } returns "2"
+    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns VerifyResponse(true)
+    every { gameSubmission.underpaidEmail } returns ""
+
+    val result = gameDataController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "highQuantity", "highCost", "2", "1")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 1) { teamService.verifyTeamOpened(id) }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 3) { gameSubmission.highCost }
+    verify(exactly = 3) { gameSubmission.highQuantity }
+    verify(exactly = 4) { team.id }
+    verify(exactly = 1) { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") }
+    verify(exactly = 3) { gameSubmission.underpaidInvoiceId }
+    verify(exactly = 3) { gameSubmission.overpaidInvoiceId }
+    verify(exactly = 1) { teamService.verifyLeakageIdentified(id, "1", "2") }
+    verify(exactly = 1) { gameSubmission.underpaidEmail }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertNotNull("Products Verified", result.body?.feedback?.correct)
+  }
+
+  @Test
   fun whenSubmitGameState_hasTeam_ProductVerified_LeakageVerified_overpaidEmailNull_thenExpectSuccessOnlyId() {
     every { teamService.getTeam(id) } returns team
     every { teamService.verifyTeamOpened(id) } just runs
@@ -306,6 +462,46 @@ class GameDataControllerTest {
     every { teamService.verifyLeakageIdentified(id, "1", "2") } returns VerifyResponse(true)
     every { gameSubmission.underpaidEmail } returns "underpaidEmail"
     every { gameSubmission.overpaidEmail } returns null
+
+    val result = gameDataController.submitGameState(gameSubmission)
+    val expectedBody = GameSubmission(id, "highQuantity", "highCost", "2", "1")
+
+    verify(exactly = 1) { teamService.getTeam(id) }
+    verify(exactly = 1) { teamService.verifyTeamOpened(id) }
+    verify(exactly = 1) { gameSubmission.id }
+    verify(exactly = 3) { gameSubmission.highCost }
+    verify(exactly = 3) { gameSubmission.highQuantity }
+    verify(exactly = 4) { team.id }
+    verify(exactly = 1) { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") }
+    verify(exactly = 3) { gameSubmission.underpaidInvoiceId }
+    verify(exactly = 3) { gameSubmission.overpaidInvoiceId }
+    verify(exactly = 1) { teamService.verifyLeakageIdentified(id, "1", "2") }
+    verify(exactly = 1) { gameSubmission.underpaidEmail }
+    verify(exactly = 1) { gameSubmission.overpaidEmail }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertNotNull(result.body?.submission)
+    assertEquals(expectedBody, result.body?.submission)
+    assertNotNull(result.body?.feedback)
+    assertNotNull(result.body?.feedback?.correct)
+    assertNotNull("Products Verified", result.body?.feedback?.correct)
+  }
+
+  @Test
+  fun whenSubmitGameState_hasTeam_ProductVerified_LeakageVerified_overpaidEmailEmpty_thenExpectSuccessOnlyId() {
+    every { teamService.getTeam(id) } returns team
+    every { teamService.verifyTeamOpened(id) } just runs
+    every { gameSubmission.id } returns id
+    every { team.id } returns id
+    every { gameSubmission.highCost } returns "highCost"
+    every { gameSubmission.highQuantity } returns "highQuantity"
+    every { teamService.verifyProductsIdentified(id, "highCost", "highQuantity") } returns
+      VerifyResponse(true)
+    every { gameSubmission.underpaidInvoiceId } returns "1"
+    every { gameSubmission.overpaidInvoiceId } returns "2"
+    every { teamService.verifyLeakageIdentified(id, "1", "2") } returns VerifyResponse(true)
+    every { gameSubmission.underpaidEmail } returns "underpaidEmail"
+    every { gameSubmission.overpaidEmail } returns ""
 
     val result = gameDataController.submitGameState(gameSubmission)
     val expectedBody = GameSubmission(id, "highQuantity", "highCost", "2", "1")
