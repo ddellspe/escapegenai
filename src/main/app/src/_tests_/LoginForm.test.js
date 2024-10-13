@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import LoginForm from '../components/LoginForm';
@@ -33,40 +32,38 @@ test('when not opened, dialog does not show', () => {
 
 test('when visibility icon clicked, no password input', async () => {
   const opened = true
+  const user = userEvent.setup({delay: null});
 
   render(<LoginForm opened={opened} onClose={onClose} />)
 
   expect(screen.getByText(/Login/i)).toBeInTheDocument();
-  const visibilityIcon = await screen.getByTestId(/VisibilityIcon/);
+  const visibilityIcon = screen.getByTestId(/VisibilityIcon/);
   expect(visibilityIcon).toBeInTheDocument();
 
-  act(() => {
-    userEvent.click(visibilityIcon);
-  });
+  await user.click(visibilityIcon);
 
-  expect(await screen.getByTestId(/VisibilityOffIcon/)).toBeInTheDocument();
+  expect(screen.getByTestId(/VisibilityOffIcon/)).toBeInTheDocument();
 });
 
 test('when username and password set and submitted, session storage updated', async () => {
   const opened = true
+  const user = userEvent.setup({delay: null});
 
   const setItemSpy = jest.spyOn(Object.getPrototypeOf(sessionStorage), 'setItem');
 
   render(<LoginForm opened={opened} onClose={onClose} />)
 
   expect(screen.getByText(/Login/i)).toBeInTheDocument();
-  const usernameInput = await screen.getByLabelText(/Username/);
+  const usernameInput = screen.getByLabelText(/Username/);
   expect(usernameInput).toBeInTheDocument();
-  const passwordInput = await screen.getByLabelText(/Password/);
+  const passwordInput = screen.getByLabelText(/Password/);
   expect(passwordInput).toBeInTheDocument();
   const loginButton = await screen.findByText(/Log In/);
   expect(loginButton).toBeInTheDocument();
 
-  act(() => {
-    userEvent.type(usernameInput, "username");
-    userEvent.type(passwordInput, "password");
-    userEvent.click(loginButton);
-  });
+  await user.type(usernameInput, "username");
+  await user.type(passwordInput, "password");
+  await user.click(loginButton);
 
   expect(setItemSpy).toHaveBeenCalledWith("auth", "dXNlcm5hbWU6cGFzc3dvcmQ=");
 });

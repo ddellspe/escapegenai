@@ -125,8 +125,8 @@ export default function GamePanel() {
         body: JSON.stringify(submission)
       })
       .then((resp) => {
-        setTimeout(() => setStarted(true), 600);
-        setTimeout(() => selectTeam(teamId), 100);
+        setTimeout(() => selectTeam(teamId), 50);
+        setTimeout(() => setStarted(true), 100);
         return resp.json();
       })
       .then();
