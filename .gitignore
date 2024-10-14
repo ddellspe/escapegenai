@@ -10,7 +10,7 @@
 /src/main/app/build
 
 # application configuration
-/src/main/resources/application.yml*
+/src/main/resources/application.yml.*
 /data
 
 # misc
