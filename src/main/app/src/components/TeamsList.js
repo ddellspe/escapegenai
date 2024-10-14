@@ -8,7 +8,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import EditIcon from '@mui/icons-material/Edit';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
 import List from '@mui/material/List';
@@ -129,13 +129,13 @@ export default function TeamsList({opened, creds, onClose}) {
           <DialogTitle>
             <Grid container spacing={2} justifyContent="center"
                   alignItems="center">
-              <Grid item>
+              <Grid>
                 <Typography id="teams-modal-title" variant="h4"
                             component="h2">
                   Teams Listing
                 </Typography>
               </Grid>
-              <Grid ml="auto" item>
+              <Grid ml="auto">
                 <IconButton aria-label="close" onClick={onClose}>
                   <CloseIcon/>
                 </IconButton>
@@ -164,13 +164,13 @@ export default function TeamsList({opened, creds, onClose}) {
           <DialogTitle>
             <Grid container spacing={2} justifyContent="center"
                   alignItems="center">
-              <Grid item>
+              <Grid>
                 <Typography id="teams-modal-title" variant="h4"
                             component="h2">
                   Teams Listing
                 </Typography>
               </Grid>
-              <Grid ml="auto" item>
+              <Grid ml="auto">
                 <IconButton aria-label="close" onClick={onClose}>
                   <CloseIcon/>
                 </IconButton>

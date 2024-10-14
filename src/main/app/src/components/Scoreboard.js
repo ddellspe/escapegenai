@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
@@ -57,13 +57,13 @@ export default function Scoreboard({opened, onClose}) {
           <DialogTitle>
             <Grid container spacing={2} justifyContent="center"
                   alignItems="center">
-              <Grid item>
+              <Grid>
                 <Typography id="scoreboard-modal-title" variant="h4"
                             component="h2">
                   Scoreboard
                 </Typography>
               </Grid>
-              <Grid ml="auto" item>
+              <Grid ml="auto">
                 <IconButton aria-label="close" onClick={handleClose}>
                   <CloseIcon/>
                 </IconButton>
@@ -93,13 +93,13 @@ export default function Scoreboard({opened, onClose}) {
           <DialogTitle>
             <Grid container spacing={2} justifyContent="center"
                   alignItems="center">
-              <Grid item>
+              <Grid>
                 <Typography id="scoreboard-modal-title" variant="h4"
                             component="h2">
                   Scoreboard
                 </Typography>
               </Grid>
-              <Grid ml="auto" item>
+              <Grid ml="auto">
                 <IconButton aria-label="close" onClick={handleClose}>
                   <CloseIcon/>
                 </IconButton>

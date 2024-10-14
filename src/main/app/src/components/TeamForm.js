@@ -6,7 +6,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import Snackbar from '@mui/material/Snackbar';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -75,7 +75,7 @@ export default function ScoreForm({opened, creds, onClose, team}) {
         <DialogTitle>
           <Grid container spacing={2} justifyContent="center"
                 alignItems="center">
-            <Grid item>
+            <Grid>
               <Typography id="team-modal-title" variant="h5" component="h3">
                 Team
               </Typography>
