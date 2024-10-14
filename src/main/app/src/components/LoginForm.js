@@ -6,7 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
@@ -50,7 +50,7 @@ export default function LoginForm({opened, onClose}) {
       >
         <DialogTitle>
           <Grid container spacing={2} justifyContent="center" alignItems="center">
-            <Grid item>
+            <Grid>
               <Typography id="games-modal-title" variant="h5" component="h3">
                 Login
               </Typography>

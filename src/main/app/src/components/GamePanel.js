@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
@@ -166,7 +166,7 @@ export default function GamePanel() {
   if (loading) {
     return (
         <Grid container spacing={2} justifyContent="center" alignItems="center">
-          <Grid item>
+          <Grid>
             <Typography id="teams-modal-title" variant="h4" component="h2">
               Loading Teams
             </Typography>
@@ -192,8 +192,8 @@ export default function GamePanel() {
           >
             <Alert severity="success" sx={{width: '100%'}}>{successMsg}</Alert>
           </Snackbar>
-          <Grid item xs={10} xsoffset={1} alignItems="center" justifyContent="center">
-            <Grid item xs={12} alignItems="center" justifyContent="center">
+          <Grid size={10} offset={1} alignItems="center" justifyContent="center">
+            <Grid size={12} alignItems="center" justifyContent="center">
               <Box sx={{width: '100%'}} textAlign="center">
                 <Typography id="teams-modal-title" variant="h4" component="h2" align="center">
                   Choose your team!
@@ -224,7 +224,7 @@ export default function GamePanel() {
               </Box>
             </Grid>
             { !started ? (
-                    <Grid item xs={12} alignItems="center" justifyContent="center">
+                    <Grid size={12} alignItems="center" justifyContent="center">
                       <Typography id="teams-modal-title" variant="h4" component="h2" align="center">
                         Please select a team and click Start Escape to continue.
                       </Typography>
@@ -232,12 +232,12 @@ export default function GamePanel() {
                 )
                 :
                 (
-                    <Grid item xs={12} alignItems="center" justifyContent="center">
-                      <Grid item xs={12} alignItems="center" justifyContent="center" component="form" onSubmit={setSubmission}>
+                    <Grid size={12} alignItems="center" justifyContent="center">
+                      <Grid size={12} alignItems="center" justifyContent="center" component="form" onSubmit={setSubmission}>
                         <input type="hidden" name="id" value={teamId}/>
                         {(highQuantity === undefined || highCost === undefined) ?
                             (
-                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                <Grid size={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
                                       Task 1: Verify product details
@@ -253,27 +253,30 @@ export default function GamePanel() {
                                         {"Invoice PDF"}
                                       </Link>
                                     </Typography>
+                                    <Typography paragraph={true} align="center" variant="body2">
+                                      Hint: You can use the link to the Invoice PDF directly in the File Reader Snap to read the file (no need to download and re-upload to SnapLogic).
+                                    </Typography>
                                     <Grid container spacing={4} sx={{pt: 2}}>
-                                      <Grid item xs={6}>
+                                      <Grid size={6}>
                                         <TextField label="Product with largest item count" required name="highQuantity" id="highQuantity" sx={{mr: 1}} fullWidth/>
                                       </Grid>
-                                      <Grid item xs={6}>
+                                      <Grid size={6}>
                                         <TextField label="Product with highest cost" required name="highCost" id="highCost" sx={{mr: 1}} fullWidth/>
                                       </Grid>
                                     </Grid>
                                   </Box>
                                 </Grid>
                             ) : (
-                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                <Grid size={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
                                       Task 1: Verify product details
                                     </Typography>
                                     <Grid container spacing={4} sx={{pt: 2}}>
-                                      <Grid item xs={6}>
+                                      <Grid size={6}>
                                         <TextField label="Product with largest item count" required name="highQuantity2" id="highQuantity2" sx={{mr: 1}} fullWidth value={highQuantity} disabled/>
                                       </Grid>
-                                      <Grid item xs={6}>
+                                      <Grid size={6}>
                                         <TextField label="Product with highest cost" required name="highCost2" id="highCost2" sx={{mr: 1}} fullWidth value={highCost} disabled/>
                                       </Grid>
                                     </Grid>
@@ -286,7 +289,7 @@ export default function GamePanel() {
                         {(() => {
                           if (highCost !== undefined && highQuantity !== undefined && (overpaidInvoiceId === undefined || underpaidInvoiceId === undefined)) {
                             return (
-                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                <Grid size={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
                                       Task 2: Identify revenue leakage
@@ -310,11 +313,14 @@ export default function GamePanel() {
                                     <Typography paragraph={true} align="center" variant="body2">
                                       Hint: You may want to upload all of your PDFs into your SnapLogic account in order to browse for all of them and process them in series.  You may also need more than Generative AI to validate the data
                                     </Typography>
+                                    <Typography paragraph={true} align="center" variant="body2">
+                                      Note: The invoices used in Part 2 will be used in later parts, so it is highly suggested to build reading into your processing pipelines for all of the PDFs.
+                                    </Typography>
                                     <Grid container spacing={4} sx={{pt: 2}}>
-                                      <Grid item xs={6}>
+                                      <Grid size={6}>
                                         <TextField label="Overpaid Invoice ID" required name="overpaidInvoiceId" id="overpaidInvoiceId" sx={{mr: 1}} fullWidth/>
                                       </Grid>
-                                      <Grid item xs={6}>
+                                      <Grid size={6}>
                                         <TextField label="Underpaid Invoice ID" required name="underpaidInvoiceId" id="underpaidInvoiceId" sx={{mr: 1}} fullWidth/>
                                       </Grid>
                                     </Grid>
@@ -323,16 +329,16 @@ export default function GamePanel() {
                             );
                           } else if (overpaidInvoiceId !== undefined && underpaidInvoiceId !== undefined) {
                             return (
-                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                <Grid size={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
                                       Task 2: Identify revenue leakage
                                     </Typography>
                                     <Grid container spacing={4} sx={{pt: 2}}>
-                                      <Grid item xs={6}>
+                                      <Grid size={6}>
                                         <TextField label="Overpaid Invoice ID" required name="overpaidInvoiceId2" id="overpaidInvoiceId2" sx={{mr: 1}} fullWidth value={overpaidInvoiceId} disabled/>
                                       </Grid>
-                                      <Grid item xs={6}>
+                                      <Grid size={6}>
                                         <TextField label="Underpaid Invoice ID" required name="underpaidInvoiceId2" id="underpaidInvoiceId2" sx={{mr: 1}} fullWidth value={underpaidInvoiceId} disabled/>
                                       </Grid>
                                     </Grid>
@@ -353,15 +359,16 @@ export default function GamePanel() {
                         {(() => {
                           if (highCost !== undefined && highQuantity !== undefined && overpaidInvoiceId !== undefined && underpaidInvoiceId !== undefined && (overpaidEmail === undefined || underpaidEmail === undefined)) {
                             return (
-                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                <Grid size={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
                                       Task 3: Contact your suppliers
                                     </Typography>
                                     <Typography paragraph={true} align="center">
-                                      Your third task is to put together an email to your suppliers (named in the invoices) who you overpaid and underpaid in order
+                                      Your third task is to put together an email to send to your suppliers (named in the invoices) who you overpaid and underpaid in order
                                       to work through how you will pay them the difference in the product cost and charged amount or how you expect to get reimbursement
-                                      for the overpayment.
+                                      for the overpayment. Do not worry about finding an actual email address (these suppliers are fictitious), you are simply putting together
+                                      the body of an email to send your suppliers.
                                     </Typography>
                                     <Typography align="center" component="h6">
                                       Use the following invoice PDFs to obtain the details to contact your suppliers:
@@ -373,14 +380,17 @@ export default function GamePanel() {
                                       }
                                     </Typography>
                                     <Typography paragraph={true} align="center" variant="body2">
-                                      Hint: Copy and paste the entire email into the field to ensure the appropriate details are available.
+                                      Hint: Copy and paste the entire email body into the field to ensure the appropriate details are available.
+                                    </Typography>
+                                    <Typography paragraph={true} align="center" variant="body2">
+                                      Note: The invoices specified above are the same from Part 2.
                                     </Typography>
                                     <Grid container spacing={4} sx={{pt: 2}}>
-                                      <Grid item xs={12}>
-                                        <TextField label="Overpaid Supplier Email" required name="overpaidEmail" id="overpaidEmail" sx={{mr: 1}} fullWidth multiline/>
+                                      <Grid size={10} offset={1}>
+                                        <TextField label="Overpaid Supplier Email Body" required name="overpaidEmail" id="overpaidEmail" sx={{mr: 1}}  minRows={3} fullWidth multiline/>
                                       </Grid>
-                                      <Grid item xs={12}>
-                                        <TextField label="Underpaid Supplier Email" required name="underpaidEmail" id="underpaidEmail" sx={{mr: 1}} fullWidth multiline/>
+                                      <Grid size={10} offset={1}>
+                                        <TextField label="Underpaid Supplier Email Body" required name="underpaidEmail" id="underpaidEmail" sx={{mr: 1}}  minRows={3} fullWidth multiline/>
                                       </Grid>
                                     </Grid>
                                   </Box>
@@ -388,17 +398,17 @@ export default function GamePanel() {
                             );
                           } else if (overpaidEmail !== undefined && underpaidEmail !== undefined) {
                             return (
-                                <Grid item xs={12} alignItems="center" justifyContent="center">
+                                <Grid size={12} alignItems="center" justifyContent="center">
                                   <Box sx={{width: '100%', my: 1}}>
                                     <Typography variant="h5" component="h3" align="center">
                                       Task 3: Contact your suppliers
                                     </Typography>
                                     <Grid container spacing={4} sx={{pt: 2}}>
-                                      <Grid item xs={12}>
-                                        <TextField label="Overpaid Supplier Email" required name="overpaidEmail2" id="overpaidEmail2" sx={{mr: 1}} fullWidth multiline value={overpaidEmail} disabled/>
+                                      <Grid size={12}>
+                                        <TextField label="Overpaid Supplier Email Body" required name="overpaidEmail2" id="overpaidEmail2" sx={{mr: 1}} fullWidth multiline minRows={3} value={overpaidEmail} disabled/>
                                       </Grid>
-                                      <Grid item xs={12}>
-                                        <TextField label="Underpaid Supplier Email" required name="underpaidEmail2" id="underpaidEmail2" sx={{mr: 1}} fullWidth multiline value={underpaidEmail} disabled/>
+                                      <Grid size={12}>
+                                        <TextField label="Underpaid Supplier Email Body" required name="underpaidEmail2" id="underpaidEmail2" sx={{mr: 1}} fullWidth multiline minRows={3} value={underpaidEmail} disabled/>
                                       </Grid>
                                     </Grid>
                                     <input type="hidden" name="overpaidEmail" value={overpaidEmail}/>
