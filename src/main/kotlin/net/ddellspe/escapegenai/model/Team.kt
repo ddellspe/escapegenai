@@ -20,8 +20,8 @@ data class Team(
     orphanRemoval = true,
   )
   var teamInvoices: MutableList<TeamInvoice> = ArrayList(),
-  @Lob var overpaidEmail: String? = null,
-  @Lob var underpaidEmail: String? = null,
+  @Lob @Column(length = 10000) var overpaidEmail: String? = null,
+  @Lob @Column(length = 10000) var underpaidEmail: String? = null,
 ) {
   fun toMinimalTeam(): MinimalTeam {
     return MinimalTeam(
