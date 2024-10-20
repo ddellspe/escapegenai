@@ -1,7 +1,11 @@
 import React, {useEffect, useState} from 'react';
+import { alpha } from '@mui/material/styles';
 import Grid from "@mui/material/Grid2";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
@@ -15,6 +19,8 @@ import Alert from "@mui/material/Alert";
 export default function GamePanel() {
   const [loading, setLoading] = useState(true);
   const [teams, setTeams] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [timer, setTimer] = useState("");
   const [selectedTeam, setSelectedTeam] = useState({});
   const [teamId, setTeamId] = useState("");
   const [started, setStarted] = useState(false);
@@ -64,6 +70,21 @@ export default function GamePanel() {
     }
   }
 
+  const getAnnouncements = async () => {
+    if (timer !== "") {
+      clearTimeout(timer)
+    }
+    fetch('game/announcements')
+    .then((res) => res.json())
+    .then((json) => {
+      setAnnouncements(json)
+    });
+    if (timer !== "") {
+      clearTimeout(timer)
+    }
+    setTimer(setTimeout(() => getAnnouncements(), 30000));
+  }
+
   useEffect(() => {
     setLoading(true)
     const getTeams = async () => {
@@ -85,6 +106,7 @@ export default function GamePanel() {
       });
     }
     getTeams();
+    getAnnouncements();
     /* eslint-disable react-hooks/exhaustive-deps */
   }, []);
   /* eslint-enable */
@@ -223,6 +245,48 @@ export default function GamePanel() {
                 </Box>
               </Box>
             </Grid>
+            { announcements.length > 0 && (
+                <Grid size={12} alignItems="center" justifyContent="center">
+                  <Box sx={{width: '75%', my: 1, mx: "auto", background: alpha('#333333', 0.1)}}>
+                    <Typography variant="h5" component="h4" align="center">
+                      Announcements
+                    </Typography>
+                    <List dense={true}>
+                      {announcements.map((announcement) => {
+                        if (announcement.link != null) {
+                          return (
+                            <>
+                              <ListItem key={announcement.id}>
+                                <ListItemText>
+                                  <Typography>
+                                    {announcement.message + " - "}
+                                    <Link align="center" target="_blank" rel="noopener"
+                                                href={announcement.link}>
+                                      {announcement.linkText != null ? announcement.linkText : "Link"}
+                                    </Link>
+                                  </Typography>
+                                </ListItemText>
+                              </ListItem>
+                            </>
+                          )
+                        } else {
+                          return (
+                            <ListItem key={announcement.id}>
+                              <ListItemText>
+                                <Typography>
+                                  {announcement.message}
+                                </Typography>
+                              </ListItemText>
+                            </ListItem>
+                          )
+                        }
+                        })
+                      }
+                    </List>
+                  </Box>
+                </Grid>
+              )
+            }
             { !started ? (
                     <Grid size={12} alignItems="center" justifyContent="center">
                       <Typography id="teams-modal-title" variant="h4" component="h2" align="center">

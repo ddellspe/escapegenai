@@ -6,6 +6,7 @@ import java.util.*
 import net.ddellspe.escapegenai.config.EscapeGenAIProperties
 import net.ddellspe.escapegenai.config.ThymeleafConfiguration
 import net.ddellspe.escapegenai.model.*
+import net.ddellspe.escapegenai.service.GameAnnouncementService
 import net.ddellspe.escapegenai.service.TeamInvoiceService
 import net.ddellspe.escapegenai.service.TeamService
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,10 +22,19 @@ import org.thymeleaf.context.Context
 @RestController
 @RequestMapping("/game")
 @EnableConfigurationProperties(EscapeGenAIProperties::class)
-class GameDataController(var teamService: TeamService, var teamInvoiceService: TeamInvoiceService) {
+class GameDataController(
+  var teamService: TeamService,
+  var teamInvoiceService: TeamInvoiceService,
+  var gameAnnouncementService: GameAnnouncementService,
+) {
 
   @Autowired private var props: EscapeGenAIProperties = EscapeGenAIProperties()
   @Autowired private var thymeleafConfiguration: ThymeleafConfiguration = ThymeleafConfiguration()
+
+  @GetMapping("/announcements")
+  fun getAnnouncements(): ResponseEntity<List<GameAnnouncement>> {
+    return ResponseEntity.ok(gameAnnouncementService.getAllGameAnnouncements())
+  }
 
   @GetMapping("/teams")
   fun getTeams(): ResponseEntity<List<MinimalTeam>> {

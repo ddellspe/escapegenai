@@ -11,9 +11,10 @@ import Snackbar from '@mui/material/Snackbar';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-export default function TeamForm({opened, creds, onClose, team}) {
-  const [id, setId] = useState(team.id);
-  const [name, setName] = useState(team.name);
+export default function AnnouncementForm({opened, creds, onClose, announcement}) {
+  const [message, setMessage] = useState(announcement.message);
+  const [link, setLink] = useState(announcement.link);
+  const [linkText, setLinkText] = useState(announcement.linkText);
   const [showError, setShowError] = useState(false);
   const [dataSent, setDataSent] = useState("");
   const killAlert = () => {
@@ -21,15 +22,15 @@ export default function TeamForm({opened, creds, onClose, team}) {
     setTimeout(() => setDataSent(""), 1000);
   }
 
-  const setTeam = (event) => {
+  const setAnnouncement = (event) => {
     event.preventDefault();
     const data = new FormData(event.target);
     var object = {};
     data.forEach((value, key) => {
       object[key] = value
     });
-    fetch('api/teams', {
-      method: team.id === null ? 'POST' : 'PUT',
+    fetch('api/announcements', {
+      method: 'POST',
       headers: new Headers({
         'Authorization': 'Basic ' + creds,
         'Content-Type': 'application/json'
@@ -38,8 +39,7 @@ export default function TeamForm({opened, creds, onClose, team}) {
     })
     .then((resp) => {
       if (resp.ok) {
-        const action = team.id === null ? "created" : "updated"
-        const msg = `Team ${team.name} ${action}.`;
+        const msg = `Announcement ${announcement.message} created.`;
         onClose(true, msg);
         return true;
       } else {
@@ -55,16 +55,17 @@ export default function TeamForm({opened, creds, onClose, team}) {
   };
 
   useEffect(() => {
-    setId(team.id)
-    setName(team.name)
-  }, [team]);
+    setMessage(announcement.message)
+    setLink(announcement.link)
+    setLinkText(announcement.linkText)
+  }, [announcement]);
 
   return (
       <Dialog
           open={opened}
           onClose={onClose}
           component="form"
-          onSubmit={setTeam}
+          onSubmit={setAnnouncement}
           PaperProps={{
             sx: {
               position: 'fixed',
@@ -77,20 +78,38 @@ export default function TeamForm({opened, creds, onClose, team}) {
                 alignItems="center">
             <Grid>
               <Typography id="team-modal-title" variant="h5" component="h3">
-                Team
+                Announcement
               </Typography>
             </Grid>
           </Grid>
         </DialogTitle>
         <DialogContent>
-          <input type="hidden" name="id" value={id === null ? undefined : id}/>
+          <input type="hidden" name="id" value="00000000-0000-0000-0000-000000000000"/>
           <Box sx={{width: '100%', my: 1}}>
             <TextField
-                label="Name"
+                label="Message"
                 required
-                name="name"
-                id="name"
-                defaultValue={name}
+                name="message"
+                id="message"
+                defaultValue={message}
+                sx={{mr: 1, width: '100%'}}
+            />
+          </Box>
+          <Box sx={{width: '100%', my: 1}}>
+            <TextField
+                label="Link"
+                name="link"
+                id="link"
+                defaultValue={link}
+                sx={{mr: 1, width: '100%'}}
+            />
+          </Box>
+          <Box sx={{width: '100%', my: 1}}>
+            <TextField
+                label="Link Text"
+                name="linkText"
+                id="linkText"
+                defaultValue={linkText}
                 sx={{mr: 1, width: '100%'}}
             />
           </Box>
@@ -108,7 +127,7 @@ export default function TeamForm({opened, creds, onClose, team}) {
                 type="submit"
                 variant="contained"
             >
-              {team.id === null ? 'Create' : 'Update'}
+              Create
             </Button>
           </Box>
         </DialogActions>

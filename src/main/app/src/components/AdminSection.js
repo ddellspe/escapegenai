@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CloseIcon from '@mui/icons-material/Close';
+import CampaignIcon from '@mui/icons-material/Campaign';
 import MenuIcon from '@mui/icons-material/Menu';
 import Fab from '@mui/material/Fab';
 import LoginIcon from '@mui/icons-material/LoginTwoTone';
@@ -12,6 +13,7 @@ import Snackbar from '@mui/material/Snackbar';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
+import AnnouncementsList from "./AnnouncementsList";
 import LoginForm from "./LoginForm";
 import TeamsList from "./TeamsList";
 import Scoreboard from "./Scoreboard";
@@ -23,6 +25,7 @@ export default function AdminSection() {
   const [openLoginModal, setOpenLoginModal] = useState(false);
   const [openTeamsModal, setOpenTeamsModal] = useState(false);
   const [openScoreboard, setOpenScoreboard] = useState(false);
+  const [openAnnouncements, setOpenAnnouncements] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [dataSent, setDataSent] = useState("");
   const toggleDial = () => setOpenSpeedDialOptions((open) => !open);
@@ -35,6 +38,7 @@ export default function AdminSection() {
     setOpenLoginModal(false);
     setOpenTeamsModal(true);
     setOpenScoreboard(false);
+    setOpenAnnouncements(false);
   }
   const handleCloseAll = (success, message) => {
     if (typeof success === "boolean") {
@@ -46,12 +50,14 @@ export default function AdminSection() {
     setOpenLoginModal(false);
     setOpenTeamsModal(false);
     setOpenScoreboard(false);
+    setOpenAnnouncements(false);
   };
   const handleOpenLoginModal = () => {
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(true);
     setOpenTeamsModal(false);
     setOpenScoreboard(false);
+    setOpenAnnouncements(false);
   };
 
   const handleOpenScoreboardModal = () => {
@@ -59,6 +65,15 @@ export default function AdminSection() {
     setOpenSpeedDialOptions(false);
     setOpenLoginModal(false);
     setOpenTeamsModal(false);
+    setOpenAnnouncements(false);
+  }
+
+  const handleOpenAnnouncementsModal = () => {
+    setOpenScoreboard(false);
+    setOpenSpeedDialOptions(false);
+    setOpenLoginModal(false);
+    setOpenTeamsModal(false);
+    setOpenAnnouncements(true);
   }
   const logout = () => {
     sessionStorage.removeItem('auth');
@@ -110,6 +125,12 @@ export default function AdminSection() {
                 onClick={handleOpenTeamsModal}
             />
             <SpeedDialAction
+                key="announcements"
+                icon={<CampaignIcon />}
+                tooltipTitle="Manage Announcements"
+                onClick={handleOpenAnnouncementsModal}
+            />
+            <SpeedDialAction
                 key="logout"
                 icon={<LogoutIcon />}
                 tooltipTitle="Logout"
@@ -117,6 +138,7 @@ export default function AdminSection() {
           </SpeedDial>
           <Scoreboard opened={openScoreboard} onClose={handleCloseAll} />
           <TeamsList opened={openTeamsModal} creds={creds} onClose={handleCloseAll} />
+          <AnnouncementsList opened={openAnnouncements} creds={creds} onClose={handleCloseAll} />
           <Snackbar
               anchorOrigin={{vertical:'top', horizontal: 'center'}}
               open={dataSent !== ""}
