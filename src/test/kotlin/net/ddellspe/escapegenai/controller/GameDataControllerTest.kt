@@ -3,6 +3,7 @@ package net.ddellspe.escapegenai.controller
 import io.mockk.*
 import java.util.*
 import net.ddellspe.escapegenai.model.*
+import net.ddellspe.escapegenai.service.GameAnnouncementService
 import net.ddellspe.escapegenai.service.TeamInvoiceService
 import net.ddellspe.escapegenai.service.TeamService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -13,16 +14,20 @@ import org.springframework.http.HttpStatus
 class GameDataControllerTest {
   private val teamService: TeamService = mockk()
   private val teamInvoiceService: TeamInvoiceService = mockk()
+  private val gameAnnouncementService: GameAnnouncementService = mockk()
   private val team: Team = mockk()
   private val minimalTeam: MinimalTeam = mockk()
   private val gameSubmission: GameSubmission = mockk()
   private val id = UUID.randomUUID()
-  private val gameDataController = GameDataController(teamService, teamInvoiceService)
+  private val gameAnnouncement: GameAnnouncement = mockk()
+  private val gameDataController =
+    GameDataController(teamService, teamInvoiceService, gameAnnouncementService)
 
   @Test
   fun dumbCoverageTests() {
     gameDataController.teamService = teamService
     gameDataController.teamInvoiceService = teamInvoiceService
+    gameDataController.gameAnnouncementService = gameAnnouncementService
   }
 
   @Test
@@ -624,5 +629,30 @@ class GameDataControllerTest {
     assertNotNull(result.body)
     assertEquals(HttpStatus.NOT_FOUND, result.statusCode)
     assertEquals("exception", result.body)
+  }
+
+  @Test
+  fun whenAnnouncements_hasNoAnnouncements_thenExpectEmptyList() {
+    every { gameAnnouncementService.getAllGameAnnouncements() } returns emptyList()
+
+    val result = gameDataController.getAnnouncements()
+
+    verify(exactly = 1) { gameAnnouncementService.getAllGameAnnouncements() }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(emptyList<GameAnnouncement>(), result.body)
+  }
+
+  @Test
+  fun whenAnnouncements_hasAnnouncements_thenExpectEmptyList() {
+    every { gameAnnouncementService.getAllGameAnnouncements() } returns listOf(gameAnnouncement)
+
+    val result = gameDataController.getAnnouncements()
+
+    verify(exactly = 1) { gameAnnouncementService.getAllGameAnnouncements() }
+    assertNotNull(result.body)
+    assertEquals(HttpStatus.OK, result.statusCode)
+    assertEquals(1, result.body?.size)
+    assertEquals(listOf(gameAnnouncement), result.body)
   }
 }
