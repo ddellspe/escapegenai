@@ -168,12 +168,17 @@ class TeamServiceTest {
 
   @Test
   fun whenGetAllTeams_hasTeams_thenExpectListWithTeam() {
-    every { teamRepository.findAll() } returns listOf(team)
+    val team2: Team = mockk()
+    every { teamRepository.findAll() } returns listOf(team, team2)
+    every { team.name } returns "Two"
+    every { team2.name } returns "One"
 
     val result: List<Team> = teamService.getAllTeams()
 
     verify(exactly = 1) { teamRepository.findAll() }
-    assertEquals(listOf(team), result)
+    verify(exactly = 1) { team.name }
+    verify(exactly = 1) { team2.name }
+    assertEquals(listOf(team2, team), result)
   }
 
   @Test

@@ -54,7 +54,7 @@ class TeamService(var teamRepository: TeamRepository, var invoiceService: Invoic
   }
 
   fun getAllTeams(): List<Team> {
-    return teamRepository.findAll()
+    return teamRepository.findAll().sortedBy { team: Team? -> team?.name }
   }
 
   fun deleteTeam(id: UUID) {
