@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ddellspe</groupId>
     <artifactId>escapegenai</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>2.0.0</version>
     <name>GenAI Escape Room</name>
     <description>Project for doing an escape room-like activity to help people to learn more about the SnapLogic GenAI App Builder.</description>
     <scm>
         <connection>scm:git:git@github.com:ddellspe/${project.artifactId}</connection>
-        <tag>HEAD</tag>
+        <tag>v2.0.0</tag>
         <url>https://github.com/ddellspe/${project.artifactId}</url>
     </scm>
     <properties>
